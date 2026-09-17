@@ -4,14 +4,14 @@ const menu = [
   { name: "Pizza", icon: "fa-pizza-slice", tag: "Cheesy & classic" },
   { name: "Burger", icon: "fa-burger", tag: "Hearty & juicy" },
   { name: "Sushi", icon: "fa-fish", tag: "Fresh & light" },
+  { name: "Ramen", icon: "fa-bowl-food", tag: "Warm & slurpy" },
+  { name: "Soup", icon: "fa-bowl-rice", tag: "Cozy & comforting" },
   { name: "Hot Dog", icon: "fa-hotdog", tag: "Classic & quick" },
   { name: "Fried Chicken", icon: "fa-drumstick-bite", tag: "Crispy & satisfying" },
   { name: "Tacos", icon: "fa-pepper-hot", tag: "Spicy & bold" },
-  { name: "Pasta Bowl", icon: "fa-bowl-food", tag: "Savory & rich" },
-  { name: "Curry Rice", icon: "fa-bowl-rice", tag: "Aromatic & rich" },
-  { name: "Soup", icon: "fa-bowl-hot", tag: "Cozy & comforting" },
   { name: "Salad", icon: "fa-carrot", tag: "Healthy & crisp" },
   { name: "Toast", icon: "fa-bread-slice", tag: "Quick & easy" },
+  { name: "Cheese Platter", icon: "fa-cheese", tag: "Savory & indulgent" },
   { name: "Ice Cream", icon: "fa-ice-cream", tag: "Cool & sweet" },
 ];
 
