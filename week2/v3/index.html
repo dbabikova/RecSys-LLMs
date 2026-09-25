@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile-Based Movie Recommender (v3)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Profile-Based Movie Recommender</h1>
+        <p>Variant 3: pick 3 movies you like &mdash; your profile is the average of their genre vectors; we return the Top-5 most similar movies (watched movies excluded).</p>
+
+        <div class="controls">
+            <select id="movie-select-1" class="movie-select">
+                <option value="" disabled selected>Select first movie</option>
+            </select>
+            <select id="movie-select-2" class="movie-select">
+                <option value="" disabled selected>Select second movie</option>
+            </select>
+            <select id="movie-select-3" class="movie-select">
+                <option value="" disabled selected>Select third movie</option>
+            </select>
+            <button id="recommend-btn" onclick="getRecommendations()">Get Recommendations</button>
+        </div>
+
+        <div id="result-box">
+            <p id="result">Please wait, loading data...</p>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

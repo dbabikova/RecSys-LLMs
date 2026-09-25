@@ -3,9 +3,9 @@ let movies = [];
 let ratings = [];
 let recommendations = new Map(); // movieId -> array of 5 recommended movie ids
 
-// Genre names as defined in the u.item file
+// Genre names as defined in the u.item file (19 fields, unknown flag first)
 const genreNames = [
-    "Action", "Adventure", "Animation", "Children's", "Comedy",
+    "Unknown", "Action", "Adventure", "Animation", "Children's", "Comedy",
     "Crime", "Documentary", "Drama", "Fantasy", "Film-Noir",
     "Horror", "Musical", "Mystery", "Romance", "Sci-Fi",
     "Thriller", "War", "Western"
@@ -19,7 +19,9 @@ async function loadData() {
         if (!moviesResponse.ok) {
             throw new Error(`Failed to load movie data: ${moviesResponse.status}`);
         }
-        const moviesText = await moviesResponse.text();
+        // u.item is encoded in latin-1 (iso-8859-1); decode bytes explicitly
+        const moviesBuffer = await moviesResponse.arrayBuffer();
+        const moviesText = new TextDecoder('iso-8859-1').decode(moviesBuffer);
         parseItemData(moviesText);
 
         // Load and parse rating data

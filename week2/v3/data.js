@@ -1,32 +1,31 @@
-// Global variables for storing movie and recommendation data
+// Global variables for storing movie data and genre vectors
 let movies = [];
-let recommendations = new Map(); // movieId -> array of 5 recommended movie ids
+let vectors = new Map(); // movieId -> Float64Array(18) from u.item_vector
 
 // Primary function to load data from the parent week2/ directory
 async function loadData() {
     try {
-        // Load and parse movie data
+        // Load and parse movie data (u.item is latin-1 encoded)
         const moviesResponse = await fetch('../u.item');
         if (!moviesResponse.ok) {
             throw new Error(`Failed to load movie data: ${moviesResponse.status}`);
         }
-        // u.item is encoded in latin-1 (iso-8859-1); decode bytes explicitly
         const moviesBuffer = await moviesResponse.arrayBuffer();
         const moviesText = new TextDecoder('iso-8859-1').decode(moviesBuffer);
         parseItemData(moviesText);
 
-        // Load and parse variant 2 recommendation data (u.recommend_2)
-        const recommendResponse = await fetch('../u.recommend_2');
-        if (!recommendResponse.ok) {
-            throw new Error(`Failed to load recommendation data: ${recommendResponse.status}`);
+        // Load genre vectors (id|title|18 values)
+        const vectorResponse = await fetch('../u.item_vector');
+        if (!vectorResponse.ok) {
+            throw new Error(`Failed to load vector data: ${vectorResponse.status}`);
         }
-        const recommendText = await recommendResponse.text();
-        parseRecommendData(recommendText);
+        const vectorText = await vectorResponse.text();
+        parseVectorData(vectorText);
     } catch (error) {
         console.error('Error loading data:', error);
         const resultElement = document.getElementById('result');
         if (resultElement) {
-            resultElement.textContent = `Error: ${error.message}. Please make sure ../u.item and ../u.recommend_2 files are in the correct location.`;
+            resultElement.textContent = `Error: ${error.message}. Please make sure ../u.item and ../u.item_vector files are in the correct location.`;
             resultElement.className = 'error';
         }
         throw error; // Re-throw to allow script.js to handle the error
@@ -50,19 +49,18 @@ function parseItemData(text) {
     }
 }
 
-// Parse recommendation data from u.recommend_2 format (movieId|rec1|rec2|rec3|rec4|rec5)
-function parseRecommendData(text) {
+// Parse vector data from u.item_vector format (itemId|title|18 values)
+function parseVectorData(text) {
     const lines = text.split('\n');
 
     for (const line of lines) {
         if (line.trim() === '') continue;
 
         const fields = line.split('|');
-        if (fields.length < 6) continue; // Skip invalid lines
+        if (fields.length < 20) continue; // id | title | 18 values
 
-        const movieId = parseInt(fields[0]);
-        const recIds = fields.slice(1, 6).map(id => parseInt(id));
-
-        recommendations.set(movieId, recIds);
+        const id = parseInt(fields[0]);
+        const values = fields.slice(2, 20).map(value => parseFloat(value));
+        vectors.set(id, Float64Array.from(values));
     }
 }
