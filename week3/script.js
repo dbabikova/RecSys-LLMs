@@ -8,7 +8,7 @@ const MEAN_RATING = 3.5; // mean of the 1-5 MovieLens scale, used to prime the b
 let model;
 let isTraining = false;
 let validationRmse = null;
-let ratingIndex = new Map();
+let backend = '';
 
 window.onload = async function () {
     if (typeof tf === 'undefined') {
@@ -17,11 +17,11 @@ window.onload = async function () {
     }
 
     try {
+        backend = await selectBackend();
         updateStatus('Loading MovieLens 100K data...');
 
         await loadData();
 
-        indexRatings();
         populateUserDropdown();
         populateMovieDropdown();
 
@@ -33,12 +33,24 @@ window.onload = async function () {
     }
 };
 
-// Lookup of observed ratings, used to show how close a prediction is to the truth
-function indexRatings() {
-    ratingIndex = new Map();
-    for (const row of ratings) {
-        ratingIndex.set(row.userId + '|' + row.movieId, row.rating);
+// WebGL runs the training on the GPU and is several times faster than the CPU
+// backend; silently keep whatever backend is available if it is not.
+async function selectBackend() {
+    if (tf.env().getBool('HAS_WEBGL')) {
+        try {
+            await tf.setBackend('webgl');
+        } catch (error) {
+            console.warn('WebGL backend unavailable, keeping the default one.', error);
+        }
     }
+    return tf.getBackend();
+}
+
+// Observed rating for a pair, or undefined when the pair is missing.
+// A linear scan beats building a 100k-entry Map on start-up: it runs once per click.
+function observedRating(userId, movieId) {
+    const row = ratings.find(r => r.userId === userId && r.movieId === movieId);
+    return row ? row.rating : undefined;
 }
 
 function populateUserDropdown() {
@@ -92,19 +104,21 @@ function createModel(numUsers, numMovies, latentDim = LATENT_DIM) {
         name: 'movieEmbedding'
     }).apply(movieInput));
 
-    // Optional bias terms. They are initialised at the global mean, so the model
-    // starts from "everyone rates 3.5" and learns the per-user / per-movie
-    // deviations. Removing the last tf.layers.add() calls leaves pure MF.
+    // Bias terms. embeddingsInitializer (not initializer) is the option an
+    // Embedding layer reads; the user bias starts at the global mean so the
+    // model opens at "everyone rates 3.5" and only learns the deviations.
+    // Dropping the two tf.layers.add() calls below leaves plain MF.
     const userBias = tf.layers.flatten().apply(tf.layers.embedding({
         inputDim: numUsers + 1,
         outputDim: 1,
-        initializer: tf.initializers.constant({ value: MEAN_RATING }),
+        embeddingsInitializer: tf.initializers.constant({ value: MEAN_RATING }),
         name: 'userBias'
     }).apply(userInput));
 
     const movieBias = tf.layers.flatten().apply(tf.layers.embedding({
         inputDim: numMovies + 1,
         outputDim: 1,
+        embeddingsInitializer: tf.initializers.zeros(),
         name: 'movieBias'
     }).apply(movieInput));
 
@@ -142,6 +156,7 @@ async function trainModel() {
             batchSize: BATCH_SIZE,
             validationSplit: 0.1,
             shuffle: true,
+            verbose: 0, // the default 1 prints a line per batch: ~23k console writes
             callbacks: {
                 onEpochEnd: (epoch, logs) => {
                     const progress = Math.round(((epoch + 1) / EPOCHS) * 100);
@@ -199,7 +214,7 @@ async function predictRating() {
             ? (movie.year ? `${movie.title} (${movie.year})` : movie.title)
             : `movie ${movieId}`;
 
-        const observed = ratingIndex.get(userId + '|' + movieId);
+        const observed = observedRating(userId, movieId);
         const observedLine = observed === undefined
             ? '<div class="meta">This user has not rated this movie - the rating is a genuine estimate.</div>'
             : '<div class="meta">Observed rating in the dataset: <strong>' + observed.toFixed(2) +
@@ -238,7 +253,8 @@ function renderStats() {
         numUsers + ' users',
         numMovies.toLocaleString('en-US') + ' movies',
         LATENT_DIM + ' latent factors',
-        'validation RMSE ' + validationRmse.toFixed(3)
+        'validation RMSE ' + validationRmse.toFixed(3),
+        (backend || tf.getBackend()) + ' backend'
     ];
     document.getElementById('stats').innerHTML =
         parts.map(text => '<span class="chip">' + text + '</span>').join('');
