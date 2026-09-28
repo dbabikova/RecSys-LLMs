@@ -10,34 +10,42 @@
     <div class="container">
         <header>
             <h1>Matrix Factorization Movie Recommender</h1>
-            <p>Train a collaborative filtering model in your browser using TensorFlow.js</p>
+            <p>Collaborative filtering trained entirely in your browser with TensorFlow.js</p>
         </header>
-        
+
         <main>
-            <div class="controls">
+            <section class="controls">
                 <div class="input-group">
-                    <label for="user-select">Select User:</label>
-                    <select id="user-select">
+                    <label for="user-select">Select user</label>
+                    <select id="user-select" disabled>
                         <option value="">Loading users...</option>
                     </select>
                 </div>
-                
+
                 <div class="input-group">
-                    <label for="movie-select">Select Movie:</label>
-                    <select id="movie-select">
+                    <label for="movie-select">Select movie</label>
+                    <select id="movie-select" disabled>
                         <option value="">Loading movies...</option>
                     </select>
                 </div>
-                
+
                 <button id="predict-btn" onclick="predictRating()" disabled>Predict Rating</button>
+            </section>
+
+            <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+
+            <div id="status" class="status">Loading MovieLens 100K data...</div>
+
+            <div id="result" class="result">
+                Pick a user and a movie, then press <strong>Predict Rating</strong>.
             </div>
-            
-            <div id="status" class="status">Loading data and training model...</div>
-            <div id="result" class="result"></div>
+
+            <div id="stats" class="stats"></div>
         </main>
+
+        <footer>MovieLens 100K &middot; u.item + u.data &middot; no server, no build step</footer>
     </div>
 
-    <!-- Load TensorFlow.js first, then our data module, then our main script -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="data.js"></script>
     <script src="script.js"></script>
