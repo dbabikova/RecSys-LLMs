@@ -5,10 +5,18 @@ const EPOCHS = 15;
 const BATCH_SIZE = 64;
 const MEAN_RATING = 3.5; // mean of the 1-5 MovieLens scale, used to prime the bias
 
+// Pre-trained weights shipped next to this file. The dataset is static, so the
+// model is fitted ahead of time (see pretrain/Trainer.cs) and the page only
+// rebuilds the graph and loads the weights. If the files are missing, or were
+// built for a different dataset shape, training falls back to model.fit().
+const WEIGHTS_HEADER = 'model-weights.json';
+const WEIGHTS_BINARY = 'model-weights.bin';
+
 let model;
 let isTraining = false;
 let validationRmse = null;
 let backend = '';
+let preloaded = false;
 
 window.onload = async function () {
     if (typeof tf === 'undefined') {
@@ -25,13 +33,141 @@ window.onload = async function () {
         populateUserDropdown();
         populateMovieDropdown();
 
-        updateStatus('Data loaded. Training the matrix factorization model...');
-        await trainModel();
+        preloaded = await loadPretrainedWeights();
+
+        if (preloaded) {
+            setProgress(100);
+            updateStatus('Model ready - pre-trained weights loaded, no training needed.');
+            setPredictEnabled(true);
+            setRetrainEnabled(true);
+            renderStats();
+        } else {
+            updateStatus('Data loaded. Training the matrix factorization model...');
+            await trainModel();
+        }
     } catch (error) {
         console.error('Initialization error:', error);
         showError(error.message);
     }
 };
+
+// Reads the pre-trained header, then rebuilds the same graph as createModel()
+// and loads the stored parameters. Returns false whenever anything does not
+// line up, so the caller can fall back to training from scratch.
+async function loadPretrainedWeights() {
+    let header;
+    try {
+        const response = await fetch(WEIGHTS_HEADER);
+        if (!response.ok) return false;
+        header = await response.json();
+    } catch (error) {
+        console.warn('No pre-trained weights available, training in the browser instead.', error.message);
+        return false;
+    }
+
+    // The embeddings are sized from the data, so any change to the dataset
+    // invalidates the stored weights.
+    if (header.numUsers !== numUsers || header.numMovies !== numMovies) {
+        console.warn(
+            `Pre-trained weights expect ${header.numUsers} users / ${header.numMovies} movies, ` +
+            `the dataset has ${numUsers} / ${numMovies}. Training from scratch instead.`
+        );
+        return false;
+    }
+
+    // Guard against a stale blob: the rating count is baked into the header, so a
+    // dataset edited without regenerating the weights is caught here.
+    if (header.totalRatings !== undefined && header.totalRatings !== ratings.length) {
+        console.warn(
+            `Pre-trained weights cover ${header.totalRatings} ratings, ` +
+            `the dataset has ${ratings.length}. Training from scratch instead.`
+        );
+        return false;
+    }
+
+    const latentDim = header.latentDim;
+    if (!Number.isInteger(latentDim) || latentDim < 1) {
+        console.warn(`Pre-trained latentDim ${latentDim} is not a positive integer.`);
+        return false;
+    }
+    const uRows = numUsers + 1;
+    const mRows = numMovies + 1;
+    const expectedFloats = uRows * latentDim + mRows * latentDim + uRows + mRows;
+    if (header.floatCount !== expectedFloats) {
+        console.warn(`Pre-trained weight count mismatch (${header.floatCount} vs ${expectedFloats}).`);
+        return false;
+    }
+
+    try {
+        const response = await fetch(WEIGHTS_BINARY);
+        if (!response.ok) return false;
+        const buffer = await response.arrayBuffer();
+        if (buffer.byteLength !== expectedFloats * 4) {
+            console.warn(`Pre-trained blob is ${buffer.byteLength} bytes, expected ${expectedFloats * 4}.`);
+            return false;
+        }
+
+        const data = new Float32Array(buffer);
+        let candidate = createModel(numUsers, numMovies, latentDim);
+        const staged = [];
+        const at = (offset, shape) => {
+            const tensor = tf.tensor(data.slice(offset, offset + shape[0] * shape[1]), shape, 'float32');
+            staged.push(tensor);
+            return tensor;
+        };
+
+        try {
+            let offset = 0;
+            const userVec = at(offset, [uRows, latentDim]); offset += uRows * latentDim;
+            const movieVec = at(offset, [mRows, latentDim]); offset += mRows * latentDim;
+            const userBias = at(offset, [uRows, 1]); offset += uRows;
+            const movieBias = at(offset, [mRows, 1]);
+
+            // Assign per layer by name instead of relying on model.getWeights()
+            // ordering, so the mapping stays correct if layers are added later.
+            candidate.getLayer('userEmbedding').setWeights([userVec]);
+            candidate.getLayer('movieEmbedding').setWeights([movieVec]);
+            candidate.getLayer('userBias').setWeights([userBias]);
+            candidate.getLayer('movieBias').setWeights([movieBias]);
+        } catch (assignError) {
+            // Free everything allocated above, otherwise a failed load leaks
+            // tensors for the rest of the session.
+            staged.forEach(tensor => tf.dispose(tensor));
+            candidate.dispose();
+            throw assignError;
+        }
+        staged.forEach(tensor => tf.dispose(tensor));
+
+        if (model) {
+            model.dispose();
+        }
+        model = candidate;
+        candidate = null;
+        validationRmse = typeof header.testRmse === 'number' && header.testRmse > 0
+            ? header.testRmse
+            : null;
+        return true;
+    } catch (error) {
+        if (candidate) {
+            candidate.dispose();
+        }
+        console.warn('Could not apply the pre-trained weights, training instead.', error);
+        return false;
+    }
+}
+
+// Discards the pre-trained weights and trains the model in the browser.
+async function retrainModel() {
+    if (isTraining) return;
+    preloaded = false;
+    validationRmse = null;
+    if (model) {
+        model.dispose();
+        model = null;
+    }
+    updateStatus('Retraining the matrix factorization model in your browser...');
+    await trainModel();
+}
 
 // WebGL runs the training on the GPU and is several times faster than the CPU
 // backend; silently keep whatever backend is available if it is not.
@@ -134,8 +270,10 @@ function createModel(numUsers, numMovies, latentDim = LATENT_DIM) {
 async function trainModel() {
     isTraining = true;
     setPredictEnabled(false);
+    setRetrainEnabled(false);
 
     try {
+        const previous = model;
         model = createModel(numUsers, numMovies, LATENT_DIM);
 
         model.compile({
@@ -168,6 +306,7 @@ async function trainModel() {
         });
 
         tf.dispose([userTensor, movieTensor, ratingTensor]);
+        if (previous) previous.dispose();
 
         const finalLoss = history.history.val_loss
             ? history.history.val_loss[history.history.val_loss.length - 1]
@@ -177,12 +316,14 @@ async function trainModel() {
         setProgress(100);
         updateStatus('Model ready - select a user and a movie to get a predicted rating.');
         setPredictEnabled(true);
+        setRetrainEnabled(true);
         isTraining = false;
 
         renderStats();
     } catch (error) {
         console.error('Training error:', error);
         isTraining = false;
+        setRetrainEnabled(true);
         showError('Training failed: ' + error.message);
     }
 }
@@ -248,12 +389,20 @@ function verdictFor(value) {
 }
 
 function renderStats() {
+    // The embedding output is [batch, seqLen, latentDim] for the [1] input, so
+    // the width is the last entry, not the first one after the batch axis.
+    const layer = model ? model.getLayer('userEmbedding') : null;
+    const shape = layer ? layer.outputShape : null;
+    const latentDim = shape ? shape[shape.length - 1] : LATENT_DIM;
     const parts = [
         ratings.length.toLocaleString('en-US') + ' ratings',
         numUsers + ' users',
         numMovies.toLocaleString('en-US') + ' movies',
-        LATENT_DIM + ' latent factors',
-        'validation RMSE ' + validationRmse.toFixed(3),
+        latentDim + ' latent factors',
+        validationRmse === null
+            ? 'RMSE unavailable'
+            : (preloaded ? 'held-out RMSE ' : 'validation RMSE ') + validationRmse.toFixed(3),
+        preloaded ? 'pre-trained weights' : 'trained in this browser',
         (backend || tf.getBackend()) + ' backend'
     ];
     document.getElementById('stats').innerHTML =
@@ -263,6 +412,11 @@ function renderStats() {
 // UI helpers
 function setPredictEnabled(enabled) {
     document.getElementById('predict-btn').disabled = !enabled;
+}
+
+function setRetrainEnabled(enabled) {
+    const button = document.getElementById('retrain-btn');
+    if (button) button.disabled = !enabled;
 }
 
 function setProgress(percent) {

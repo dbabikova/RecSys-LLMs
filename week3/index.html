@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>Matrix Factorization Movie Recommender</h1>
-            <p>Collaborative filtering trained entirely in your browser with TensorFlow.js</p>
+            <p>Collaborative filtering with TensorFlow.js - loads pre-trained weights, and can be retrained in your browser</p>
         </header>
 
         <main>
@@ -29,7 +29,10 @@
                     </select>
                 </div>
 
-                <button id="predict-btn" onclick="predictRating()" disabled>Predict Rating</button>
+                <div class="actions">
+                    <button id="predict-btn" onclick="predictRating()" disabled>Predict Rating</button>
+                    <button id="retrain-btn" class="secondary" onclick="retrainModel()" disabled>Retrain in browser</button>
+                </div>
             </section>
 
             <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>

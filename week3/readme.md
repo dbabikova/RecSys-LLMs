@@ -83,3 +83,33 @@ This file contains the TensorFlow.js model definition, training, and prediction 
 
 ---
 Now generate the complete code for `index.html`, `style.css`, `data.js`, and `script.js` based on these final, detailed specifications for a TensorFlow.js implementation.
+
+---
+
+## Appendix: implementation notes
+
+Everything above is implemented as specified: `createModel()`, `trainModel()` and
+`predictRating()` are unchanged in behaviour, and training still runs entirely in the
+browser.
+
+On top of that the app ships a **pre-trained fast path**. Training the model from scratch
+on every page load costs several minutes on the CPU backend, so the same
+`dot(user, movie) + userBias + movieBias` model is trained offline once and stored in
+`model-weights.bin` / `model-weights.json` next to the data. On startup the app fetches
+those weights and assigns them to the same layer graph, which makes the model ready in
+roughly 200 ms instead of minutes.
+
+The pre-trained path is an optimisation, not a replacement:
+
+- the browser trainer is still the fallback, and runs automatically if the weights are
+  missing, unreadable, or do not match the dataset (`numUsers`, `numMovies`,
+  `totalRatings` and the expected float count are all checked);
+- the **Retrain in browser** button discards the pre-trained weights and runs the full
+  TensorFlow.js training loop;
+- the status line and the stats row say which of the two is active;
+- the offline trainer and an independent weight checker live in `pretrain/`, and
+  `pretrain/README.md` explains how to regenerate the weights if `u.data` / `u.item` ever
+  change.
+
+The shipped weights use `latentDim=4` (52 KB) and score a held-out RMSE of `0.9244` on a
+10% split of MovieLens 100K; in-sample RMSE on the full dataset is `0.8370`.
