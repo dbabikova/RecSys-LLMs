@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Factorization Movie Recommender</title>
+    <title>User-Based &amp; Item-Based Collaborative Filtering</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Matrix Factorization Movie Recommender</h1>
-            <p>Collaborative filtering with TensorFlow.js - loads pre-trained weights, and can be retrained in your browser</p>
+            <h1>User-Based &amp; Item-Based Collaborative Filtering</h1>
+            <p>Memory-based collaborative filtering on MovieLens 100K, computed in the browser from u.data</p>
         </header>
 
         <main>
@@ -31,7 +31,6 @@
 
                 <div class="actions">
                     <button id="predict-btn" onclick="predictRating()" disabled>Predict Rating</button>
-                    <button id="retrain-btn" class="secondary" onclick="retrainModel()" disabled>Retrain in browser</button>
                 </div>
             </section>
 
@@ -39,18 +38,46 @@
 
             <div id="status" class="status">Loading MovieLens 100K data...</div>
 
-            <div id="result" class="result">
-                Pick a user and a movie, then press <strong>Predict Rating</strong>.
-            </div>
+            <p id="prediction-context" class="context">No user and movie selected yet</p>
+
+            <section class="results">
+                <article class="result-card" id="card-user">
+                    <p class="result-headline" id="user-headline">User-Based CF: -- predicted</p>
+                    <p class="score"><span id="user-score">--</span> <span class="score-max">/ 5</span></p>
+                    <p class="result-title" id="user-verdict">Pick a user and a movie</p>
+                    <div class="meter"><div class="meter-fill" id="user-meter"></div></div>
+                    <dl class="detail">
+                        <div><dt>Neighbours used</dt><dd id="user-neighbours">-</dd></div>
+                        <div><dt>Similarity</dt><dd id="user-metric">-</dd></div>
+                        <div><dt>Observed rating</dt><dd id="user-observed">-</dd></div>
+                        <div><dt>Absolute error</dt><dd id="user-error">-</dd></div>
+                        <div><dt>Path</dt><dd id="user-path">-</dd></div>
+                    </dl>
+                </article>
+
+                <article class="result-card" id="card-item">
+                    <p class="result-headline" id="item-headline">Item-Based CF: -- predicted</p>
+                    <p class="score"><span id="item-score">--</span> <span class="score-max">/ 5</span></p>
+                    <p class="result-title" id="item-verdict">Pick a user and a movie</p>
+                    <div class="meter"><div class="meter-fill" id="item-meter"></div></div>
+                    <dl class="detail">
+                        <div><dt>Neighbours used</dt><dd id="item-neighbours">-</dd></div>
+                        <div><dt>Similarity</dt><dd id="item-metric">-</dd></div>
+                        <div><dt>Observed rating</dt><dd id="item-observed">-</dd></div>
+                        <div><dt>Absolute error</dt><dd id="item-error">-</dd></div>
+                        <div><dt>Path</dt><dd id="item-path">-</dd></div>
+                    </dl>
+                </article>
+            </section>
 
             <div id="stats" class="stats"></div>
         </main>
 
-        <footer>MovieLens 100K &middot; u.item + u.data &middot; no server, no build step</footer>
+        <footer>MovieLens 100K &middot; u.item + u.data &middot; static files, no build step</footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="data.js"></script>
+    <script src="cf.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

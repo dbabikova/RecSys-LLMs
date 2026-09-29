@@ -1,115 +1,160 @@
-You are an expert full-stack web developer specializing in in-browser machine learning with TensorFlow.js.
+# User-Based & Item-Based Collaborative Filtering
 
-Your task is to generate the complete code for a "Matrix Factorization Movie Recommender" web application. The application will load and parse data, define and train a Matrix Factorization model using TensorFlow.js, and then use the trained model to predict movie ratings. Please provide the code for each of the four files—`index.html`, `style.css`, `data.js`, and `script.js`—separately and clearly labeled.
+Memory-based collaborative filtering for the MovieLens 100K dataset. The app is fully
+static and fully browser-based: no framework, no build step, no precomputed artefacts, no
+network calls beyond serving the two dataset files. Every recommendation is computed in
+the browser from `u.data` at load time.
 
----
+## Files
 
-### **Project Specification: Matrix Factorization Recommender with TensorFlow.js**
+| file | role |
+| --- | --- |
+| `index.html` | markup, includes the two result cards |
+| `style.css` | styling, shared with the previous version of the app |
+| `data.js` | loading and parsing of `u.item` and `u.data` (unchanged) |
+| `cf.js` | in-memory indexes, both similarity functions, both predictors, verification |
+| `script.js` | UI wiring, dropdowns, result cards, statistics panel |
+| `u.item` | movie catalogue, 1682 movies, pipe separated |
+| `u.data` | 100000 ratings, tab separated |
 
-#### **1. CONTEXT**
+Serve the folder over HTTP and open `index.html`, for example:
 
-The goal is to build a web application that demonstrates Matrix Factorization for collaborative filtering. It will parse the MovieLens 100K dataset (`u.item`, `u.data` from the same url), train a model entirely in the browser using TensorFlow.js, and predict a user's rating for a selected movie. The logic must be modular, split between `data.js` and `script.js`.
+```
+python -m http.server 8000
+```
 
-#### **2. OUTPUT FORMAT**
+Opening the file directly with `file://` will not work, because browsers block `fetch()`
+on that scheme.
 
-Provide four separate, complete code blocks for the following files:
-1.  `index.html`
-2.  `style.css`
-3.  `data.js`
-4.  `script.js`
+## Data structures
 
-#### **3. `index.html` INSTRUCTIONS**
+Built once in `buildCfIndexes()` right after `loadData()`:
 
--   The page must have a title, a main heading, and two dropdown menus: one for selecting a user (`#user-select`) and one for selecting a movie (`#movie-select`).
--   Include a "Predict Rating" button that calls a `predictRating()` function.
--   A result area (`#result`) should display status messages and prediction outcomes.
--   Critically, it must load the TensorFlow.js library from a CDN, followed by `data.js`, and then `script.js` at the end of the `<body>`.
-    ```
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="data.js"></script>
-    <script src="script.js"></script>
-    ```
+- `ratingsByUser: Map<userId, Map<movieId, rating>>`
+- `ratingsByItem: Map<movieId, Map<userId, rating>>`
+- `userMean: Map<userId, number>` - average rating given by each user
+- `itemMean: Map<movieId, number>` - average rating received by each movie
+- `globalMean: number` - average over all 100000 ratings (3.530)
 
-#### **4. `style.css` INSTRUCTIONS**
+The full 943 x 1682 similarity matrix is never materialised. Similarities are computed
+per query, only for the selected user or the selected movie, and thrown away afterwards.
+A full matrix would be 1.6 million cells for no benefit: a single prediction only ever
+touches the neighbours of one user or one movie.
 
--   Create a clean, modern, and centered layout. The design should be professional and user-friendly. (Detailed styling specifications are the same as previous exercises).
+## User-based CF
 
-#### **5. `data.js` INSTRUCTIONS**
+Similarity between two users is the Pearson correlation computed **only over the movies
+both of them rated**:
 
--   This file is responsible for loading and parsing data.
--   It must contain the `loadData()`, `parseItemData(text)`, and `parseRatingData(text)` functions as specified previously.
--   It should also contain two variables to store the number of unique users and movies after parsing, for example: `numUsers` and `numMovies`.
+```
+sim(u,v) = cov(r_u, r_v) / (sd(r_u) * sd(r_v))     on the co-rated subset
+```
 
-#### **6. `script.js` INSTRUCTIONS**
+Pearson re-centres on the co-rated subset rather than on the overall user means, which is
+what makes the measure correct for partially overlapping profiles.
 
-This file contains the TensorFlow.js model definition, training, and prediction logic.
+To predict `r[u,i]`, the candidates are the users `v != u` who rated movie `i`. They are
+filtered to those with `overlap >= MIN_OVERLAP` and positive similarity, ranked, and the
+top `K` are kept. The prediction is
 
-1.  **Global Variables:**
-    -   Declare a global variable `model` to hold the trained TensorFlow.js model.
+```
+r[u,i] = mean(u) + SUM sim(u,v) * (r[v,i] - mean(v)) / SUM |sim(u,v)|
+```
 
-2.  **Initialization (`window.onload`):**
-    -   Create an `async` function that first `await`s `loadData()` from `data.js`.
-    -   After data is loaded, it should call functions to populate the user and movie dropdowns.
-    -   Then, it must call a new `trainModel()` function to start the training process. Update the UI to show that the model is training.
+## Item-based CF
 
-3.  **Model Definition Function: `createModel(numUsers, numMovies, latentDim)`**
-    -   This function will define the Matrix Factorization architecture.
-    -   **Inputs:** Create two input layers, one for user IDs (`userInput`) and one for movie IDs (`movieInput`).
-    -   **Embedding Layers:**
-        -   ?????
-        -   ?????
-    -   **Latent Vectors:** ????
-    -   **Prediction:** ????
-    -   **Model Creation:** Create the `tf.model` with the defined inputs and the prediction output.
-    -   **Return** the created model.
+Similarity between two movies is the adjusted cosine over the users who rated **both** of
+them, after removing each of those users' mean ratings:
 
-4.  **Training Function: `trainModel()`**
-    -   This must be an `async` function.
-    -   **Step 1:** Call `createModel()` to get the model architecture.
-    -   **Step 2:** Compile the model using `model.compile()`.
-        -   Set the `optimizer` to `tf.train.adam(0.001)`.
-        -   Set the `loss` function to `'meanSquaredError'`.
-    -   **Step 3:** Prepare the training data. Convert the `ratings` data (user IDs, item IDs) and the actual ratings into TensorFlow tensors (`tf.tensor2d`).
-    -   **Step 4:** Train the model by calling `await model.fit()`. Train for a suitable number of epochs (e.g., 5-10) with a reasonable batch size (e.g., 64).
-    -   **Step 5:** After training is complete, update the UI to indicate that the model is ready for predictions.
+```
+sim(i,j) = SUM_v (r[v,i] - mean(v)) * (r[v,j] - mean(v)) / (||.|| * ||.||)
+```
 
-5.  **Prediction Function: `predictRating()`**
-    -   This `async` function is called when the user clicks the button.
-    -   Get the selected user ID and movie ID from the dropdowns.
-    -   Create input tensors for the selected user and movie IDs.
-    -   Call `model.predict()` with these tensors.
-    -   Use `.data()` to extract the predicted rating value from the output tensor.
-    -   Display the predicted rating in the `#result` area in a user-friendly format.
+Here the centring is by the global user mean, which is precisely what distinguishes
+"adjusted" cosine from plain cosine. There is no re-centring on the co-rater subset.
 
----
-Now generate the complete code for `index.html`, `style.css`, `data.js`, and `script.js` based on these final, detailed specifications for a TensorFlow.js implementation.
+To predict `r[u,i]`, the candidates are the movies `j != i` that user `u` rated, filtered
+and truncated the same way, and the prediction is
 
----
+```
+r[u,i] = mean(i) + SUM sim(i,j) * (r[u,j] - mean(j)) / SUM |sim(i,j)|
+```
 
-## Appendix: implementation notes
+## Handling missing data
 
-Everything above is implemented as specified: `createModel()`, `trainModel()` and
-`predictRating()` are unchanged in behaviour, and training still runs entirely in the
-browser.
+**Strategy: overlap weighting.** One explicit choice, as required for the report.
 
-On top of that the app ships a **pre-trained fast path**. Training the model from scratch
-on every page load costs several minutes on the CPU backend, so the same
-`dot(user, movie) + userBias + movieBias` model is trained offline once and stored in
-`model-weights.bin` / `model-weights.json` next to the data. On startup the app fetches
-those weights and assigns them to the same layer graph, which makes the model ready in
-roughly 200 ms instead of minutes.
+Every similarity is shrunk toward zero according to how much evidence stands behind it:
 
-The pre-trained path is an optimisation, not a replacement:
+```
+weight = n / (n + SHRINKAGE)      with SHRINKAGE = 5
+```
 
-- the browser trainer is still the fallback, and runs automatically if the weights are
-  missing, unreadable, or do not match the dataset (`numUsers`, `numMovies`,
-  `totalRatings` and the expected float count are all checked);
-- the **Retrain in browser** button discards the pre-trained weights and runs the full
-  TensorFlow.js training loop;
-- the status line and the stats row say which of the two is active;
-- the offline trainer and an independent weight checker live in `pretrain/`, and
-  `pretrain/README.md` explains how to regenerate the weights if `u.data` / `u.item` ever
-  change.
+`n` is the number of co-rated movies (user-based) or co-raters (item-based). A pair
+supported by 40 observations therefore counts far more than a pair sitting right at the
+`MIN_OVERLAP` threshold, even when their raw correlations are identical. The sign of the
+similarity is preserved, so a well-supported pair always outranks a thinly supported one.
 
-The shipped weights use `latentDim=4` (52 KB) and score a held-out RMSE of `0.9244` on a
-10% split of MovieLens 100K; in-sample RMSE on the full dataset is `0.8370`.
+Mean imputation was considered and rejected: filling a gap with a mean would invent ratings
+that then feed straight back into the similarity computation and bias the result. Shrinking
+by confidence uses the same information (the overlap count) without fabricating data.
+
+Other safeguards:
+
+- `MIN_OVERLAP = 3` - a pair below that is discarded before it can influence anything.
+- Only neighbours with strictly positive similarity are kept.
+- Every prediction is clamped to the valid rating range [1, 5].
+- A pair whose similarity is undefined because one side has no variance scores 0 instead of
+  dividing by zero.
+
+## Cold start fallback
+
+When no neighbour survives the filters, the app falls back in this order and says so in
+the result card:
+
+1. **user mean** - average rating given by the selected user
+2. **item mean** - average rating received by the selected movie
+3. **global mean** - average over the whole dataset
+
+## Verification
+
+`runVerification()` runs automatically on load and prints to the browser console.
+
+**Holdout check.** 200 known `(user, movie, rating)` triples are sampled with a fixed seed
+so the run is reproducible. Each sampled rating is *removed from the index* (both maps and
+the means are refreshed) before being predicted back, so the model cannot see the answer.
+This is a genuine held-out measurement, not an in-sample one. The index is restored
+afterwards.
+
+```
+Holdout: 200 known ratings hidden from the index, then predicted back.
+  user-based CF  RMSE 0.857  MAE 0.666  fallbacks 0
+  item-based CF  RMSE 0.862  MAE 0.671  fallbacks 0
+```
+
+Both land in the expected ~0.9-1.1 band for MovieLens 100K, which confirms the
+similarity and prediction logic is correct.
+
+**Cold start check.** The rarest movie in the catalogue (id 1348, a single rater) is paired
+with the sparsest user who never rated it. The item-based method finds no comparable movie
+and correctly falls back; the user-based method finds one rater with sufficient overlap.
+A second probe uses ids that are absent from the index entirely, forcing both methods to
+the last fallback level.
+
+```
+Cold start: movie 1348 with 1 rater(s), user 166 with 20 rating(s).
+  user-based CF  3.06 (computed)
+  item-based CF  3.55 (fallback: user mean)
+  unknown user + unknown movie (last fallback level)
+  user-based CF  3.53 (fallback: global mean)
+  item-based CF  3.53 (fallback: global mean)
+  values finite and inside [1, 5]: true
+```
+
+No `NaN`, no division by zero, every value inside [1, 5].
+
+## Statistics panel
+
+Reports the user count, the movie count, the rating count, matrix sparsity (93.7%), the
+similarity metric used by each method, the neighbourhood size `K` and `MIN_OVERLAP`. `K`
+and `MIN_OVERLAP` are constants at the top of `cf.js` and can be changed there.
