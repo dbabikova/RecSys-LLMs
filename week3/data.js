@@ -26,9 +26,11 @@ async function loadData() {
         }
         ratings = parseRatingData(await ratingResponse.text());
 
-        // Embedding sizes follow the largest id, not the number of rows, so gaps
-        // in the id sequence (or a rating for a movie missing from u.item)
-        // cannot push an id past the end of a lookup table.
+        // numUsers / numMovies report the LARGEST id seen, not a count of distinct
+        // entities. Ids are 1-based and may contain gaps, so read them as the upper
+        // bound of the id space. In this dataset the ids run 1..943 and 1..1682 with
+        // no gaps, which is why they coincide with the counts. Nothing is sized from
+        // these values: the collaborative filtering indexes are Maps keyed by id.
         let maxUserId = 0;
         let maxMovieId = 0;
         for (const movie of movies) {

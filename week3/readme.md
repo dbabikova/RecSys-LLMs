@@ -61,6 +61,11 @@ top `K` are kept. The prediction is
 r[u,i] = mean(u) + SUM sim(u,v) * (r[v,i] - mean(v)) / SUM |sim(u,v)|
 ```
 
+Only neighbours with strictly positive similarity are kept: users whose taste runs
+*against* the target (negative correlation) are deliberately excluded, so the prediction
+leans only on positively correlated neighbours, whether they are users here or movies in
+the item-based variant.
+
 ## Item-based CF
 
 Similarity between two movies is the adjusted cosine over the users who rated **both** of

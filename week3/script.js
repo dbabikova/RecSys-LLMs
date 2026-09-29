@@ -40,6 +40,7 @@ function populateUserDropdown() {
     }
 
     select.replaceChildren(fragment);
+    select.disabled = false;
 }
 
 function populateMovieDropdown() {
@@ -56,6 +57,7 @@ function populateMovieDropdown() {
     }
 
     select.replaceChildren(fragment);
+    select.disabled = false;
 }
 
 function predictRating() {
@@ -178,6 +180,11 @@ function showError(message) {
     const element = document.getElementById('status');
     element.className = 'status error';
     element.textContent = message;
+    // The dataset never arrived, so there is nothing to choose from. The
+    // dropdowns are re-disabled here so the failure state is explicit even if
+    // an error were raised after they had already been populated.
+    document.getElementById('user-select').disabled = true;
+    document.getElementById('movie-select').disabled = true;
     document.getElementById('predict-btn').disabled = true;
 }
 
