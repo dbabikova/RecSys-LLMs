@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User-Based &amp; Item-Based Collaborative Filtering</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="container">
@@ -49,8 +49,6 @@
                     <dl class="detail">
                         <div><dt>Neighbours used</dt><dd id="user-neighbours">-</dd></div>
                         <div><dt>Similarity</dt><dd id="user-metric">-</dd></div>
-                        <div><dt>Observed rating</dt><dd id="user-observed">-</dd></div>
-                        <div><dt>Absolute error</dt><dd id="user-error">-</dd></div>
                         <div><dt>Path</dt><dd id="user-path">-</dd></div>
                     </dl>
                 </article>
@@ -63,8 +61,6 @@
                     <dl class="detail">
                         <div><dt>Neighbours used</dt><dd id="item-neighbours">-</dd></div>
                         <div><dt>Similarity</dt><dd id="item-metric">-</dd></div>
-                        <div><dt>Observed rating</dt><dd id="item-observed">-</dd></div>
-                        <div><dt>Absolute error</dt><dd id="item-error">-</dd></div>
                         <div><dt>Path</dt><dd id="item-path">-</dd></div>
                     </dl>
                 </article>
@@ -76,8 +72,8 @@
         <footer>MovieLens 100K &middot; u.item + u.data &middot; static files, no build step</footer>
     </div>
 
-    <script src="data.js?v=2"></script>
-    <script src="cf.js?v=2"></script>
-    <script src="script.js?v=2"></script>
+    <script src="data.js?v=3"></script>
+    <script src="cf.js?v=3"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>

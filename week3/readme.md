@@ -158,6 +158,23 @@ Cold start: movie 1348 with 1 rater(s), user 166 with 20 rating(s).
 
 No `NaN`, no division by zero, every value inside [1, 5].
 
+### Where accuracy is reported
+
+The result cards show the predicted rating only. They deliberately carry no observed
+rating and no absolute error, because MovieLens 100K is 93.7% empty: out of the
+1 586 126 possible `(user, movie)` cells only 100 000 hold a rating, so roughly 94% of all
+pairs have no ground truth to compare against. A per-prediction error field would print
+"not rated by this user" and "n/a" for almost every pair the user clicks, which reads as a
+broken metric rather than an absent measurement.
+
+Accuracy is therefore reported once, over the whole model, by the holdout check above
+rather than per click. It runs on 200 known ratings that are hidden from the index before
+being predicted back, which is the statistically meaningful way to compare the two
+methods: a single pair with one rater says nothing about accuracy, while RMSE over 200
+held-out ratings does. The headline figures are printed to the console, and the same
+user-based and item-based RMSE values are repeated in the status line under the dropdowns
+so they are visible without opening developer tools.
+
 ## Statistics panel
 
 Reports the user count, the movie count, the rating count, matrix sparsity (93.7%), the

@@ -73,13 +73,13 @@ function predictRating() {
     const title = movie ? movie.title + (movie.year ? ' (' + movie.year + ')' : '') : 'Movie ' + movieId;
     document.getElementById('prediction-context').textContent = 'User ' + userId + ' and ' + title;
 
-    renderResultCard('user', predictUserBased(userId, movieId), userId, movieId);
-    renderResultCard('item', predictItemBased(userId, movieId), userId, movieId);
+    renderResultCard('user', predictUserBased(userId, movieId));
+    renderResultCard('item', predictItemBased(userId, movieId));
 
     updateStatus('Prediction ready for user ' + userId + ' and ' + title + '.');
 }
 
-function renderResultCard(prefix, result, userId, movieId) {
+function renderResultCard(prefix, result) {
     document.getElementById(prefix + '-headline').textContent =
         (prefix === 'user' ? 'User-Based CF' : 'Item-Based CF') + ': ' + result.value.toFixed(2) + ' predicted';
     document.getElementById(prefix + '-score').textContent = result.value.toFixed(2);
@@ -101,21 +101,6 @@ function renderResultCard(prefix, result, userId, movieId) {
         pathCell.className = 'warn';
     }
 
-    const observed = observedRating(userId, movieId);
-    const observedCell = document.getElementById(prefix + '-observed');
-    const errorCell = document.getElementById(prefix + '-error');
-    if (observed === null) {
-        observedCell.textContent = 'not rated by this user';
-        observedCell.className = 'muted';
-        errorCell.textContent = 'n/a';
-        errorCell.className = 'muted';
-    } else {
-        observedCell.textContent = observed.toFixed(2);
-        observedCell.className = '';
-        errorCell.textContent = Math.abs(result.value - observed).toFixed(2);
-        errorCell.className = '';
-    }
-
     const detail = document.getElementById(prefix + '-metric');
     detail.textContent = similarity;
 }
@@ -131,8 +116,6 @@ function resetResultCards() {
         meter.className = 'meter-fill';
         document.getElementById(prefix + '-neighbours').textContent = '-';
         document.getElementById(prefix + '-path').textContent = '-';
-        document.getElementById(prefix + '-observed').textContent = '-';
-        document.getElementById(prefix + '-error').textContent = '-';
         document.getElementById(prefix + '-metric').textContent = prefix === 'user'
             ? SIMILARITY_LABEL.userBased
             : SIMILARITY_LABEL.itemBased;

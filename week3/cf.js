@@ -102,15 +102,6 @@ function sparsityPercent() {
     return (1 - indexedRatingCount / cells) * 100;
 }
 
-function observedRating(userId, movieId) {
-    const userRatings = ratingsByUser.get(userId);
-    if (userRatings === undefined) {
-        return null;
-    }
-    const value = userRatings.get(movieId);
-    return value === undefined ? null : value;
-}
-
 // ------------------------------------------------------------- similarities
 
 // Pearson correlation between two users, computed only over movies that BOTH of

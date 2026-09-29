@@ -259,11 +259,6 @@ select:disabled {
     color: #b9770e;
 }
 
-.detail dd.muted {
-    color: #95a5a6;
-    font-weight: 400;
-}
-
 .stats {
     display: flex;
     flex-wrap: wrap;
