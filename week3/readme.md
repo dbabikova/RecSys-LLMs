@@ -163,13 +163,14 @@ No `NaN`, no division by zero, every value inside [1, 5].
 
 ### Where accuracy is reported
 
-Each result card shows the predicted rating, a verdict band, the meter, the neighbour count
-and the similarity metric. It deliberately carries no observed rating, no absolute error and
-no fallback label, because MovieLens 100K is 93.7% empty: out of the
+Each result card shows the predicted rating, a verdict band and the meter. It deliberately
+carries no observed rating, no absolute error, no fallback label, no neighbour count and no
+metric name. The first three are gone because MovieLens 100K is 93.7% empty: out of the
 1 586 126 possible `(user, movie)` cells only 100 000 hold a rating, so roughly 94% of all
 pairs have no ground truth to compare against. A per-prediction error field would print
 "not rated by this user" and "n/a" for almost every pair the user clicks, which reads as a
-broken metric rather than an absent measurement.
+broken metric rather than an absent measurement. The last two were constant for every
+prediction, so they are printed once in the console instead.
 
 Accuracy is therefore reported once, over the whole model, by the holdout check above
 rather than per click. It runs on 200 known ratings that are hidden from the index before
@@ -181,13 +182,15 @@ so they are visible without opening developer tools.
 
 ## Interface
 
-The page is deliberately sparse: two text boxes, one button and two result cards. The
-dataset figures (943 users, 1682 movies, 100 000 ratings, 93.7% sparsity) and the tuning
-constants (`K`, `MIN_OVERLAP`, the two similarity metrics) are not shown as on-screen
-chips. They are properties of the model rather than of the current prediction, they never
-change while the page is open, and the two similarity metrics are already named on the
-result cards. Everything remains visible in the console and in this readme; `K` and
-`MIN_OVERLAP` are the constants at the top of `cf.js`.
+The page is deliberately sparse: a title bar, two text boxes, one button and two result
+cards. Each card carries only the predicted score, its band and the meter that draws it.
+The dataset figures (943 users, 1682 movies, 100 000 ratings, 93.7% sparsity), the tuning
+constants (`K`, `MIN_OVERLAP`, the two similarity metrics), the neighbour count and the
+metric name are all off screen. They are properties of the model rather than of the current
+prediction and they never change while the page is open, so printing them per prediction
+only added noise. Everything remains visible in the console, where `runVerification()` names
+both metrics above the holdout figures, and in this readme; `K` and `MIN_OVERLAP` are the
+constants at the top of `cf.js`.
 
 **Combobox.** There is no separate search field and no `<select>`. Each control is a
 single text box with its list attached underneath, so the query and the results it matches

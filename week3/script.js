@@ -273,12 +273,6 @@ function renderResultCard(prefix, result) {
     const meter = document.getElementById(prefix + '-meter');
     meter.style.width = ((result.value - 1) / 4 * 100) + '%';
     meter.className = 'meter-fill ' + bandFor(result.value);
-
-    const similarity = prefix === 'user' ? SIMILARITY_LABEL.userBased : SIMILARITY_LABEL.itemBased;
-    document.getElementById(prefix + '-neighbours').textContent = result.neighbours + ' of top ' + DEFAULT_K;
-
-    const detail = document.getElementById(prefix + '-metric');
-    detail.textContent = similarity;
 }
 
 function resetResultCards() {
@@ -290,10 +284,6 @@ function resetResultCards() {
         const meter = document.getElementById(prefix + '-meter');
         meter.style.width = '0%';
         meter.className = 'meter-fill';
-        document.getElementById(prefix + '-neighbours').textContent = '-';
-        document.getElementById(prefix + '-metric').textContent = prefix === 'user'
-            ? SIMILARITY_LABEL.userBased
-            : SIMILARITY_LABEL.itemBased;
     }
     document.getElementById('prediction-context').textContent = 'No user and movie selected yet';
 }

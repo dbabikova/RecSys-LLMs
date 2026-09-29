@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User-Based &amp; Item-Based Collaborative Filtering</title>
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>User-Based &amp; Item-Based Collaborative Filtering</h1>
-            <p>Memory-based collaborative filtering on MovieLens 100K, computed in the browser from u.data</p>
         </header>
 
         <main>
@@ -52,10 +51,6 @@
                     <p class="score"><span id="user-score">--</span> <span class="score-max">/ 5</span></p>
                     <p class="result-title" id="user-verdict">Pick a user and a movie</p>
                     <div class="meter"><div class="meter-fill" id="user-meter"></div></div>
-                    <dl class="detail">
-                        <div><dt>Neighbours used</dt><dd id="user-neighbours">-</dd></div>
-                        <div><dt>Similarity</dt><dd id="user-metric">-</dd></div>
-                    </dl>
                 </article>
 
                 <article class="result-card" id="card-item">
@@ -63,19 +58,13 @@
                     <p class="score"><span id="item-score">--</span> <span class="score-max">/ 5</span></p>
                     <p class="result-title" id="item-verdict">Pick a user and a movie</p>
                     <div class="meter"><div class="meter-fill" id="item-meter"></div></div>
-                    <dl class="detail">
-                        <div><dt>Neighbours used</dt><dd id="item-neighbours">-</dd></div>
-                        <div><dt>Similarity</dt><dd id="item-metric">-</dd></div>
-                    </dl>
                 </article>
             </section>
         </main>
-
-        <footer>MovieLens 100K &middot; u.item + u.data &middot; static files, no build step</footer>
     </div>
 
-    <script src="data.js?v=7"></script>
-    <script src="cf.js?v=7"></script>
-    <script src="script.js?v=7"></script>
+    <script src="data.js?v=8"></script>
+    <script src="cf.js?v=8"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>

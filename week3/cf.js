@@ -494,6 +494,8 @@ function runVerification() {
     const coldStart = checkColdStart();
 
     console.log('Collaborative filtering verification');
+    console.log(`  user-based CF  ${SIMILARITY_LABEL.userBased}`);
+    console.log(`  item-based CF  ${SIMILARITY_LABEL.itemBased}`);
     console.log(`Holdout: ${holdout.count} known ratings hidden from the index, then predicted back.`);
     console.log(`  user-based CF  RMSE ${holdout.userBased.rmse.toFixed(3)}  MAE ${holdout.userBased.mae.toFixed(3)}  fallbacks ${holdout.userBased.fallbacks}`);
     console.log(`  item-based CF  RMSE ${holdout.itemBased.rmse.toFixed(3)}  MAE ${holdout.itemBased.mae.toFixed(3)}  fallbacks ${holdout.itemBased.fallbacks}`);
