@@ -12,18 +12,36 @@ let numMovies = 0;
 const ITEM_URL = 'u.item';
 const RATING_URL = 'u.data';
 
+// u.item is ISO-8859-1 (Latin-1), not UTF-8. response.text() always decodes as
+// UTF-8, so the nine titles that carry a diacritic come back as U+FFFD instead:
+// "Mis?rables, Les", "Double vie de V?ronique, La", "N?nette et Boni",
+// "Contempt (M?pris, Le)", "Metisse (Caf? au Lait)", "C?r?monie, La",
+// "C'est arriv? pr?s de chez vous", "JLG/JLG - autoportrait de d?cembre" and
+// "? k?ldum klaka (Cold Fever)". The question marks stand for U+FFFD; the file
+// itself holds 0xC1, 0xE8, 0xE9 nine times and 0xF6. Decoding the bytes
+// explicitly is the only fix, because response.text() takes no charset argument.
+// The Encoding Standard maps the label "iso-8859-1" onto the windows-1252
+// decoder, which agrees with Latin-1 on every byte this file contains.
+const ITEM_ENCODING = 'iso-8859-1';
+
+function decodeText(buffer, encoding) {
+    return new TextDecoder(encoding).decode(buffer);
+}
+
 async function loadData() {
     try {
         const itemResponse = await fetch(ITEM_URL);
         if (!itemResponse.ok) {
             throw new Error(`${ITEM_URL} -> HTTP ${itemResponse.status}`);
         }
-        movies = parseItemData(await itemResponse.text());
+        movies = parseItemData(decodeText(await itemResponse.arrayBuffer(), ITEM_ENCODING));
 
         const ratingResponse = await fetch(RATING_URL);
         if (!ratingResponse.ok) {
             throw new Error(`${RATING_URL} -> HTTP ${ratingResponse.status}`);
         }
+        // u.data is pure ASCII (user id, movie id, rating, timestamp), so the default
+        // UTF-8 decode of response.text() is already exact and no decoder is needed.
         ratings = parseRatingData(await ratingResponse.text());
 
         // numUsers / numMovies report the LARGEST id seen, not a count of distinct

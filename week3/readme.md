@@ -11,11 +11,11 @@ the browser from `u.data` at load time.
 | --- | --- |
 | `index.html` | markup, includes the two result cards |
 | `style.css` | styling, shared with the previous version of the app |
-| `data.js` | loading and parsing of `u.item` and `u.data` (unchanged) |
+| `data.js` | loading and parsing of `u.item` and `u.data`, including the `u.item` charset |
 | `cf.js` | in-memory indexes, both similarity functions, both predictors, verification |
-| `script.js` | UI wiring, search boxes, dropdowns, result cards |
-| `u.item` | movie catalogue, 1682 movies, pipe separated |
-| `u.data` | 100000 ratings, tab separated |
+| `script.js` | UI wiring, the two comboboxes, result cards |
+| `u.item` | movie catalogue, 1682 movies, pipe separated, ISO-8859-1 |
+| `u.data` | 100000 ratings, tab separated, ASCII |
 
 Serve the folder over HTTP and open `index.html`, for example:
 
@@ -207,3 +207,19 @@ clears the stored id, so `predictRating()` can never combine a label the user ca
 an id they cannot; it reports that a choice is missing instead. That is also why the
 option labels are plain (`User 196`, `Godfather, The`) and the year is appended only in the
 context line below the controls, where it cannot be mistaken for part of the query.
+
+**Diacritics.** `u.item` is ISO-8859-1, not UTF-8, so `data.js` fetches it as an
+`ArrayBuffer` and decodes it with `TextDecoder('iso-8859-1')`. `response.text()` takes no
+charset argument and always decodes as UTF-8, which turned the twelve non-ASCII bytes in the
+file into U+FFFD and mangled the nine titles that contain them: Misérables, Les;
+Double vie de Véronique, La (Double Life of Veronique, The); C'est arrivé près de chez vous;
+Nénette et Boni; Contempt (Mépris, Le); Metisse (Café au Lait);
+JLG/JLG - autoportrait de décembre; Cérémonie, La; and the Icelandic Á köldum klaka
+(Cold Fever). Those twelve bytes are `0xC1`, `0xE8`, `0xE9` nine times and `0xF6`; every
+other byte in the file is ASCII, so nothing outside those nine titles is affected. `u.data` is
+pure ASCII and keeps using `response.text()`.
+
+Matching is a plain case-insensitive substring test, so it stays accent sensitive: `véronique`
+finds the film and `veronique` does not. The unaccented English glosses in parentheses are
+part of the same label, which is why `veronique`, `cold fever` and `double life of
+veronique` all match, while `cafe` on its own does not reach `Metisse (Café au Lait)`.
