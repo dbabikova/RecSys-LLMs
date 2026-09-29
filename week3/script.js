@@ -1,21 +1,20 @@
 // script.js - user interface for the memory-based collaborative filtering demo
 // The algorithms live in cf.js, the parsing in data.js.
 
-// Full option lists, kept separately from the <select> so that typing in the
-// search box can rebuild the list from scratch at any time.
-const userChoices = [];
-const movieChoices = [];
+let userCombobox = null;
+let movieCombobox = null;
 
 window.onload = function () {
-    wireSearchBoxes();
+    userCombobox = createCombobox('user');
+    movieCombobox = createCombobox('movie');
 
     loadData()
         .then(function () {
             setProgress(35);
             const indexSummary = buildCfIndexes(ratings);
             setProgress(80);
-            populateUserDropdown();
-            populateMovieDropdown();
+            populateUserCombobox();
+            populateMovieCombobox();
             setProgress(100);
             document.getElementById('predict-btn').disabled = false;
             resetResultCards();
@@ -34,90 +33,221 @@ window.onload = function () {
         });
 };
 
-// The search box narrows the list below it on every keystroke, so the options
-// always match exactly what has been typed. Matching is a case-insensitive
-// substring test against the visible label, which lets "god" find Godfather
-// and "96" find User 196.
-function wireSearchBoxes() {
-    const pairs = [
-        { search: 'user-search', select: 'user-select' },
-        { search: 'movie-search', select: 'movie-select' }
-    ];
+// ------------------------------------------------------------- combobox
 
-    for (const pair of pairs) {
-        const box = document.getElementById(pair.search);
-        box.addEventListener('input', function () {
-            renderOptions(pair.select, choiceListFor(pair.select), this.value);
-        });
+// One text box per control: typing filters the list attached to that same box,
+// and picking an entry writes its label back into it. The picked value is kept
+// in `selected`, separate from the visible text, so the text can be edited
+// without the stored value silently drifting away from what the user sees.
+function createCombobox(prefix) {
+    const input = document.getElementById(prefix + '-input');
+    const list = document.getElementById(prefix + '-list');
+    const box = input.parentElement;
+
+    let choices = [];
+    let selected = '';
+    let activeIndex = -1;
+    let isOpen = false;
+
+    function labelFor(value) {
+        for (const entry of choices) {
+            if (entry.value === value) {
+                return entry.label;
+            }
+        }
+        return '';
     }
+
+    function close() {
+        isOpen = false;
+        activeIndex = -1;
+        list.replaceChildren();
+        list.hidden = true;
+        input.setAttribute('aria-expanded', 'false');
+        input.removeAttribute('aria-activedescendant');
+    }
+
+    // Rebuilds the attached list from the current text. Matching is a
+    // case-insensitive substring test, so "god" finds Godfather and "96"
+    // finds User 196.
+    function openWith(query) {
+        const needle = query.trim().toLowerCase();
+        const matches = needle === ''
+            ? choices
+            : choices.filter(entry => entry.label.toLowerCase().includes(needle));
+
+        const fragment = document.createDocumentFragment();
+        for (const entry of matches) {
+            const item = document.createElement('li');
+            item.id = prefix + '-option-' + entry.value;
+            item.className = 'combobox-option';
+            item.setAttribute('role', 'option');
+            item.setAttribute('aria-selected', 'false');
+            item.dataset.value = entry.value;
+            item.textContent = entry.label;
+            fragment.appendChild(item);
+        }
+
+        if (matches.length === 0) {
+            const empty = document.createElement('li');
+            empty.className = 'combobox-option combobox-empty';
+            empty.setAttribute('role', 'option');
+            empty.setAttribute('aria-disabled', 'true');
+            empty.textContent = 'Nothing found';
+            fragment.appendChild(empty);
+        }
+
+        list.replaceChildren(fragment);
+        list.hidden = false;
+        isOpen = true;
+        activeIndex = -1;
+        input.setAttribute('aria-expanded', 'true');
+    }
+
+    function selectableItems() {
+        return list.querySelectorAll('.combobox-option[data-value]');
+    }
+
+    function highlight(index) {
+        for (const item of list.querySelectorAll('.combobox-option')) {
+            item.classList.remove('is-active');
+            item.setAttribute('aria-selected', 'false');
+        }
+
+        const items = selectableItems();
+        if (index < 0 || index >= items.length) {
+            activeIndex = -1;
+            input.removeAttribute('aria-activedescendant');
+            return;
+        }
+
+        const item = items[index];
+        activeIndex = index;
+        item.classList.add('is-active');
+        item.setAttribute('aria-selected', 'true');
+        input.setAttribute('aria-activedescendant', item.id);
+        item.scrollIntoView({ block: 'nearest' });
+    }
+
+    function choose(value) {
+        selected = value;
+        input.value = labelFor(value);
+        close();
+    }
+
+    function move(delta) {
+        if (!isOpen) {
+            openWith(input.value);
+        }
+
+        const items = selectableItems();
+        if (items.length === 0) {
+            return;
+        }
+
+        let next;
+        if (activeIndex < 0) {
+            next = delta > 0 ? 0 : items.length - 1;
+        } else {
+            next = activeIndex + delta;
+            if (next < 0) next = items.length - 1;
+            if (next >= items.length) next = 0;
+        }
+        highlight(next);
+    }
+
+    // Editing the text drops the previous pick. The visible label and the
+    // stored value must never disagree, otherwise predictRating() would use a
+    // pair the user can no longer see.
+    input.addEventListener('input', function () {
+        selected = '';
+        openWith(this.value);
+    });
+
+    input.addEventListener('focus', function () { openWith(this.value); });
+    input.addEventListener('click', function () { openWith(this.value); });
+
+    input.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            move(event.key === 'ArrowDown' ? 1 : -1);
+            return;
+        }
+
+        if (event.key === 'Enter') {
+            if (isOpen && selectableItems().length > 0) {
+                event.preventDefault();
+                const items = selectableItems();
+                choose(items[activeIndex < 0 ? 0 : activeIndex].dataset.value);
+            }
+            return;
+        }
+
+        if (event.key === 'Escape' && isOpen) {
+            event.preventDefault();
+            close();
+        }
+    });
+
+    // Keeps focus on the text box so a click on an entry is not swallowed by a
+    // blur that closes the list first.
+    list.addEventListener('mousedown', function (event) { event.preventDefault(); });
+
+    list.addEventListener('click', function (event) {
+        const item = event.target.closest('.combobox-option');
+        if (!item || item.dataset.value === undefined) {
+            return;
+        }
+        choose(item.dataset.value);
+    });
+
+    document.addEventListener('mousedown', function (event) {
+        if (isOpen && !box.contains(event.target)) {
+            close();
+        }
+    });
+
+    return {
+        setChoices(next) { choices = next; },
+        enable() { input.disabled = false; },
+        disable() { input.disabled = true; close(); },
+        value() { return selected; }
+    };
 }
 
-function choiceListFor(selectId) {
-    return selectId === 'user-select' ? userChoices : movieChoices;
-}
+// ------------------------------------------------------------- populating
 
-function populateUserDropdown() {
-    userChoices.length = 0;
+function populateUserCombobox() {
+    const choices = [];
 
     for (const userId of [...ratingsByUser.keys()].sort((left, right) => left - right)) {
-        userChoices.push({ value: String(userId), label: 'User ' + userId });
+        choices.push({ value: String(userId), label: 'User ' + userId });
     }
 
-    document.getElementById('user-search').disabled = false;
-    renderOptions('user-select', userChoices, document.getElementById('user-search').value);
+    userCombobox.setChoices(choices);
+    userCombobox.enable();
 }
 
-function populateMovieDropdown() {
-    movieChoices.length = 0;
+function populateMovieCombobox() {
+    const choices = [];
 
     for (const movieId of [...ratingsByItem.keys()].sort((left, right) => left - right)) {
         const movie = movies.find(entry => entry.id === movieId);
-        movieChoices.push({
+        choices.push({
             value: String(movieId),
             label: movie ? movie.title : 'Movie ' + movieId
         });
     }
 
-    document.getElementById('movie-search').disabled = false;
-    renderOptions('movie-select', movieChoices, document.getElementById('movie-search').value);
+    movieCombobox.setChoices(choices);
+    movieCombobox.enable();
 }
 
-// Rebuilds a <select> from the entries that match the query. A previously
-// chosen entry is kept whenever the new query still contains it, so narrowing
-// the list does not silently move the selection.
-function renderOptions(selectId, entries, query) {
-    const select = document.getElementById(selectId);
-    const previous = select.value;
-    const needle = query.trim().toLowerCase();
-    const matches = needle === ''
-        ? entries
-        : entries.filter(entry => entry.label.toLowerCase().includes(needle));
-
-    const fragment = document.createDocumentFragment();
-    for (const entry of matches) {
-        const option = document.createElement('option');
-        option.value = entry.value;
-        option.textContent = entry.label;
-        fragment.appendChild(option);
-    }
-
-    if (matches.length === 0) {
-        const empty = document.createElement('option');
-        empty.value = '';
-        empty.textContent = 'Nothing found';
-        fragment.appendChild(empty);
-    }
-
-    select.replaceChildren(fragment);
-
-    const stillThere = matches.some(entry => entry.value === previous);
-    select.value = stillThere ? previous : '';
-    select.disabled = false;
-}
+// ------------------------------------------------------------- prediction
 
 function predictRating() {
-    const userId = parseInt(document.getElementById('user-select').value, 10);
-    const movieId = parseInt(document.getElementById('movie-select').value, 10);
+    const userId = parseInt(userCombobox.value(), 10);
+    const movieId = parseInt(movieCombobox.value(), 10);
 
     if (Number.isNaN(userId) || Number.isNaN(movieId)) {
         updateStatus('Choose a user and a movie first.');
@@ -190,13 +320,11 @@ function showError(message) {
     const element = document.getElementById('status');
     element.className = 'status error';
     element.textContent = message;
-    // The dataset never arrived, so there is nothing to choose from. The
-    // search boxes and dropdowns are re-disabled here so the failure state is
-    // explicit even if an error were raised after they had been populated.
-    document.getElementById('user-search').disabled = true;
-    document.getElementById('user-select').disabled = true;
-    document.getElementById('movie-search').disabled = true;
-    document.getElementById('movie-select').disabled = true;
+    // The dataset never arrived, so there is nothing to choose from. Both
+    // comboboxes are re-disabled here so the failure state is explicit even if
+    // an error were raised after they had already been populated.
+    userCombobox.disable();
+    movieCombobox.disable();
     document.getElementById('predict-btn').disabled = true;
 }
 

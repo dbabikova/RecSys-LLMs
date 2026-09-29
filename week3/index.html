@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User-Based &amp; Item-Based Collaborative Filtering</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div class="container">
@@ -16,19 +16,23 @@
         <main>
             <section class="controls">
                 <div class="input-group">
-                    <label for="user-search">Select user</label>
-                    <input type="search" id="user-search" placeholder="Type to search" autocomplete="off" spellcheck="false" disabled>
-                    <select id="user-select" disabled>
-                        <option value="">Loading users...</option>
-                    </select>
+                    <label for="user-input">Select user</label>
+                    <div class="combobox">
+                        <input type="text" id="user-input" class="combobox-input" role="combobox"
+                            aria-expanded="false" aria-controls="user-list" aria-autocomplete="list"
+                            autocomplete="off" spellcheck="false" placeholder="User id, e.g. 196" disabled>
+                        <ul class="combobox-list" id="user-list" role="listbox" aria-label="User matches" hidden></ul>
+                    </div>
                 </div>
 
                 <div class="input-group">
-                    <label for="movie-search">Select movie</label>
-                    <input type="search" id="movie-search" placeholder="Type to search" autocomplete="off" spellcheck="false" disabled>
-                    <select id="movie-select" disabled>
-                        <option value="">Loading movies...</option>
-                    </select>
+                    <label for="movie-input">Select movie</label>
+                    <div class="combobox">
+                        <input type="text" id="movie-input" class="combobox-input" role="combobox"
+                            aria-expanded="false" aria-controls="movie-list" aria-autocomplete="list"
+                            autocomplete="off" spellcheck="false" placeholder="Movie title, e.g. Godfather" disabled>
+                        <ul class="combobox-list" id="movie-list" role="listbox" aria-label="Movie matches" hidden></ul>
+                    </div>
                 </div>
 
                 <div class="actions">
@@ -70,8 +74,8 @@
         <footer>MovieLens 100K &middot; u.item + u.data &middot; static files, no build step</footer>
     </div>
 
-    <script src="data.js?v=5"></script>
-    <script src="cf.js?v=5"></script>
-    <script src="script.js?v=5"></script>
+    <script src="data.js?v=6"></script>
+    <script src="cf.js?v=6"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>

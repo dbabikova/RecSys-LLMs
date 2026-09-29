@@ -22,7 +22,6 @@ body {
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
-    overflow: hidden;
 }
 
 header {
@@ -30,6 +29,7 @@ header {
     color: #fff;
     padding: 32px 24px;
     text-align: center;
+    border-radius: 16px 16px 0 0;
 }
 
 header h1 {
@@ -69,30 +69,77 @@ label {
     color: #7f8c8d;
 }
 
-select,
-input[type='search'] {
+.combobox {
+    position: relative;
+}
+
+.combobox-input {
+    width: 100%;
+}
+
+input[type='text'] {
     padding: 12px;
     border: 1px solid #dfe4ea;
     border-radius: 10px;
     font-size: 1rem;
+    font-family: inherit;
     background: #fff;
     color: #2c3e50;
-    font-family: inherit;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-select:focus,
-input[type='search']:focus {
+input[type='text']:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.18);
 }
 
-select:disabled,
-input[type='search']:disabled {
+input[type='text']:disabled {
     background: #f4f6f8;
     color: #95a5a6;
     cursor: not-allowed;
+}
+
+.combobox-list {
+    position: absolute;
+    z-index: 30;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 4px;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #dfe4ea;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.combobox-list[hidden] {
+    display: none;
+}
+
+.combobox-option {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.combobox-option:hover,
+.combobox-option.is-active {
+    background: #eaf3fc;
+}
+
+.combobox-empty {
+    color: #95a5a6;
+    cursor: default;
+}
+
+.combobox-empty:hover {
+    background: none;
 }
 
 .actions {
@@ -108,6 +155,7 @@ input[type='search']:disabled {
     border-radius: 10px;
     font-size: 1.05rem;
     font-weight: 600;
+    font-family: inherit;
     letter-spacing: 0.4px;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;

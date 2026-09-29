@@ -181,17 +181,29 @@ so they are visible without opening developer tools.
 
 ## Interface
 
-The page is deliberately sparse: two search boxes, two dropdowns, one button and two result
-cards. The dataset figures (943 users, 1682 movies, 100 000 ratings, 93.7% sparsity) and
-the tuning constants (`K`, `MIN_OVERLAP`, the two similarity metrics) are not shown as
-on-screen chips. They are properties of the model rather than of the current prediction,
-they never change while the page is open, and the two similarity metrics are already named
-on the result cards. Everything remains visible in the console and in this readme; `K` and
+The page is deliberately sparse: two text boxes, one button and two result cards. The
+dataset figures (943 users, 1682 movies, 100 000 ratings, 93.7% sparsity) and the tuning
+constants (`K`, `MIN_OVERLAP`, the two similarity metrics) are not shown as on-screen
+chips. They are properties of the model rather than of the current prediction, they never
+change while the page is open, and the two similarity metrics are already named on the
+result cards. Everything remains visible in the console and in this readme; `K` and
 `MIN_OVERLAP` are the constants at the top of `cf.js`.
 
-**Search.** Each dropdown is preceded by a text box that filters the list on every
-keystroke, matching a case-insensitive substring of the visible label. Typing `god`
-narrows 1682 movies to 6, `toy story` to 1. A selection that survives the new query is kept,
-so narrowing the list never silently moves the chosen user or movie; one that no longer
-matches is cleared, so `predictRating()` reports that a choice is missing rather than
-predicting a stale pair. An empty result set shows a single `Nothing found` entry.
+**Combobox.** There is no separate search field and no `<select>`. Each control is a
+single text box with its list attached underneath, so the query and the results it matches
+share one window. Typing filters on every keystroke with a case-insensitive substring test
+against the visible label: `god` narrows 1682 movies to 6, `toy story` to 1, `19` to the
+20 user ids containing those digits. Focusing or clicking the box with empty text opens the
+full list. An empty result set shows a single `Nothing found` entry that cannot be picked.
+
+Picking an entry, by click or with `Enter`, writes its label back into the same box and
+closes the list. `ArrowDown` and `ArrowUp` move the highlight and wrap around, `Enter` takes
+the highlighted entry or the first match if nothing is highlighted yet, and `Escape` closes
+the list. `aria-expanded` tracks the list and `aria-activedescendant` tracks the highlight,
+so the control is announced correctly as a combobox.
+
+The picked id is stored separately from the visible text. Editing the text after a pick
+clears the stored id, so `predictRating()` can never combine a label the user can see with
+an id they cannot; it reports that a choice is missing instead. That is also why the
+option labels are plain (`User 196`, `Godfather, The`) and the year is appended only in the
+context line below the controls, where it cannot be mistaken for part of the query.
