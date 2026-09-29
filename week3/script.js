@@ -1,7 +1,14 @@
 // script.js - user interface for the memory-based collaborative filtering demo
 // The algorithms live in cf.js, the parsing in data.js.
 
+// Full option lists, kept separately from the <select> so that typing in the
+// search box can rebuild the list from scratch at any time.
+const userChoices = [];
+const movieChoices = [];
+
 window.onload = function () {
+    wireSearchBoxes();
+
     loadData()
         .then(function () {
             setProgress(35);
@@ -11,7 +18,6 @@ window.onload = function () {
             populateMovieDropdown();
             setProgress(100);
             document.getElementById('predict-btn').disabled = false;
-            renderStats(indexSummary);
             resetResultCards();
 
             const verification = runVerification();
@@ -28,35 +34,84 @@ window.onload = function () {
         });
 };
 
+// The search box narrows the list below it on every keystroke, so the options
+// always match exactly what has been typed. Matching is a case-insensitive
+// substring test against the visible label, which lets "god" find Godfather
+// and "96" find User 196.
+function wireSearchBoxes() {
+    const pairs = [
+        { search: 'user-search', select: 'user-select' },
+        { search: 'movie-search', select: 'movie-select' }
+    ];
+
+    for (const pair of pairs) {
+        const box = document.getElementById(pair.search);
+        box.addEventListener('input', function () {
+            renderOptions(pair.select, choiceListFor(pair.select), this.value);
+        });
+    }
+}
+
+function choiceListFor(selectId) {
+    return selectId === 'user-select' ? userChoices : movieChoices;
+}
+
 function populateUserDropdown() {
-    const select = document.getElementById('user-select');
-    const fragment = document.createDocumentFragment();
+    userChoices.length = 0;
 
     for (const userId of [...ratingsByUser.keys()].sort((left, right) => left - right)) {
-        const option = document.createElement('option');
-        option.value = userId;
-        option.textContent = 'User ' + userId + ' (' + ratingsByUser.get(userId).size + ' ratings)';
-        fragment.appendChild(option);
+        userChoices.push({ value: String(userId), label: 'User ' + userId });
     }
 
-    select.replaceChildren(fragment);
-    select.disabled = false;
+    document.getElementById('user-search').disabled = false;
+    renderOptions('user-select', userChoices, document.getElementById('user-search').value);
 }
 
 function populateMovieDropdown() {
-    const select = document.getElementById('movie-select');
-    const fragment = document.createDocumentFragment();
+    movieChoices.length = 0;
 
     for (const movieId of [...ratingsByItem.keys()].sort((left, right) => left - right)) {
         const movie = movies.find(entry => entry.id === movieId);
+        movieChoices.push({
+            value: String(movieId),
+            label: movie ? movie.title : 'Movie ' + movieId
+        });
+    }
+
+    document.getElementById('movie-search').disabled = false;
+    renderOptions('movie-select', movieChoices, document.getElementById('movie-search').value);
+}
+
+// Rebuilds a <select> from the entries that match the query. A previously
+// chosen entry is kept whenever the new query still contains it, so narrowing
+// the list does not silently move the selection.
+function renderOptions(selectId, entries, query) {
+    const select = document.getElementById(selectId);
+    const previous = select.value;
+    const needle = query.trim().toLowerCase();
+    const matches = needle === ''
+        ? entries
+        : entries.filter(entry => entry.label.toLowerCase().includes(needle));
+
+    const fragment = document.createDocumentFragment();
+    for (const entry of matches) {
         const option = document.createElement('option');
-        option.value = movieId;
-        option.textContent = (movie ? movie.title : 'Movie ' + movieId) +
-            ' (' + ratingsByItem.get(movieId).size + ' ratings)';
+        option.value = entry.value;
+        option.textContent = entry.label;
         fragment.appendChild(option);
     }
 
+    if (matches.length === 0) {
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = 'Nothing found';
+        fragment.appendChild(empty);
+    }
+
     select.replaceChildren(fragment);
+
+    const stillThere = matches.some(entry => entry.value === previous);
+    select.value = stillThere ? previous : '';
     select.disabled = false;
 }
 
@@ -92,15 +147,6 @@ function renderResultCard(prefix, result) {
     const similarity = prefix === 'user' ? SIMILARITY_LABEL.userBased : SIMILARITY_LABEL.itemBased;
     document.getElementById(prefix + '-neighbours').textContent = result.neighbours + ' of top ' + DEFAULT_K;
 
-    const pathCell = document.getElementById(prefix + '-path');
-    if (result.fallback === null) {
-        pathCell.textContent = 'computed from the neighbourhood';
-        pathCell.className = 'ok';
-    } else {
-        pathCell.textContent = 'cold start fallback: ' + result.fallback;
-        pathCell.className = 'warn';
-    }
-
     const detail = document.getElementById(prefix + '-metric');
     detail.textContent = similarity;
 }
@@ -115,30 +161,11 @@ function resetResultCards() {
         meter.style.width = '0%';
         meter.className = 'meter-fill';
         document.getElementById(prefix + '-neighbours').textContent = '-';
-        document.getElementById(prefix + '-path').textContent = '-';
         document.getElementById(prefix + '-metric').textContent = prefix === 'user'
             ? SIMILARITY_LABEL.userBased
             : SIMILARITY_LABEL.itemBased;
     }
     document.getElementById('prediction-context').textContent = 'No user and movie selected yet';
-}
-
-function renderStats(indexSummary) {
-    const chips = [
-        indexSummary.users + ' users',
-        movies.length + ' movies in the catalogue',
-        indexSummary.ratedMovies + ' movies with ratings',
-        ratings.length.toLocaleString('en-US') + ' ratings',
-        'sparsity ' + sparsityPercent().toFixed(1) + '%',
-        'user metric: Pearson correlation',
-        'item metric: adjusted cosine',
-        'K = ' + DEFAULT_K + ' neighbours',
-        'MIN_OVERLAP = ' + MIN_OVERLAP
-    ];
-
-    document.getElementById('stats').innerHTML = chips
-        .map(function (chip) { return '<span class="chip">' + chip + '</span>'; })
-        .join('');
 }
 
 function bandFor(value) {
@@ -164,9 +191,11 @@ function showError(message) {
     element.className = 'status error';
     element.textContent = message;
     // The dataset never arrived, so there is nothing to choose from. The
-    // dropdowns are re-disabled here so the failure state is explicit even if
-    // an error were raised after they had already been populated.
+    // search boxes and dropdowns are re-disabled here so the failure state is
+    // explicit even if an error were raised after they had been populated.
+    document.getElementById('user-search').disabled = true;
     document.getElementById('user-select').disabled = true;
+    document.getElementById('movie-search').disabled = true;
     document.getElementById('movie-select').disabled = true;
     document.getElementById('predict-btn').disabled = true;
 }

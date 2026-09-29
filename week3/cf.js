@@ -93,15 +93,6 @@ function averageOf(valueMap) {
     return total / valueMap.size;
 }
 
-// Fraction of the user x movie grid that holds no rating, in percent.
-function sparsityPercent() {
-    const cells = ratingsByUser.size * ratingsByItem.size;
-    if (cells === 0) {
-        return 0;
-    }
-    return (1 - indexedRatingCount / cells) * 100;
-}
-
 // ------------------------------------------------------------- similarities
 
 // Pearson correlation between two users, computed only over movies that BOTH of

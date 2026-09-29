@@ -13,7 +13,7 @@ the browser from `u.data` at load time.
 | `style.css` | styling, shared with the previous version of the app |
 | `data.js` | loading and parsing of `u.item` and `u.data` (unchanged) |
 | `cf.js` | in-memory indexes, both similarity functions, both predictors, verification |
-| `script.js` | UI wiring, dropdowns, result cards, statistics panel |
+| `script.js` | UI wiring, search boxes, dropdowns, result cards |
 | `u.item` | movie catalogue, 1682 movies, pipe separated |
 | `u.data` | 100000 ratings, tab separated |
 
@@ -114,12 +114,15 @@ Other safeguards:
 
 ## Cold start fallback
 
-When no neighbour survives the filters, the app falls back in this order and says so in
-the result card:
+When no neighbour survives the filters, the app falls back in this order:
 
 1. **user mean** - average rating given by the selected user
 2. **item mean** - average rating received by the selected movie
 3. **global mean** - average over the whole dataset
+
+The result card does not label which of the three produced the number. A fallback is a
+per-prediction implementation detail rather than a property of the method, and the
+cold-start probe in the console already reports it explicitly for the cases that matter.
 
 ## Verification
 
@@ -160,8 +163,9 @@ No `NaN`, no division by zero, every value inside [1, 5].
 
 ### Where accuracy is reported
 
-The result cards show the predicted rating only. They deliberately carry no observed
-rating and no absolute error, because MovieLens 100K is 93.7% empty: out of the
+Each result card shows the predicted rating, a verdict band, the meter, the neighbour count
+and the similarity metric. It deliberately carries no observed rating, no absolute error and
+no fallback label, because MovieLens 100K is 93.7% empty: out of the
 1 586 126 possible `(user, movie)` cells only 100 000 hold a rating, so roughly 94% of all
 pairs have no ground truth to compare against. A per-prediction error field would print
 "not rated by this user" and "n/a" for almost every pair the user clicks, which reads as a
@@ -175,8 +179,19 @@ held-out ratings does. The headline figures are printed to the console, and the 
 user-based and item-based RMSE values are repeated in the status line under the dropdowns
 so they are visible without opening developer tools.
 
-## Statistics panel
+## Interface
 
-Reports the user count, the movie count, the rating count, matrix sparsity (93.7%), the
-similarity metric used by each method, the neighbourhood size `K` and `MIN_OVERLAP`. `K`
-and `MIN_OVERLAP` are constants at the top of `cf.js` and can be changed there.
+The page is deliberately sparse: two search boxes, two dropdowns, one button and two result
+cards. The dataset figures (943 users, 1682 movies, 100 000 ratings, 93.7% sparsity) and
+the tuning constants (`K`, `MIN_OVERLAP`, the two similarity metrics) are not shown as
+on-screen chips. They are properties of the model rather than of the current prediction,
+they never change while the page is open, and the two similarity metrics are already named
+on the result cards. Everything remains visible in the console and in this readme; `K` and
+`MIN_OVERLAP` are the constants at the top of `cf.js`.
+
+**Search.** Each dropdown is preceded by a text box that filters the list on every
+keystroke, matching a case-insensitive substring of the visible label. Typing `god`
+narrows 1682 movies to 6, `toy story` to 1. A selection that survives the new query is kept,
+so narrowing the list never silently moves the chosen user or movie; one that no longer
+matches is cleared, so `predictRating()` reports that a choice is missing rather than
+predicting a stale pair. An empty result set shows a single `Nothing found` entry.
