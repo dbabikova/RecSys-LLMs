@@ -540,8 +540,17 @@ function trainMF(train, val, opts) {
           optimizer
             .minimize(
               () => tf.tidy(() => {
-                const u = tf.gather(model.userFactors, uIdx);
-                const i = tf.gather(model.itemFactors, iIdx);
+                // oneHot+matMul instead of gather: gather's backward pass runs
+                // unsortedSegmentSum over every matrix row each step, while the
+                // matMul backward pass is one dense GEMM per factor.
+                const u = tf
+                  .oneHot(uIdx, model.userFactors.shape[0])
+                  .toFloat()
+                  .matMul(model.userFactors);
+                const i = tf
+                  .oneHot(iIdx, model.itemFactors.shape[0])
+                  .toFloat()
+                  .matMul(model.itemFactors);
                 const pred = tf.sum(u.mul(i), 1).add(model.globalMean);
                 const mse = tf.losses.meanSquaredError(yB, pred);
                 // Full-matrix L2 (as in the stub example) is a ~2627-row sum
@@ -665,8 +674,46 @@ function selectBestCheckpoint(history) {
  * @returns {Array<{movieId: number, title: string, score: number}>}
  */
 function recommendTopK(userId, K = 10) {
-  // TODO(hw5): matMul + tf.topk, mask train/val items, sort desc, take the top K.
-  throw new Error("TODO(hw5): recommendTopK is not implemented yet.");
+  if (!model || !(K > 0)) return [];
+  const uRows = model.userFactors.shape[0];
+  const rows = model.itemFactors.shape[0];
+  if (userId < 0 || userId >= uRows) return [];
+
+  const F = model.userFactors.shape[1];
+  const seen = new Set();
+  for (const r of trainSet) if (r.userId === userId) seen.add(r.movieId);
+  for (const r of valSet) if (r.userId === userId) seen.add(r.movieId);
+
+  // keep = 1 only for catalog ids the user has NOT rated in train/val.
+  const keep = new Uint8Array(rows);
+  for (const m of movies) {
+    if (m.id >= 0 && m.id < rows && !seen.has(m.id)) keep[m.id] = 1;
+  }
+  let eligible = 0;
+  for (let id = 0; id < rows; id++) eligible += keep[id];
+  if (eligible === 0) return [];
+
+  const { values, indices } = tf.tidy(() => {
+    const userRow = model.userFactors.slice([userId, 0], [1, F]);
+    const scores = model.itemFactors
+      .matMul(userRow, false, true)
+      .squeeze()
+      .add(model.globalMean);
+    const mask = tf.tensor1d(keep, "float32");
+    const masked = scores.mul(mask).add(mask.sub(1).mul(1e9));
+    const top = tf.topk(masked, Math.min(K, rows));
+    // Plain arrays for the caller; tidy disposes the two result tensors.
+    return { values: top.values.dataSync(), indices: top.indices.dataSync() };
+  });
+
+  const out = [];
+  for (let i = 0; i < indices.length && out.length < K; i++) {
+    const movieId = indices[i];
+    if (!keep[movieId]) continue; // drop masked rows a second time
+    out.push({ movieId, title: movieTitle(movieId), score: clamp(values[i], 1, 5) });
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out;
 }
 
 /**
@@ -697,8 +744,56 @@ function recommendTopK(userId, K = 10) {
  * @returns {{overallRecall: number, perUser: Array<{userId: number, relevant: number, hit: number}>, excluded: {unseenIds: number[], usersWithoutRelevant: number[]}}}
  */
 function recallAtK(K = 10) {
-  // TODO(hw5): evaluate Recall@K with explicit exclusions.
-  throw new Error("TODO(hw5): recallAtK is not implemented yet.");
+  // Candidate pool for RELEVANCE only: ranking still runs over the whole catalog.
+  const candidates = new Set();
+  for (const r of trainSet) candidates.add(r.movieId);
+
+  const relevantByUser = new Map();
+  const unseen = new Set();
+  for (const r of testSet) {
+    if (r.rating < 4.0) continue;
+    if (!candidates.has(r.movieId)) {
+      unseen.add(r.movieId);
+      continue;
+    }
+    if (!relevantByUser.has(r.userId)) relevantByUser.set(r.userId, new Set());
+    relevantByUser.get(r.userId).add(r.movieId);
+  }
+
+  const perUser = [];
+  const usersWithoutRelevant = new Set();
+  const visited = new Set();
+  for (const r of testSet) {
+    const userId = r.userId;
+    if (visited.has(userId)) continue;
+    visited.add(userId);
+
+    const rel = relevantByUser.get(userId);
+    if (!rel || rel.size === 0) {
+      usersWithoutRelevant.add(userId);
+      continue;
+    }
+    const got = new Set(recommendTopK(userId, K).map((x) => x.movieId));
+    let hit = 0;
+    for (const id of rel) if (got.has(id)) hit++;
+    perUser.push({ userId, relevant: rel.size, hit });
+  }
+
+  let overallRecall = 0;
+  if (perUser.length > 0) {
+    let sum = 0;
+    for (const u of perUser) sum += u.hit / u.relevant;
+    overallRecall = sum / perUser.length;
+  }
+
+  return {
+    overallRecall,
+    perUser,
+    excluded: {
+      unseenIds: Array.from(unseen).sort((a, b) => a - b),
+      usersWithoutRelevant: Array.from(usersWithoutRelevant).sort((a, b) => a - b),
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
