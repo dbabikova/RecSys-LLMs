@@ -374,9 +374,23 @@ function computeBaselineRMSE(split) {
  * @returns {number} predicted rating in `[1, 5]`
  */
 function predictRating(userId, movieId) {
-  // TODO(hw5): gather the two factor rows, take their dot product, add
-  // globalMean and clamp the result to [1, 5].
-  throw new Error("TODO(hw5): predictRating is not implemented yet.");
+  // No model yet: cheap guard so callers can check without try/catch.
+  if (!model) return 0;
+
+  const uRows = model.userFactors.shape[0];
+  const iRows = model.itemFactors.shape[0];
+  // Unknown id has no factor row: fall back to the global mean BEFORE slicing.
+  if (userId < 0 || userId >= uRows || movieId < 0 || movieId >= iRows) {
+    return model.globalMean;
+  }
+
+  const f = model.userFactors.shape[1];
+  return tf.tidy(() => {
+    const u = model.userFactors.slice([userId, 0], [1, f]);
+    const i = model.itemFactors.slice([movieId, 0], [1, f]);
+    const dot = u.mul(i).sum().dataSync()[0];
+    return clamp(model.globalMean + dot, 1, 5);
+  });
 }
 
 /**
@@ -408,8 +422,20 @@ function predictRating(userId, movieId) {
  * @returns {Model}
  */
 function initializeFactors(train, numFactors = NUM_FACTORS) {
-  // TODO(hw5): compute globalMean, create the two tf.Variables, assign to model.
-  throw new Error("TODO(hw5): initializeFactors is not implemented yet.");
+  const globalMean = train.length
+    ? train.reduce((acc, r) => acc + r.rating, 0) / train.length
+    : 0;
+
+  // Release the previous model's variables before allocating new ones.
+  if (model) tf.dispose([model.userFactors, model.itemFactors]);
+
+  const maxMovieId = movies.reduce((m, x) => Math.max(m, x.id), 0);
+  model = {
+    userFactors: tf.variable(tf.randomNormal([numUsers + 1, numFactors], 0, 0.05)),
+    itemFactors: tf.variable(tf.randomNormal([maxMovieId + 1, numFactors], 0, 0.05)),
+    globalMean,
+  };
+  return model;
 }
 
 /**
@@ -481,8 +507,14 @@ function trainMF(train, val, opts) {
  * @returns {HistoryRow|null}
  */
 function selectBestCheckpoint(history) {
-  // TODO(hw5): scan for the minimum valRMSE, breaking ties toward the earliest epoch.
-  throw new Error("TODO(hw5): selectBestCheckpoint is not implemented yet.");
+  if (!history || history.length === 0) return null;
+
+  let best = history[0];
+  // Strict "<" keeps the earliest epoch on a tie; the input is not mutated.
+  for (let i = 1; i < history.length; i++) {
+    if (history[i].valRMSE < best.valRMSE) best = history[i];
+  }
+  return best;
 }
 
 /**
