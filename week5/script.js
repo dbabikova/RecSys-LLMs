@@ -488,8 +488,124 @@ function initializeFactors(train, numFactors = NUM_FACTORS) {
  * @returns {HistoryRow[]}
  */
 function trainMF(train, val, opts) {
-  // TODO(hw5): batched tensor training loop; update model in place; return history.
-  throw new Error("TODO(hw5): trainMF is not implemented yet.");
+  // Reset so a repeated "Train" click never appends to the previous run.
+  trainingHistory = [];
+  if (!train || train.length === 0) return trainingHistory;
+
+  const { epochs, lr, reg, batchSize } = opts;
+  const n = train.length;
+  const startedAt = Date.now();
+
+  // Index/target tensors are built once; only the batch ORDER is reshuffled.
+  const userIds = new Int32Array(n);
+  const movieIds = new Int32Array(n);
+  const targets = new Float32Array(n);
+  for (let k = 0; k < n; k++) {
+    userIds[k] = train[k].userId;
+    movieIds[k] = train[k].movieId;
+    targets[k] = train[k].rating;
+  }
+  const baseU = tf.tensor1d(userIds, "int32");
+  const baseI = tf.tensor1d(movieIds, "int32");
+  const baseY = tf.tensor1d(targets, "float32");
+
+  const optimizer = tf.train.adam(lr);
+  const perm = new Int32Array(n);
+  let bestVal = Infinity;
+  let bestEpoch = 0;
+  let bestU = null;
+  let bestI = null;
+
+  try {
+    for (let epoch = 1; epoch <= epochs; epoch++) {
+      // Fisher-Yates on the row order; ceil() gives full-batch when batchSize >= n.
+      for (let k = 0; k < n; k++) perm[k] = k;
+      for (let k = n - 1; k > 0; k--) {
+        const j = (Math.random() * (k + 1)) | 0;
+        const t = perm[k];
+        perm[k] = perm[j];
+        perm[j] = t;
+      }
+      const order = tf.tensor1d(perm, "int32");
+      const uAll = tf.gather(baseU, order);
+      const iAll = tf.gather(baseI, order);
+      const yAll = tf.gather(baseY, order);
+
+      try {
+        for (let start = 0; start < n; start += batchSize) {
+          const len = Math.min(batchSize, n - start);
+          const uIdx = uAll.slice([start], [len]);
+          const iIdx = iAll.slice([start], [len]);
+          const yB = yAll.slice([start], [len]);
+          optimizer
+            .minimize(
+              () => tf.tidy(() => {
+                const u = tf.gather(model.userFactors, uIdx);
+                const i = tf.gather(model.itemFactors, iIdx);
+                const pred = tf.sum(u.mul(i), 1).add(model.globalMean);
+                const mse = tf.losses.meanSquaredError(yB, pred);
+                // Full-matrix L2 (as in the stub example) is a ~2627-row sum
+                // (~5.2 at init) added to a per-batch MEAN MSE (~1.2): its
+                // gradient 2*reg*row hits every row on every step, shrinking
+                // all factors until predictions collapse to mu = the baseline.
+                // Penalty over batch rows only, averaged per rating:
+                const l2 = u.square().sum().add(i.square().sum()).mul(reg / len);
+                return mse.add(l2);
+              }),
+              true,
+              [model.userFactors, model.itemFactors],
+            )
+            .dispose();
+          uIdx.dispose();
+          iIdx.dispose();
+          yB.dispose();
+        }
+      } finally {
+        order.dispose();
+        uAll.dispose();
+        iAll.dispose();
+        yAll.dispose();
+      }
+
+      const trainRMSE = computeRMSEFor(train);
+      const valRMSE = computeRMSEFor(val);
+      trainingHistory.push({ epoch, trainRMSE, valRMSE });
+
+      // Keep a snapshot of the earliest minimum-val epoch (same tie rule as
+      // selectBestCheckpoint), replacing any older snapshot.
+      if (valRMSE < bestVal) {
+        bestVal = valRMSE;
+        bestEpoch = epoch;
+        if (bestU) bestU.dispose();
+        if (bestI) bestI.dispose();
+        bestU = tf.clone(model.userFactors);
+        bestI = tf.clone(model.itemFactors);
+      }
+    }
+
+    // Restore the best-epoch weights in place (no reallocation), then free them.
+    if (bestU) {
+      model.userFactors.assign(bestU);
+      model.itemFactors.assign(bestI);
+      bestU.dispose();
+      bestI.dispose();
+    }
+  } finally {
+    // Adam keeps moment tensors per variable; free them on every Train click.
+    optimizer.dispose();
+    baseU.dispose();
+    baseI.dispose();
+    baseY.dispose();
+  }
+
+  const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+  console.log(
+    `[trainMF] best epoch ${bestEpoch}, val RMSE ${bestVal.toFixed(4)}, ` +
+      `test RMSE ${computeRMSEFor(testSet).toFixed(4)}, ` +
+      `baseline test RMSE ${computeBaselineRMSE(testSet).toFixed(4)}, ` +
+      `time ${seconds}s`,
+  );
+  return trainingHistory;
 }
 
 /**
