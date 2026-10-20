@@ -1,0 +1,101 @@
+user_id,method,alpha,rank,movie_id,title,genres,score,training_popularity
+1,ppr,0.85,1,100,Fargo (1996),Crime;Drama;Thriller,0.0027416797820478678,377
+1,ppr,0.85,2,258,Contact (1997),Drama;Sci-Fi,0.002001958666369319,307
+1,ppr,0.85,3,286,"English Patient, The (1996)",Drama;Romance;War,0.001873536268249154,279
+1,ppr,0.85,4,318,Schindler's List (1993),Drama;War,0.0016319345450028777,224
+1,ppr,0.85,5,357,One Flew Over the Cuckoo's Nest (1975),Drama,0.0014931042678654194,202
+1,ppr,0.85,6,483,Casablanca (1942),Drama;Romance;War,0.0014446350978687406,197
+1,ppr,0.85,7,288,Scream (1996),Horror;Thriller,0.0014287251979112625,226
+1,ppr,0.85,8,300,Air Force One (1997),Action;Thriller,0.0014131043571978807,235
+1,ppr,0.85,9,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.0013529459247365594,189
+1,ppr,0.85,10,313,Titanic (1997),Action;Drama;Romance,0.0013183319242671132,219
+7,ppr,0.85,1,1,Toy Story (1995),Animation;Children's;Comedy,0.001964290626347065,288
+7,ppr,0.85,2,258,Contact (1997),Drama;Sci-Fi,0.0018887841142714024,307
+7,ppr,0.85,3,357,One Flew Over the Cuckoo's Nest (1975),Drama,0.0015382403507828712,202
+7,ppr,0.85,4,12,"Usual Suspects, The (1995)",Crime;Thriller,0.0014989905757829547,205
+7,ppr,0.85,5,117,"Rock, The (1996)",Action;Adventure;Thriller,0.0014248727820813656,215
+7,ppr,0.85,6,313,Titanic (1997),Action;Drama;Romance,0.001281652832403779,219
+7,ppr,0.85,7,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.0012729588197544217,189
+7,ppr,0.85,8,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,0.0012340607354417443,202
+7,ppr,0.85,9,185,Psycho (1960),Horror;Romance;Thriller,0.0012274697655811906,159
+7,ppr,0.85,10,134,Citizen Kane (1941),Drama,0.0010892180725932121,143
+1,ppr,0.50,1,100,Fargo (1996),Crime;Drama;Thriller,0.0006855214014649391,377
+1,ppr,0.50,2,258,Contact (1997),Drama;Sci-Fi,0.00043986737728118896,307
+1,ppr,0.50,3,286,"English Patient, The (1996)",Drama;Romance;War,0.0004310201038606465,279
+1,ppr,0.50,4,318,Schindler's List (1993),Drama;War,0.000403817743062973,224
+1,ppr,0.50,5,357,One Flew Over the Cuckoo's Nest (1975),Drama,0.00037716736551374197,202
+1,ppr,0.50,6,483,Casablanca (1942),Drama;Romance;War,0.000359690428012982,197
+1,ppr,0.50,7,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.000332786439685151,189
+1,ppr,0.50,8,475,Trainspotting (1996),Drama,0.00032809111871756613,164
+1,ppr,0.50,9,275,Sense and Sensibility (1995),Drama;Romance,0.0003201858780812472,178
+1,ppr,0.50,10,423,E.T. the Extra-Terrestrial (1982),Children's;Drama;Fantasy;Sci-Fi,0.00030566909117624164,167
+1,popularity,,1,100,Fargo (1996),Crime;Drama;Thriller,377,377
+1,popularity,,2,258,Contact (1997),Drama;Sci-Fi,307,307
+1,popularity,,3,286,"English Patient, The (1996)",Drama;Romance;War,279,279
+1,popularity,,4,300,Air Force One (1997),Action;Thriller,235,235
+1,popularity,,5,288,Scream (1996),Horror;Thriller,226,226
+1,popularity,,6,318,Schindler's List (1993),Drama;War,224,224
+1,popularity,,7,313,Titanic (1997),Action;Drama;Romance,219,219
+1,popularity,,8,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,202,202
+1,popularity,,9,357,One Flew Over the Cuckoo's Nest (1975),Drama,202,202
+1,popularity,,10,483,Casablanca (1942),Drama;Romance;War,197,197
+1,pagerank,0.50,1,258,Contact (1997),Drama;Sci-Fi,0.0023751864209771156,307
+1,pagerank,0.50,2,286,"English Patient, The (1996)",Drama;Romance;War,0.002291252836585045,279
+1,pagerank,0.50,3,100,Fargo (1996),Crime;Drama;Thriller,0.002271695528179407,377
+1,pagerank,0.50,4,313,Titanic (1997),Action;Drama;Romance,0.002063426189124584,219
+1,pagerank,0.50,5,300,Air Force One (1997),Action;Thriller,0.0020034192129969597,235
+1,pagerank,0.50,6,288,Scream (1996),Horror;Thriller,0.0018683733651414514,226
+1,pagerank,0.50,7,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,0.001798133715055883,202
+1,pagerank,0.50,8,294,Liar Liar (1997),Comedy,0.0014883464900776744,182
+1,pagerank,0.50,9,275,Sense and Sensibility (1995),Drama;Romance,0.0012158651370555162,178
+1,pagerank,0.50,10,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.0011928167659789324,189
+1,mf,,1,169,"Wrong Trousers, The (1993)",Animation;Comedy,5.244039535522461,90
+1,mf,,2,408,"Close Shave, A (1995)",Animation;Comedy;Thriller,5.073599815368652,85
+1,mf,,3,483,Casablanca (1942),Drama;Romance;War,4.9767537117004395,197
+1,mf,,4,511,Lawrence of Arabia (1962),Adventure;War,4.914539337158203,134
+1,mf,,5,1449,Pather Panchali (1955),Drama,4.825124263763428,7
+1,mf,,6,484,"Maltese Falcon, The (1941)",Film-Noir;Mystery,4.7758708000183105,91
+1,mf,,7,1142,When We Were Kings (1996),Documentary,4.748240947723389,29
+1,mf,,8,603,Rear Window (1954),Mystery;Thriller,4.703402519226074,152
+1,mf,,9,1558,Aparajito (1956),Drama,4.68533182144165,4
+1,mf,,10,357,One Flew Over the Cuckoo's Nest (1975),Drama,4.670327186584473,202
+7,popularity,,1,258,Contact (1997),Drama;Sci-Fi,307,307
+7,popularity,,2,1,Toy Story (1995),Animation;Children's;Comedy,288,288
+7,popularity,,3,313,Titanic (1997),Action;Drama;Romance,219,219
+7,popularity,,4,117,"Rock, The (1996)",Action;Adventure;Thriller,215,215
+7,popularity,,5,12,"Usual Suspects, The (1995)",Crime;Thriller,205,205
+7,popularity,,6,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,202,202
+7,popularity,,7,357,One Flew Over the Cuckoo's Nest (1975),Drama,202,202
+7,popularity,,8,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,189,189
+7,popularity,,9,475,Trainspotting (1996),Drama,164,164
+7,popularity,,10,15,Mr. Holland's Opus (1995),Drama,160,160
+7,pagerank,0.50,1,258,Contact (1997),Drama;Sci-Fi,0.0023751864209771156,307
+7,pagerank,0.50,2,313,Titanic (1997),Action;Drama;Romance,0.002063426189124584,219
+7,pagerank,0.50,3,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,0.001798133715055883,202
+7,pagerank,0.50,4,1,Toy Story (1995),Animation;Children's;Comedy,0.0017022015526890755,288
+7,pagerank,0.50,5,117,"Rock, The (1996)",Action;Adventure;Thriller,0.0013080037897452712,215
+7,pagerank,0.50,6,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.0011928167659789324,189
+7,pagerank,0.50,7,272,Good Will Hunting (1997),Drama,0.001187035464681685,116
+7,pagerank,0.50,8,328,Conspiracy Theory (1997),Action;Mystery;Romance;Thriller,0.0011850690934807062,136
+7,pagerank,0.50,9,333,"Game, The (1997)",Mystery;Thriller,0.0011513696517795324,119
+7,pagerank,0.50,10,15,Mr. Holland's Opus (1995),Drama,0.001098661683499813,160
+7,ppr,0.50,1,1,Toy Story (1995),Animation;Children's;Comedy,0.0004487203841563314,288
+7,ppr,0.50,2,357,One Flew Over the Cuckoo's Nest (1975),Drama,0.00040083329076878726,202
+7,ppr,0.50,3,258,Contact (1997),Drama;Sci-Fi,0.000380301644327119,307
+7,ppr,0.50,4,12,"Usual Suspects, The (1995)",Crime;Thriller,0.000371593952877447,205
+7,ppr,0.50,5,185,Psycho (1960),Horror;Romance;Thriller,0.00032594267395325005,159
+7,ppr,0.50,6,117,"Rock, The (1996)",Action;Adventure;Thriller,0.00031298957765102386,215
+7,ppr,0.50,7,222,Star Trek: First Contact (1996),Action;Adventure;Sci-Fi,0.00028559970087371767,189
+7,ppr,0.50,8,134,Citizen Kane (1941),Drama,0.00028279147227294743,143
+7,ppr,0.50,9,302,L.A. Confidential (1997),Crime;Film-Noir;Mystery;Thriller,0.0002512043865863234,202
+7,ppr,0.50,10,199,"Bridge on the River Kwai, The (1957)",Drama;War,0.0002480472612660378,117
+7,mf,,1,963,Some Folks Call It a Sling Blade (1993),Drama;Thriller,4.78088903427124,28
+7,mf,,2,169,"Wrong Trousers, The (1993)",Animation;Comedy,4.742283821105957,90
+7,mf,,3,694,Persuasion (1995),Romance,4.655188083648682,28
+7,mf,,4,357,One Flew Over the Cuckoo's Nest (1975),Drama,4.647629737854004,202
+7,mf,,5,837,Meet John Doe (1941),Drama,4.63020658493042,15
+7,mf,,6,170,Cinema Paradiso (1988),Comedy;Drama;Romance,4.605152130126953,81
+7,mf,,7,1269,Love in the Afternoon (1957),Comedy;Romance,4.588615417480469,6
+7,mf,,8,966,"Affair to Remember, An (1957)",Romance,4.555552959442139,17
+7,mf,,9,1612,"Leading Man, The (1996)",Romance,4.531654357910156,2
+7,mf,,10,520,"Great Escape, The (1963)",Adventure;War,4.514135837554932,81
