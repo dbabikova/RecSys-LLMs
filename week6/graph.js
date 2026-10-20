@@ -703,7 +703,8 @@ function graphTransitionContext(spec, fnName) {
   if (!Array.isArray(Q)) throw new Error(fnName + ": opts.transition.Q must be a square number[][]");
   const n = Q.length;
   const mask = spec.danglingMask;
-  if (!Array.isArray(mask) || mask.length !== n) {
+  const maskIsVector = Array.isArray(mask) || (ArrayBuffer.isView(mask) && typeof mask.length === "number");
+  if (!maskIsVector || mask.length !== n) {
     throw new Error(fnName + ": opts.transition.danglingMask must be an array of length " + n);
   }
   for (let i = 0; i < n; i++) {
