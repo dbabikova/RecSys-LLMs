@@ -793,11 +793,14 @@ function graphPowerRun(spec) {
         const d = tf.sum(maskT.mul(p));
         let linked;
         if (Qt) {
-          linked = tf.matMul(Qt, p);
+          linked = tf.matMul(Qt, p.reshape([n, 1])).reshape([n]);
         } else {
-          const pUsers = p.slice([0], [nUsers]);
-          const pMovies = p.slice([nUsers], [nMovies]);
-          linked = tf.matMul(RnMovieT, pMovies).concat(tf.matMul(RnUserT, pUsers));
+          const pUsers = p.slice([0], [nUsers]).reshape([nUsers, 1]);
+          const pMovies = p.slice([nUsers], [nMovies]).reshape([nMovies, 1]);
+          linked = tf
+            .matMul(RnMovieT, pMovies)
+            .reshape([nUsers])
+            .concat(tf.matMul(RnUserT, pUsers).reshape([nMovies]));
         }
         const restartWeight = d.mul(alpha).add(1 - alpha);
         return linked.mul(alpha).add(vT.mul(restartWeight));
