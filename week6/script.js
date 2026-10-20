@@ -3262,6 +3262,11 @@ function serializeVerification() {
     passed: result.passed,
     failed: result.failed,
     pending: result.pending,
+    // Per-user PPR convergence (incl. non-converged runs) must survive export.
+    convergence: {
+      pagerank: HW6_STATE.convergence.pagerank,
+      ppr: HW6_STATE.convergence.ppr,
+    },
   };
   return JSON.stringify(payload, null, 2);
 }
