@@ -1990,8 +1990,44 @@ function hw6RunTwoUserDemo() {
   if (cohort.length < 2) {
     return { error: "Need at least two users in the shared test cohort.", users: cohort, settings: [], common: [] };
   }
-  const userA = cohort[0];
-  const userB = cohort[1];
+
+  // User selection (readme 6.2): A from #user-select, B from #seed-user-select;
+  // unset selects fall back per-field to the two smallest cohort ids. Both
+  // users must belong to the shared test cohort and must differ, otherwise the
+  // demo cannot isolate the seed factor.
+  const cohortSet = new Set(cohort);
+  const pickedA = hw6ReadNumber("user-select", Number.NaN);
+  const pickedB = hw6ReadNumber("seed-user-select", Number.NaN);
+  const userA = Number.isFinite(pickedA) ? pickedA : cohort[0];
+  const userB = Number.isFinite(pickedB) ? pickedB : cohort[1];
+  const userASource = Number.isFinite(pickedA) ? "select" : "fallback";
+  const userBSource = Number.isFinite(pickedB) ? "select" : "fallback";
+  if (!cohortSet.has(userA)) {
+    return {
+      error: "Target user " + userA + " is not in the shared test cohort.",
+      users: [userA, userB],
+      settings: [],
+      common: [],
+    };
+  }
+  if (!cohortSet.has(userB)) {
+    return {
+      error: "Restart-seed user " + userB + " is not in the shared test cohort.",
+      users: [userA, userB],
+      settings: [],
+      common: [],
+    };
+  }
+  if (userA === userB) {
+    return {
+      error: "Baseline user A and restart-seed user B must differ to isolate the seed change (got " + userA + " twice" +
+        (userASource === "fallback" || userBSource === "fallback" ? " after fallback" : "") + ").",
+      users: [userA, userB],
+      settings: [],
+      common: [],
+    };
+  }
+
   const settings = [];
   try {
     settings.push({
@@ -2040,7 +2076,14 @@ function hw6RunTwoUserDemo() {
     hw6RecordRecommendationRows(setting.user, "ppr", setting.alpha, setting.recs);
   });
 
-  const demo = { error: null, users: [userA, userB], settings: settings, common: common };
+  const demo = {
+    error: null,
+    users: [userA, userB],
+    settings: settings,
+    common: common,
+    userASource: userASource,
+    userBSource: userBSource,
+  };
   HW6_STATE.demo = demo;
   return demo;
 }
@@ -2428,7 +2471,13 @@ function hw6RunTwoUserDemoHtml(demo) {
 
   return (
     "<h3>One-factor-at-a-time demonstration (readme 6.2)</h3>" +
-    '<p class="hint">Users fixed and shown: ' + data.users.join(", ") +
+    '<p class="hint">Users fixed and shown: ' +
+    data.users
+      .map(function (u, i) {
+        const source = i === 0 ? data.userASource : data.userBSource;
+        return u + (source === "select" || source === "fallback" ? " (from " + source + ")" : "");
+      })
+      .join(", ") +
     ". Exactly one factor changes per comparison \u2014 never attribute a difference to a factor that was also changed.</p>" +
     '<div class="control-grid control-grid--two">' + columns + "</div>" +
     '<p class="hint">Common movies between lists: ' + hw6EscapeHtml(common) +
