@@ -218,6 +218,8 @@ const HW6_STATE = {
   /** Cached propagation results, keyed by alpha / seed. */
   pageRank: null,
   ppr: null,
+  /** Per-alpha batched PPR over every user node: `Map<alpha, {graph, results}>`. */
+  pprBatch: new Map(),
   /** Convergence records for the panel: `{ pagerank, ppr }`. */
   convergence: { pagerank: null, ppr: null },
 
@@ -1525,8 +1527,37 @@ function hw6RunPageRank(graph, alpha) {
 }
 
 /**
+ * Batched PPR over every user node of `graph` at `alpha`, cached per alpha.
+ *
+ * The first call at a given alpha computes all user columns in one batched
+ * propagation; later calls just read a column. Entries are tied to the graph
+ * object, so a rebuilt graph invalidates them; the map is also cleared on
+ * rebuild. Returns `null` when `graph.js` has no batched entry point.
+ *
+ * @param {Object} graph
+ * @param {number} alpha
+ * @returns {Array<Object>|null} One `{p, iterations, residual, converged}` per user node.
+ */
+function hw6RunPprBatch(graph, alpha) {
+  if (typeof personalizedPageRankBatch !== "function") return null;
+  const nUsers = hw6UserIds(graph).length;
+  if (!nUsers) return null;
+  const hit = HW6_STATE.pprBatch.get(alpha);
+  if (hit && hit.graph === graph && hit.results.length === nUsers) return hit.results;
+  const seeds = [];
+  for (let u = 0; u < nUsers; u++) seeds.push(u);
+  const results = hw6WithActiveGraph(graph, function () {
+    return personalizedPageRankBatch(seeds, alpha);
+  });
+  if (!Array.isArray(results) || results.length !== nUsers) return null;
+  HW6_STATE.pprBatch.set(alpha, { graph: graph, results: results });
+  return results;
+}
+
+/**
  * Cached PPR for the active graph, restart user and `alpha`. The cache key
- * includes alpha: changing alpha must never reuse a stale walk.
+ * includes alpha: changing alpha must never reuse a stale walk. Uses the batched
+ * all-users run when `graph.js` provides it, so sweeps do not pay per-user cost.
  *
  * @param {Object} graph
  * @param {number} userId
@@ -1534,10 +1565,20 @@ function hw6RunPageRank(graph, alpha) {
  * @returns {PropagationResult}
  */
 function hw6RunPPR(graph, userId, alpha) {
-  const cached = HW6_STATE.ppr;
-  if (cached && cached.graph === graph && cached.userId === userId && cached.alpha === alpha) return cached;
   const seedNode = hw6UserNodeIndex(graph, userId);
   if (seedNode < 0) throw hw6InterfaceError("cannot map user " + userId + " to a graph node");
+  const batched = hw6RunPprBatch(graph, alpha);
+  if (batched && seedNode < batched.length) {
+    const column = batched[seedNode];
+    return {
+      scores: column.p,
+      iterations: column.iterations,
+      residual: column.residual,
+      converged: column.converged,
+    };
+  }
+  const cached = HW6_STATE.ppr;
+  if (cached && cached.graph === graph && cached.userId === userId && cached.alpha === alpha) return cached;
   const result = hw6AdapterPPR(graph, seedNode, alpha, userId);
   HW6_STATE.ppr = { ...result, graph: graph, userId: userId, alpha: alpha };
   return HW6_STATE.ppr;
@@ -3397,6 +3438,7 @@ function hw6HandleBuildGraph() {
       setGraph(graph);
     }
     hw6InvalidateCaches();
+    HW6_STATE.pprBatch.clear();
     hw6SafeRenderGraphView();
     const nodes = hw6NodeCount(graph);
     hw6SetStatus("Graph built: " + (nodes ? nodes.toLocaleString("en-US") + " nodes reported." : "node count not reported."));

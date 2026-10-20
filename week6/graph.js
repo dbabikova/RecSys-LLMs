@@ -542,24 +542,12 @@ function pageRank(alpha, opts) {
   const o = opts || {};
   graphAssertAlpha(alpha, "pageRank");
   graphAssertTf("pageRank");
-  const tol = Number.isFinite(o.tol) ? Number(o.tol) : 1e-6;
-  const maxIter = Number.isFinite(o.maxIter) ? Math.max(0, Math.floor(Number(o.maxIter))) : 500;
-  if (o.transition) {
-    const ctx = graphTransitionContext(o.transition, "pageRank");
-    if (ctx.n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
-    return graphPowerRun({
-      n: ctx.n, alpha: alpha, tol: tol, maxIter: maxIter,
-      v: graphUniformRestart(ctx.n), transition: ctx,
-    });
-  }
-  if (!GRAPH) {
-    throw new Error("pageRank: neither opts.transition nor the global GRAPH is available; build the graph first.");
-  }
-  const n = GRAPH.nodeCount;
-  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+  const src = graphResolveSource(o, "pageRank");
+  if (src.n === 0) return graphEmptyResult();
   return graphPowerRun({
-    n: n, alpha: alpha, tol: tol, maxIter: maxIter,
-    v: graphUniformRestart(n), blocks: graphPowerCacheGet(GRAPH),
+    n: src.n, alpha: alpha, tol: graphTol(o), maxIter: graphMaxIter(o),
+    v: graphUniformRestart(src.n), transition: src.transition,
+    blocks: src.transition ? null : graphPowerCacheGet(GRAPH),
   });
 }
 
@@ -599,27 +587,61 @@ function personalizedPageRank(seedNode, alpha, opts) {
   const o = opts || {};
   graphAssertAlpha(alpha, "personalizedPageRank");
   graphAssertTf("personalizedPageRank");
-  const tol = Number.isFinite(o.tol) ? Number(o.tol) : 1e-6;
-  const maxIter = Number.isFinite(o.maxIter) ? Math.max(0, Math.floor(Number(o.maxIter))) : 500;
-  let n, transition = null;
-  if (o.transition) {
-    transition = graphTransitionContext(o.transition, "personalizedPageRank");
-    n = transition.n;
-  } else {
-    if (!GRAPH) {
-      throw new Error("personalizedPageRank: neither opts.transition nor the global GRAPH is available; build the graph first.");
-    }
-    n = GRAPH.nodeCount;
-  }
+  const src = graphResolveSource(o, "personalizedPageRank");
   const idx = Number(seedNode);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= n) {
-    throw new Error("personalizedPageRank: restart index " + seedNode + " is out of range [0, " + n + ").");
+  if (!Number.isInteger(idx) || idx < 0 || idx >= src.n) {
+    throw new Error("personalizedPageRank: restart index " + seedNode + " is out of range [0, " + src.n + ").");
   }
-  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+  if (src.n === 0) return graphEmptyResult();
   return graphPowerRun({
-    n: n, alpha: alpha, tol: tol, maxIter: maxIter,
-    v: graphOneHotRestart(n, idx), transition: transition,
-    blocks: transition ? null : graphPowerCacheGet(GRAPH),
+    n: src.n, alpha: alpha, tol: graphTol(o), maxIter: graphMaxIter(o),
+    v: graphOneHotRestart(src.n, idx), transition: src.transition,
+    blocks: src.transition ? null : graphPowerCacheGet(GRAPH),
+  });
+}
+
+/**
+ * Batched Personalized PageRank: one one-hot restart per column.
+ *
+ * `v` and `p` are [n, B] matrices (one column per seed), using the same update
+ * step and the same dangling policy as `personalizedPageRank`. Iteration stops
+ * when every column's L1 residual is below `tol`, or at `maxIter`. Columns that
+ * converged earlier are frozen at their converged vector.
+ *
+ * @param {number[]} seedNodes Node indices of the restart nodes.
+ * @param {number} alpha Link-following probability in [0, 1].
+ * @param {{tol?: number, maxIter?: number, transition?: TransitionSpec}} [opts]
+ * @returns {PageRankResult[]} One result per seed, in input order; `iterations`
+ *   is the first iteration where that column met `tol` (or the total number of
+ *   updates when the cap was hit).
+ * @throws {Error} when any seed is out of range, or neither `opts.transition`
+ *   nor the global `GRAPH` exists.
+ */
+function personalizedPageRankBatch(seedNodes, alpha, opts) {
+  const o = opts || {};
+  graphAssertAlpha(alpha, "personalizedPageRankBatch");
+  graphAssertTf("personalizedPageRankBatch");
+  if (!Array.isArray(seedNodes) && !ArrayBuffer.isView(seedNodes)) {
+    throw new Error("personalizedPageRankBatch: seedNodes must be an array of node indices.");
+  }
+  const src = graphResolveSource(o, "personalizedPageRankBatch");
+  const B = seedNodes.length;
+  const seeds = new Int32Array(B);
+  for (let b = 0; b < B; b++) {
+    const idx = Number(seedNodes[b]);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= src.n) {
+      throw new Error("personalizedPageRankBatch: restart index " + seedNodes[b] + " at position " + b + " is out of range [0, " + src.n + ").");
+    }
+    seeds[b] = idx;
+  }
+  if (B === 0) return [];
+  if (src.n === 0) return [];
+  const V = new Float32Array(src.n * B);
+  for (let b = 0; b < B; b++) V[seeds[b] * B + b] = 1;
+  return graphPowerRunBatch({
+    n: src.n, alpha: alpha, tol: graphTol(o), maxIter: graphMaxIter(o),
+    V: V, B: B, transition: src.transition,
+    blocks: src.transition ? null : graphPowerCacheGet(GRAPH),
   });
 }
 
@@ -744,6 +766,42 @@ function graphAssertTf(fnName) {
   }
 }
 
+/** Convergence tolerance from `opts`, default 1e-6. */
+function graphTol(opts) {
+  const value = opts ? opts.tol : undefined;
+  return Number.isFinite(value) ? Number(value) : 1e-6;
+}
+
+/** Iteration cap from `opts`, default 500. */
+function graphMaxIter(opts) {
+  const value = opts ? opts.maxIter : undefined;
+  return Number.isFinite(value) ? Math.max(0, Math.floor(Number(value))) : 500;
+}
+
+/** Result for an empty graph: no nodes, nothing to iterate. */
+function graphEmptyResult() {
+  return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+}
+
+/**
+ * Resolve where the transition comes from: `opts.transition` or the global
+ * `GRAPH`. Throws when neither is available; never guesses.
+ *
+ * @param {{transition?: TransitionSpec}} opts
+ * @param {string} fnName
+ * @returns {{n: number, transition: *}}
+ */
+function graphResolveSource(opts, fnName) {
+  if (opts && opts.transition) {
+    const transition = graphTransitionContext(opts.transition, fnName);
+    return { n: transition.n, transition: transition };
+  }
+  if (!GRAPH) {
+    throw new Error(fnName + ": neither opts.transition nor the global GRAPH is available; build the graph first.");
+  }
+  return { n: GRAPH.nodeCount, transition: null };
+}
+
 /**
  * Shared power iteration. `p_0 = v`;
  * `p_next = alpha * (Q^T p + d * v) + (1 - alpha) * v`, `d` = dangling mass.
@@ -757,11 +815,52 @@ function graphAssertTf(fnName) {
  * @returns {PageRankResult}
  */
 function graphPowerRun(spec) {
+  const out = graphPowerRunBatch({
+    n: spec.n, alpha: spec.alpha, tol: spec.tol, maxIter: spec.maxIter,
+    V: Float32Array.from(spec.v), B: 1, blocks: spec.blocks, transition: spec.transition,
+  });
+  return out.length ? out[0] : graphEmptyResult();
+}
+
+/**
+ * One power-iteration update on a [n, B] distribution. Call inside `tf.tidy`.
+ *
+ * @param {tf.Tensor2D} p Distribution matrix, one column per restart seed.
+ * @param {Object} ctx Step context (matrix blocks, transposes, restart matrix).
+ * @returns {tf.Tensor2D}
+ */
+function graphPowerStep(p, ctx) {
+  const dangling = ctx.maskT.reshape([ctx.n, 1]).mul(p).sum(0);
+  let linked;
+  if (ctx.Qt) {
+    linked = tf.matMul(ctx.Qt, p);
+  } else {
+    const pUsers = p.slice([0, 0], [ctx.nUsers, ctx.B]);
+    const pMovies = p.slice([ctx.nUsers, 0], [ctx.nMovies, ctx.B]);
+    linked = tf.concat([tf.matMul(ctx.RnMovieT, pMovies), tf.matMul(ctx.RnUserT, pUsers)], 0);
+  }
+  const restartWeight = dangling.mul(ctx.alpha).add(1 - ctx.alpha).reshape([1, ctx.B]);
+  return linked.mul(ctx.alpha).add(ctx.vT.mul(restartWeight));
+}
+
+/**
+ * Batched power iteration over the columns of `spec.V` ([n, B], row-major).
+ *
+ * One GPU readback per iteration (the per-column L1 vector); the loop runs until
+ * every column is below `tol` or `maxIter` updates were done. Columns that hit
+ * `tol` are frozen at their converged vector.
+ *
+ * @param {{n: number, B: number, alpha: number, tol: number, maxIter: number,
+ *          V: Float32Array, blocks?: *, transition?: *}} spec
+ * @returns {PageRankResult[]} One result per column, in column order.
+ */
+function graphPowerRunBatch(spec) {
   const n = spec.n;
+  const B = spec.B;
+  if (n === 0 || B === 0) return [];
   const alpha = spec.alpha;
   const tol = spec.tol;
   const maxIter = spec.maxIter;
-  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
 
   let Qt = null, maskT = null, RnUserT = null, RnMovieT = null;
   let nUsers = 0, nMovies = 0;
@@ -782,51 +881,74 @@ function graphPowerRun(spec) {
     maskT = spec.blocks.mask;
   }
 
-  const vF32 = Float32Array.from(spec.v);
-  const vT = tf.tensor1d(vF32, "float32");
-  let p = tf.tensor1d(vF32, "float32");
-  let iterations = 0;
-  let residual = Infinity;
-  let converged = false;
+  const ctx = {
+    n: n, B: B, alpha: alpha, nUsers: nUsers, nMovies: nMovies,
+    Qt: Qt, RnUserT: RnUserT, RnMovieT: RnMovieT, maskT: maskT,
+    vT: tf.tensor2d(spec.V, [n, B]),
+  };
+  let p = tf.tensor2d(spec.V, [n, B]);
+  const convergedAt = new Int32Array(B).fill(-1);
+  const residualAt = new Float64Array(B).fill(Infinity);
+  const alive = new Float32Array(B).fill(1);
+  const dead = new Float32Array(B);
+  let aliveT = null, deadT = null;
+  let total = 0;
+  let lastL1 = null;
   try {
-    while (iterations < maxIter) {
-      const next = tf.tidy(() => {
-        const d = tf.sum(maskT.mul(p));
-        let linked;
-        if (Qt) {
-          linked = tf.matMul(Qt, p.reshape([n, 1])).reshape([n]);
-        } else {
-          const pUsers = p.slice([0], [nUsers]).reshape([nUsers, 1]);
-          const pMovies = p.slice([nUsers], [nMovies]).reshape([nMovies, 1]);
-          linked = tf
-            .matMul(RnMovieT, pMovies)
-            .reshape([nUsers])
-            .concat(tf.matMul(RnUserT, pUsers).reshape([nMovies]));
-        }
-        const restartWeight = d.mul(alpha).add(1 - alpha);
-        return linked.mul(alpha).add(vT.mul(restartWeight));
-      });
-      let l1 = 0;
-      tf.tidy(() => { l1 = tf.sum(tf.abs(next.sub(p))).dataSync()[0]; });
+    while (total < maxIter) {
+      let next = tf.tidy(() => graphPowerStep(p, ctx));
+      if (aliveT) {
+        const frozenNext = tf.tidy(() => next.mul(aliveT).add(p.mul(deadT)));
+        next.dispose();
+        next = frozenNext;
+      }
+      tf.tidy(() => { lastL1 = tf.sum(tf.abs(next.sub(p)), 0).dataSync(); });
       p.dispose();
       p = next;
-      iterations++;
-      residual = l1;
-      if (l1 < tol) {
-        converged = true;
-        break;
+      total++;
+      let changed = false;
+      for (let b = 0; b < B; b++) {
+        if (convergedAt[b] === -1 && lastL1[b] < tol) {
+          convergedAt[b] = total;
+          residualAt[b] = lastL1[b];
+          alive[b] = 0;
+          dead[b] = 1;
+          changed = true;
+        }
       }
+      if (changed) {
+        if (aliveT) aliveT.dispose();
+        if (deadT) deadT.dispose();
+        aliveT = tf.tensor2d(alive, [1, B]);
+        deadT = tf.tensor2d(dead, [1, B]);
+      }
+      let allDone = true;
+      for (let b = 0; b < B; b++) if (convergedAt[b] === -1) { allDone = false; break; }
+      if (allDone) break;
     }
-    const out = new Float64Array(n);
-    out.set(p.dataSync());
-    return { p: out, iterations: iterations, residual: residual, converged: converged };
+    const data = p.dataSync();
+    const out = new Array(B);
+    for (let b = 0; b < B; b++) {
+      const col = new Float64Array(n);
+      for (let i = 0; i < n; i++) col[i] = data[i * B + b];
+      const converged = convergedAt[b] !== -1;
+      out[b] = {
+        p: col,
+        iterations: converged ? convergedAt[b] : total,
+        residual: converged ? residualAt[b] : (lastL1 ? lastL1[b] : Infinity),
+        converged: converged,
+      };
+    }
+    return out;
   } finally {
     p.dispose();
-    vT.dispose();
+    ctx.vT.dispose();
     if (Qt) Qt.dispose();
     if (maskT && spec.transition) maskT.dispose();
     if (RnUserT) RnUserT.dispose();
     if (RnMovieT) RnMovieT.dispose();
+    if (aliveT) aliveT.dispose();
+    if (deadT) deadT.dispose();
   }
 }
 
