@@ -299,6 +299,9 @@ let GRAPH = null;
  * @returns {Graph|null} the stored graph.
  */
 function setGraph(g) {
+  if (graphPowerCache.graph && graphPowerCache.graph !== (g || null)) {
+    graphDisposeTransitionTensors();
+  }
   GRAPH = g || null;
   try {
     graphRenderSummary(GRAPH);
@@ -354,9 +357,75 @@ function getGraph() {
  * @returns {Graph}
  */
 function buildGraph(train) {
-  // TODO(hw6): collect observed ids, map them to contiguous indices, fill R and
-  // degree, then return the object described in the typedef and readme 3.1.
-  throw new Error("TODO(hw6): buildGraph is not implemented yet.");
+  const rows = Array.isArray(train) ? train : [];
+  const userIdSet = new Set();
+  const movieIdSet = new Set();
+  for (let k = 0; k < rows.length; k++) {
+    userIdSet.add(rows[k].userId);
+    movieIdSet.add(rows[k].movieId);
+  }
+  const userIds = Array.from(userIdSet).sort(function (a, b) { return a - b; });
+  const movieIds = Array.from(movieIdSet).sort(function (a, b) { return a - b; });
+  const nUsers = userIds.length;
+  const nMovies = movieIds.length;
+  const nodeCount = nUsers + nMovies;
+
+  const userIndexOf = new Map();
+  userIds.forEach(function (id, u) { userIndexOf.set(id, u); });
+  const movieIndexOf = new Map();
+  movieIds.forEach(function (id, i) { movieIndexOf.set(id, i); });
+
+  const R = [];
+  for (let u = 0; u < nUsers; u++) R.push(new Array(nMovies).fill(0));
+  for (let k = 0; k < rows.length; k++) {
+    const row = rows[k];
+    if (!(row.rating >= 4.0)) continue;
+    const u = userIndexOf.get(row.userId);
+    const i = movieIndexOf.get(row.movieId);
+    if (u !== undefined && i !== undefined) R[u][i] = 1;
+  }
+
+  const degree = new Float64Array(nodeCount);
+  const zeroDegreeUsers = [];
+  const zeroDegreeMovies = [];
+  let positiveEdges = 0;
+  for (let u = 0; u < nUsers; u++) {
+    let deg = 0;
+    for (let i = 0; i < nMovies; i++) deg += R[u][i];
+    degree[u] = deg;
+    positiveEdges += deg;
+    if (deg === 0) zeroDegreeUsers.push(userIds[u]);
+  }
+  for (let i = 0; i < nMovies; i++) {
+    let deg = 0;
+    for (let u = 0; u < nUsers; u++) deg += R[u][i];
+    degree[nUsers + i] = deg;
+    if (deg === 0) zeroDegreeMovies.push(movieIds[i]);
+  }
+
+  return {
+    nUsers: nUsers,
+    nMovies: nMovies,
+    userIds: userIds,
+    movieIds: movieIds,
+    userIndexOf: userIndexOf,
+    movieIndexOf: movieIndexOf,
+    nodeCount: nodeCount,
+    nodeOfUser: function (userId) {
+      const local = userIndexOf.get(Number(userId));
+      return local === undefined ? -1 : local;
+    },
+    movieOfNode: function (node) {
+      const local = Number(node) - nUsers;
+      return local >= 0 && local < nMovies ? movieIds[local] : -1;
+    },
+    isUserNode: function (node) { return Number(node) >= 0 && Number(node) < nUsers; },
+    degree: degree,
+    zeroDegreeUsers: zeroDegreeUsers,
+    zeroDegreeMovies: zeroDegreeMovies,
+    positiveEdges: positiveEdges,
+    R: R,
+  };
 }
 
 /**
@@ -388,8 +457,40 @@ function buildGraph(train) {
  * @returns {RowNormalized}
  */
 function rowNormalize(graph) {
-  // TODO(hw6): normalize positive-degree rows and build the dangling mask.
-  throw new Error("TODO(hw6): rowNormalize is not implemented yet.");
+  if (!graph || !Array.isArray(graph.R) || !Number.isFinite(graph.nodeCount)) {
+    return { Q: [], danglingMask: [] };
+  }
+  const nUsers = graph.nUsers;
+  const nMovies = graph.nMovies;
+  const n = graph.nodeCount;
+  const R = graph.R;
+  const Q = [];
+  const danglingMask = new Array(n).fill(false);
+  for (let i = 0; i < n; i++) Q.push(new Array(n).fill(0));
+
+  for (let u = 0; u < nUsers; u++) {
+    let deg = 0;
+    for (let i = 0; i < nMovies; i++) deg += R[u][i];
+    if (deg > 0) {
+      for (let i = 0; i < nMovies; i++) {
+        if (R[u][i]) Q[u][nUsers + i] = 1 / deg;
+      }
+    } else {
+      danglingMask[u] = true;
+    }
+  }
+  for (let i = 0; i < nMovies; i++) {
+    let deg = 0;
+    for (let u = 0; u < nUsers; u++) deg += R[u][i];
+    if (deg > 0) {
+      for (let u = 0; u < nUsers; u++) {
+        if (R[u][i]) Q[nUsers + i][u] = 1 / deg;
+      }
+    } else {
+      danglingMask[nUsers + i] = true;
+    }
+  }
+  return { Q: Q, danglingMask: danglingMask };
 }
 
 /**
@@ -438,8 +539,28 @@ function rowNormalize(graph) {
  * @throws {Error} when neither `opts.transition` nor the global `GRAPH` exists.
  */
 function pageRank(alpha, opts) {
-  // TODO(hw6): power iteration with a uniform restart on the tensor path.
-  throw new Error("TODO(hw6): pageRank is not implemented yet.");
+  const o = opts || {};
+  graphAssertAlpha(alpha, "pageRank");
+  graphAssertTf("pageRank");
+  const tol = Number.isFinite(o.tol) ? Number(o.tol) : 1e-6;
+  const maxIter = Number.isFinite(o.maxIter) ? Math.max(0, Math.floor(Number(o.maxIter))) : 500;
+  if (o.transition) {
+    const ctx = graphTransitionContext(o.transition, "pageRank");
+    if (ctx.n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+    return graphPowerRun({
+      n: ctx.n, alpha: alpha, tol: tol, maxIter: maxIter,
+      v: graphUniformRestart(ctx.n), transition: ctx,
+    });
+  }
+  if (!GRAPH) {
+    throw new Error("pageRank: neither opts.transition nor the global GRAPH is available; build the graph first.");
+  }
+  const n = GRAPH.nodeCount;
+  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+  return graphPowerRun({
+    n: n, alpha: alpha, tol: tol, maxIter: maxIter,
+    v: graphUniformRestart(n), blocks: graphPowerCacheGet(GRAPH),
+  });
 }
 
 /**
@@ -465,7 +586,7 @@ function pageRank(alpha, opts) {
  * restart; and when neither `opts.transition` nor the global `GRAPH` is
  * available, throw instead of guessing.
  *
- * @param {number} userId Node index of the restart node (see RESTART INDEX).
+ * @param {number} seedNode Node index of the restart node (see RESTART INDEX).
  * @param {number} alpha  Link-following probability in [0, 1]; 1 - alpha restarts.
  * @param {{tol?: number, maxIter?: number, transition?: TransitionSpec}} [opts]
  *   Same options as `pageRank`; defaults tol = 1e-6, maxIter = 500, transition
@@ -474,9 +595,234 @@ function pageRank(alpha, opts) {
  * @throws {Error} when the restart index is unknown / out of range, or when
  *   neither `opts.transition` nor the global `GRAPH` exists.
  */
-function personalizedPageRank(userId, alpha, opts) {
-  // TODO(hw6): one-hot restart at the user's node; fail loudly on unknown users.
-  throw new Error("TODO(hw6): personalizedPageRank is not implemented yet.");
+function personalizedPageRank(seedNode, alpha, opts) {
+  const o = opts || {};
+  graphAssertAlpha(alpha, "personalizedPageRank");
+  graphAssertTf("personalizedPageRank");
+  const tol = Number.isFinite(o.tol) ? Number(o.tol) : 1e-6;
+  const maxIter = Number.isFinite(o.maxIter) ? Math.max(0, Math.floor(Number(o.maxIter))) : 500;
+  let n, transition = null;
+  if (o.transition) {
+    transition = graphTransitionContext(o.transition, "personalizedPageRank");
+    n = transition.n;
+  } else {
+    if (!GRAPH) {
+      throw new Error("personalizedPageRank: neither opts.transition nor the global GRAPH is available; build the graph first.");
+    }
+    n = GRAPH.nodeCount;
+  }
+  const idx = Number(seedNode);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= n) {
+    throw new Error("personalizedPageRank: restart index " + seedNode + " is out of range [0, " + n + ").");
+  }
+  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+  return graphPowerRun({
+    n: n, alpha: alpha, tol: tol, maxIter: maxIter,
+    v: graphOneHotRestart(n, idx), transition: transition,
+    blocks: transition ? null : graphPowerCacheGet(GRAPH),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Power-iteration internals (private, graph-prefixed)
+// ---------------------------------------------------------------------------
+
+/**
+ * Long-lived normalized blocks for the active graph: R row-normalized by user
+ * degree ([nUsers, nMovies]), R^T row-normalized by movie degree
+ * ([nMovies, nUsers]) and the dangling mask. Rebuilt on graph swap, disposed
+ * by `graphDisposeTransitionTensors`.
+ */
+const graphPowerCache = { graph: null, RnUser: null, RnMovie: null, mask: null };
+
+/** Dispose the cached long-lived tensors. Safe to call repeatedly. */
+function graphDisposeTransitionTensors() {
+  const c = graphPowerCache;
+  if (c.RnUser) c.RnUser.dispose();
+  if (c.RnMovie) c.RnMovie.dispose();
+  if (c.mask) c.mask.dispose();
+  c.graph = null;
+  c.RnUser = null;
+  c.RnMovie = null;
+  c.mask = null;
+}
+
+/**
+ * Get (or lazily build) the normalized blocks for `graph`.
+ *
+ * @param {Graph} graph
+ * @returns {{nUsers: number, nMovies: number, RnUser: tf.Tensor2D, RnMovie: tf.Tensor2D, mask: tf.Tensor1D}}
+ */
+function graphPowerCacheGet(graph) {
+  const c = graphPowerCache;
+  if (c.graph === graph && c.RnUser && c.RnMovie && c.mask) {
+    return { nUsers: graph.nUsers, nMovies: graph.nMovies, RnUser: c.RnUser, RnMovie: c.RnMovie, mask: c.mask };
+  }
+  graphDisposeTransitionTensors();
+  const nUsers = graph.nUsers;
+  const nMovies = graph.nMovies;
+  const R = graph.R;
+  const deg = graph.degree;
+  const ud = new Float32Array(nUsers * nMovies);
+  const md = new Float32Array(nMovies * nUsers);
+  const mask = new Float32Array(nUsers + nMovies);
+  for (let u = 0; u < nUsers; u++) {
+    const du = Number(deg[u]);
+    if (du > 0) {
+      const inv = 1 / du;
+      for (let i = 0; i < nMovies; i++) if (R[u][i]) ud[u * nMovies + i] = inv;
+    } else {
+      mask[u] = 1;
+    }
+  }
+  for (let i = 0; i < nMovies; i++) {
+    const dm = Number(deg[nUsers + i]);
+    if (dm > 0) {
+      const inv = 1 / dm;
+      for (let u = 0; u < nUsers; u++) if (R[u][i]) md[i * nUsers + u] = inv;
+    } else {
+      mask[nUsers + i] = 1;
+    }
+  }
+  c.graph = graph;
+  c.RnUser = tf.tensor2d(ud, [nUsers, nMovies]);
+  c.RnMovie = tf.tensor2d(md, [nMovies, nUsers]);
+  c.mask = tf.tensor1d(mask);
+  return { nUsers: nUsers, nMovies: nMovies, RnUser: c.RnUser, RnMovie: c.RnMovie, mask: c.mask };
+}
+
+/**
+ * Validate a supplied TransitionSpec (already row-normalized, never touched).
+ *
+ * @param {TransitionSpec} spec
+ * @param {string} fnName
+ * @returns {{n: number, Q: number[][], maskArray: Array<*>}}
+ */
+function graphTransitionContext(spec, fnName) {
+  const Q = spec && spec.Q;
+  if (!Array.isArray(Q)) throw new Error(fnName + ": opts.transition.Q must be a square number[][]");
+  const n = Q.length;
+  const mask = spec.danglingMask;
+  if (!Array.isArray(mask) || mask.length !== n) {
+    throw new Error(fnName + ": opts.transition.danglingMask must be an array of length " + n);
+  }
+  for (let i = 0; i < n; i++) {
+    if (!Array.isArray(Q[i]) || Q[i].length !== n) {
+      throw new Error(fnName + ": opts.transition.Q must be square, row " + i + " has length " + (Q[i] ? Q[i].length : "n/a"));
+    }
+  }
+  return { n: n, Q: Q, maskArray: mask };
+}
+
+/** Uniform restart vector of length n. */
+function graphUniformRestart(n) {
+  const v = new Float64Array(n);
+  if (n > 0) v.fill(1 / n);
+  return v;
+}
+
+/** One-hot restart vector at node `idx`. */
+function graphOneHotRestart(n, idx) {
+  const v = new Float64Array(n);
+  v[idx] = 1;
+  return v;
+}
+
+/** Throw unless `alpha` is a finite number in [0, 1]. */
+function graphAssertAlpha(alpha, fnName) {
+  const a = Number(alpha);
+  if (!Number.isFinite(a) || a < 0 || a > 1) {
+    throw new Error(fnName + ": alpha must be a finite number in [0, 1], got " + alpha);
+  }
+}
+
+/** Throw unless the TensorFlow.js global is loaded. */
+function graphAssertTf(fnName) {
+  if (typeof tf === "undefined") {
+    throw new Error(fnName + ": TensorFlow.js (tf) is not available in this page.");
+  }
+}
+
+/**
+ * Shared power iteration. `p_0 = v`;
+ * `p_next = alpha * (Q^T p + d * v) + (1 - alpha) * v`, `d` = dangling mass.
+ *
+ * Exactly one of `blocks` (MovieLens path, cached tensors) or `transition`
+ * (plain-Q path) must be set. All transient tensors are created and disposed
+ * inside `tf.tidy` or here in `finally`; the loop is synchronous.
+ *
+ * @param {{n: number, alpha: number, tol: number, maxIter: number, v: Float64Array,
+ *          blocks?: *, transition?: *}} spec
+ * @returns {PageRankResult}
+ */
+function graphPowerRun(spec) {
+  const n = spec.n;
+  const alpha = spec.alpha;
+  const tol = spec.tol;
+  const maxIter = spec.maxIter;
+  if (n === 0) return { p: new Float64Array(0), iterations: 0, residual: Infinity, converged: false };
+
+  let Qt = null, maskT = null, RnUserT = null, RnMovieT = null;
+  let nUsers = 0, nMovies = 0;
+  if (spec.transition) {
+    const Q = spec.transition.Q;
+    const flat = new Float32Array(n * n);
+    for (let i = 0; i < n; i++) {
+      const row = Q[i];
+      for (let j = 0; j < n; j++) flat[i * n + j] = Number(row[j]) || 0;
+    }
+    Qt = tf.tidy(() => tf.tensor2d(flat, [n, n]).transpose());
+    maskT = tf.tensor1d(Float32Array.from(spec.transition.maskArray, (x) => (x ? 1 : 0)));
+  } else {
+    nUsers = spec.blocks.nUsers;
+    nMovies = spec.blocks.nMovies;
+    RnUserT = tf.tidy(() => spec.blocks.RnUser.transpose());
+    RnMovieT = tf.tidy(() => spec.blocks.RnMovie.transpose());
+    maskT = spec.blocks.mask;
+  }
+
+  const vT = tf.tensor1d(spec.v, "float32");
+  let p = tf.tensor1d(spec.v, "float32");
+  let iterations = 0;
+  let residual = Infinity;
+  let converged = false;
+  try {
+    while (iterations < maxIter) {
+      const next = tf.tidy(() => {
+        const d = tf.sum(maskT.mul(p));
+        let linked;
+        if (Qt) {
+          linked = tf.matMul(Qt, p);
+        } else {
+          const pUsers = p.slice([0], [nUsers]);
+          const pMovies = p.slice([nUsers], [nMovies]);
+          linked = tf.matMul(RnMovieT, pMovies).concat(tf.matMul(RnUserT, pUsers));
+        }
+        const restartWeight = d.mul(alpha).add(1 - alpha);
+        return linked.mul(alpha).add(vT.mul(restartWeight));
+      });
+      let l1 = 0;
+      tf.tidy(() => { l1 = tf.sum(tf.abs(next.sub(p))).dataSync()[0]; });
+      p.dispose();
+      p = next;
+      iterations++;
+      residual = l1;
+      if (l1 < tol) {
+        converged = true;
+        break;
+      }
+    }
+    const out = new Float64Array(n);
+    out.set(p.dataSync());
+    return { p: out, iterations: iterations, residual: residual, converged: converged };
+  } finally {
+    p.dispose();
+    vT.dispose();
+    if (Qt) Qt.dispose();
+    if (maskT && spec.transition) maskT.dispose();
+    if (RnUserT) RnUserT.dispose();
+    if (RnMovieT) RnMovieT.dispose();
+  }
 }
 
 // ---------------------------------------------------------------------------

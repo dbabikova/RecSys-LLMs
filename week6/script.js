@@ -1453,7 +1453,7 @@ function hw6AdapterPPR(graph, seedNode, alpha, seedUserId) {
     : seedUserId;
 
   const attempts = [
-    function () { return hw6WithActiveGraph(graph, function () { return personalizedPageRank(rawUserId, alpha); }); },
+    function () { return hw6WithActiveGraph(graph, function () { return personalizedPageRank(seedNode, alpha); }); },
   ];
   if (personalizedPageRank.length >= 3) {
     attempts.push(function () { return personalizedPageRank(graph, seedNode, alpha); });
