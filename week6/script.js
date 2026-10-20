@@ -131,7 +131,7 @@ const MF_FACTORS = 16;
 const MF_SEED = 20261013;
 
 /** Training settings, keeping the previous assignment's convention. */
-const MF_CONFIG = { epochs: 30, lr: 0.01, reg: 0.05, batchSize: 512 };
+const MF_CONFIG = { epochs: 20, lr: 0.01, reg: 0.05, batchSize: 512 };
 
 /**
  * Public description of the provided MF reference model, filled in when the
@@ -952,7 +952,11 @@ async function hw6TrainMf(train) {
               const it = tf.gather(itemFactors, tf.tensor1d(iIdx, "int32"));
               const pred = tf.sum(tf.mul(u, it), 1).add(globalMean);
               const mse = tf.losses.meanSquaredError(tf.tensor1d(target, "float32"), pred);
-              const l2 = userFactors.square().sum().add(itemFactors.square().sum()).mul(MF_CONFIG.reg);
+              // Full-matrix L2 (sum over all ~2627 rows, added to a per-batch
+              // MEAN MSE) shrinks every row on every step until predictions
+              // collapse to mu = the baseline. Penalise only the batch rows,
+              // averaged per rating (week5 trainMF reference).
+              const l2 = u.square().sum().add(it.square().sum()).mul(MF_CONFIG.reg / size);
               return mse.add(l2);
             });
           },
@@ -3357,6 +3361,19 @@ function serializeVerification() {
       pagerank: HW6_STATE.convergence.pagerank,
       ppr: HW6_STATE.convergence.ppr,
     },
+    // MF reference actually used: state the model and checkpoint (readme §6).
+    mf: {
+      factors: MF_INFO.factors,
+      epochs: MF_INFO.epochs,
+      learning_rate: MF_INFO.learningRate,
+      regularization: MF_INFO.regularization,
+      batch_size: MF_INFO.batchSize,
+      seed: MF_INFO.seed,
+      backend: MF_INFO.backend,
+      checkpoint: MF_INFO.checkpoint,
+      validation_rmse: MF_INFO.validationRMSE,
+      trained_at: MF_INFO.trainedAt,
+    },
   };
   return JSON.stringify(payload, null, 2);
 }
@@ -3367,7 +3384,8 @@ function serializeVerification() {
  * Columns, in order: `method, alpha, recall_at_10, cohort_size,
  * excluded_unseen_ids, excluded_no_eligible_user, mean_popularity, iterations,
  * residual, converged`, then two extra evidence columns (`split`,
- * `excluded_unseen_id_list`) that do not disturb the required prefix.
+ * `excluded_unseen_id_list`) that do not disturb the required prefix, and two
+ * MF-metadata columns (`mf_epochs`, `mf_checkpoint`) filled only on the `mf` row.
  *
  * Rows come from whatever has actually been run: the four-method TEST
  * comparison, the PPR VALIDATION alpha sweep, and the PageRank / PPR
@@ -3380,7 +3398,7 @@ function serializeResults() {
   const header = [
     "method", "alpha", "recall_at_10", "cohort_size", "excluded_unseen_ids",
     "excluded_no_eligible_user", "mean_popularity", "iterations", "residual",
-    "converged", "split", "excluded_unseen_id_list",
+    "converged", "split", "excluded_unseen_id_list", "mf_epochs", "mf_checkpoint",
   ];
   const rows = [];
 
@@ -3388,6 +3406,7 @@ function serializeResults() {
   const unseenList = exclusions && exclusions.unseenIds ? exclusions.unseenIds.join(";") : "";
 
   (HW6_STATE.comparisonRows || []).forEach(function (row) {
+    const isMf = row.method === "mf";
     rows.push([
       row.method,
       row.alpha === null ? "" : Number(row.alpha).toFixed(2),
@@ -3401,6 +3420,8 @@ function serializeResults() {
       row.converged === null ? "" : String(row.converged),
       row.split,
       unseenList,
+      isMf && MF_INFO.epochs !== null ? MF_INFO.epochs : "",
+      isMf && MF_INFO.checkpoint !== null ? MF_INFO.checkpoint : "",
     ]);
   });
 
@@ -3417,6 +3438,8 @@ function serializeResults() {
       "",
       "",
       "val",
+      "",
+      "",
       "",
     ]);
   });
@@ -3437,6 +3460,8 @@ function serializeResults() {
       record.residual === null ? "" : record.residual,
       verdict.value === null ? "" : String(verdict.value),
       "test",
+      "",
+      "",
       "",
     ]);
   });
