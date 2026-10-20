@@ -1112,8 +1112,18 @@ function mfScores(userId) {
  * @returns {Float64Array} Movie scores in `graph.movieIds` order.
  */
 function movieScores(p, graph) {
-  // TODO(hw6): select the movie-node entries of `p`, in `graph.movieIds` order.
-  throw new Error("TODO(hw6): movieScores is not implemented yet.");
+  const movieIds = hw6MovieIds(graph);
+  const out = new Float64Array(movieIds.length);
+  if (!movieIds.length) return out;
+
+  // Global node index of the first movie node. User nodes occupy
+  // `[0, nUsers)`; movie nodes follow with no padding.
+  const offset = Number.isFinite(graph.nUsers) ? Number(graph.nUsers) : hw6UserIds(graph).length;
+  for (let k = 0; k < movieIds.length; k++) {
+    const value = Number(p[offset + k]);
+    out[k] = Number.isFinite(value) ? value : 0;
+  }
+  return out;
 }
 
 /**
@@ -1150,8 +1160,50 @@ function movieScores(p, graph) {
  * @returns {RecommendedMovie[]}
  */
 function recommendTopK(method, userId, K, split) {
-  // TODO(hw6): filter the candidate pool, sort by score desc / id asc, slice to K.
-  throw new Error("TODO(hw6): recommendTopK is not implemented yet.");
+  const topK = Number.isFinite(Number(K)) ? Math.floor(Number(K)) : 10;
+  if (topK <= 0) return [];
+  if (method !== "popularity" && method !== "pagerank" && method !== "ppr" && method !== "mf") return [];
+
+  const name = split === "val" ? "val" : "test";
+  const alpha = hw6ReadAlpha();
+  const excluded = hw6ExclusionSet(name, userId);
+
+  let vector;
+  try {
+    vector = hw6ScoreVector(method, userId, alpha, name);
+  } catch (error) {
+    // An interface gap (e.g. no active graph) yields no list rather than a throw.
+    return [];
+  }
+  const ids = vector.movieIds;
+  const scores = vector.scores;
+
+  const pool = [];
+  for (let i = 0; i < ids.length; i++) {
+    const movieId = ids[i];
+    if (excluded.has(movieId)) continue;
+    const score = Number(scores[i]);
+    if (score === Number.NEGATIVE_INFINITY) continue;
+    pool.push({ movieId: movieId, score: Number.isFinite(score) ? score : 0 });
+  }
+  if (!pool.length) return [];
+
+  pool.sort(function (a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.movieId - b.movieId;
+  });
+
+  const list = pool.slice(0, topK).map(function (entry) {
+    return {
+      movieId: entry.movieId,
+      title: hw6Title(entry.movieId),
+      genres: hw6Genres(entry.movieId),
+      score: entry.score,
+      popularity: hw6PopularityOf(entry.movieId),
+    };
+  });
+
+  return list;
 }
 
 /**
@@ -1183,8 +1235,46 @@ function recommendTopK(method, userId, K, split) {
  * @returns {RecallReport}
  */
 function recallAtK(method, K, split) {
-  // TODO(hw6): macro-average Recall@K over the shared cohort, with exclusions.
-  throw new Error("TODO(hw6): recallAtK is not implemented yet.");
+  const name = split === "val" ? "val" : "test";
+  const topK = Number.isFinite(Number(K)) ? Math.floor(Number(K)) : 10;
+  const cohort = hw6SharedCohort(name);
+  const grades = HW6_STATE.gradesBySplit[name];
+  const exclusions = hw6CohortExclusions(name);
+
+  const perUser = [];
+  let recallSum = 0;
+  for (let i = 0; i < cohort.length; i++) {
+    const userId = cohort[i];
+    const excluded = hw6ExclusionSet(name, userId);
+    const gradeMap = grades.get(userId) || new Map();
+    const relevantSet = new Set();
+    gradeMap.forEach(function (rating, movieId) {
+      if (rating < 4.0) return;
+      if (!HW6_STATE.candidateSet.has(movieId)) return;
+      if (excluded.has(movieId)) return;
+      relevantSet.add(movieId);
+    });
+
+    let hit = 0;
+    if (relevantSet.size > 0 && topK > 0) {
+      const list = recommendTopK(method, userId, topK, name);
+      for (let k = 0; k < list.length; k++) {
+        if (relevantSet.has(list[k].movieId)) hit++;
+      }
+    }
+    const relevant = relevantSet.size;
+    perUser.push({ userId: userId, relevant: relevant, hit: hit });
+    if (relevant > 0) recallSum += hit / relevant;
+  }
+
+  const recall = cohort.length ? recallSum / cohort.length : 0;
+  return {
+    recall: recall,
+    cohort: cohort,
+    excludedUnseen: exclusions.excludedUnseen,
+    excludedNoEligible: exclusions.excludedNoEligible,
+    perUser: perUser,
+  };
 }
 
 // ---------------------------------------------------------------------------
