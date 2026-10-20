@@ -781,8 +781,9 @@ function graphPowerRun(spec) {
     maskT = spec.blocks.mask;
   }
 
-  const vT = tf.tensor1d(spec.v, "float32");
-  let p = tf.tensor1d(spec.v, "float32");
+  const vF32 = Float32Array.from(spec.v);
+  const vT = tf.tensor1d(vF32, "float32");
+  let p = tf.tensor1d(vF32, "float32");
   let iterations = 0;
   let residual = Infinity;
   let converged = false;
