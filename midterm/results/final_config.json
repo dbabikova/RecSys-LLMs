@@ -1,0 +1,22 @@
+{
+  "hybrid_weights": {
+    "personal": 1.0,
+    "personal_series": 0.0,
+    "mf_pop": 0.5,
+    "cbf_title": 0.0
+  },
+  "gamma": 0.0,
+  "switching": {
+    "train_shows_lt": 5,
+    "train_days_lt": 2
+  },
+  "mf": {
+    "factors": 32,
+    "reg": 50.0,
+    "alpha": 0.5
+  },
+  "seed": 42,
+  "map5_A": 0.791407,
+  "map5_B": 0.616940,
+  "map5_C": 0.679722
+}

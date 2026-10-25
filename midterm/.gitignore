@@ -1,0 +1,17 @@
+cache/
+data/
+.venv/
+__pycache__/
+*.parquet
+*.npy
+*.npz
+.ipynb_checkpoints/
+
+# temporary logs
+*.log
+*.err
+*.tmp
+
+# raw competition data must never be committed (lives in SWEETTV_DATA_DIR)
+dataset11-30.csv
+export_arh_*.csv

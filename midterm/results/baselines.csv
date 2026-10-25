@@ -1,0 +1,7 @@
+method,gt,MAP@5,Recall@5,coverage
+global,A,0.72947,0.044288,5
+personal+global(n_days),A,0.772566,0.047969,226
+global,B,0.546516,0.101284,5
+personal+global(n_days),B,0.59989,0.113598,226
+global,C,0.593929,0.187315,5
+personal+global(n_days),C,0.668444,0.215846,208

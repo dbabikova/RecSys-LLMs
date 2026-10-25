@@ -1,0 +1,16 @@
+{
+  "personal_score": "n_days * 0.5^((REF-last_seen)/(8*7*86400)) * (1 + 0.3*log1p(n_air))",
+  "personal_decay_half_life_weeks": 8,
+  "n_air_boost_gamma": 0.3,
+  "mf_pop_weight": 0.25,
+  "switching": {
+    "train_shows_lt": 5,
+    "train_days_lt": 2
+  },
+  "mf": {
+    "factors": 32,
+    "reg": 50.0,
+    "alpha": 0.5
+  },
+  "seed": 42
+}
