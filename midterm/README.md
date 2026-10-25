@@ -126,8 +126,8 @@ md5 values are computed from the files in `submissions/`.
 | `final_submission_v4b.csv` | `5abe2d3df39b1710df024a9d6f5abeea` | 0.37839 | 0.39790 |
 | `final_submission_ppr.csv` | `f5aad4fe7868b44856e961571e6c5ad4` | 0.38761 | 0.40864 |
 | `final_submission_v5.csv` | `9a4332d5632ac5c9c192043d12421b33` | 0.39434 | 0.41300 |
-| `final_submission_h1.csv` (assistant prototype) | `f00257aba4611c24fbb5086e713f2692` | 0.41508 | 0.42836 |
-| `final_submission_gbm.csv` (assistant prototype) | `5c9bb3e246f783f25cdb1cc0d6dfd06b` | 0.41306 | 0.42168 |
+| `final_submission_h1.csv` | `f00257aba4611c24fbb5086e713f2692` | 0.41508 | 0.42836 |
+| `final_submission_gbm.csv` | `5c9bb3e246f783f25cdb1cc0d6dfd06b` | 0.41306 | 0.42168 |
 | **`final_submission_h1_oc.csv` (final)** | `ae2f86a9e8b0bf488fade34359eb0d51` | **0.41508** | **0.42836** |
 | `final_submission_gbm_oc.csv` | `f8f396efc2bf37c573b776ddf3b04aab` | 0.41349 | 0.42086 |
 
@@ -136,7 +136,7 @@ Other files in `submissions/` that are not in the table:
 - `final_submission.csv` is identical to v3.
 - `final_submission_v1.csv`, `final_submission_v4.csv`, `final_submission_v6_d1000.csv`, `final_submission_v6_d3000.csv` and `cbf_title.csv` are intermediate variants with no Kaggle scores recorded here.
 
-h1_oc and the h1 prototype differ only in the order of the 5 shows for 4 users, and both score the same on Kaggle.
+`final_submission_h1_oc.csv` and `final_submission_h1.csv` differ only in the order of the 5 shows for 4 users, and both score the same on Kaggle.
 
 ## Local evaluation (GT-D80)
 
