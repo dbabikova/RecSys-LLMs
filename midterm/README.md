@@ -7,20 +7,27 @@ The view log covers weeks 11–30 of 2020. For each of the 1260 users in `submis
 
 ## Result
 
-The final submission is **`submissions/final_submission_h1_oc.csv`**. It is copied to `midterm/submission.csv`,
-md5 `ae2f86a9e8b0bf488fade34359eb0d51`.
+The final submission is **`submissions/final_submission_h1ppr_oc.csv`**, the HabitSlot (h1) + PPR hybrid.
+It is copied to `midterm/submission.csv`, md5 `5fb4916b06efe2900d7fd33d42e70e04`, and is built by
+`python scripts/12_h1_ppr.py --submit`.
 
-| | Kaggle private | Kaggle public |
-|---|---|---|
-| **h1** (final) | **0.41508** | **0.42836** |
+| | val D80 | Kaggle private | Kaggle public |
+|---|---|---|---|
+| **h1 + PPR** (final, `final_submission_h1ppr_oc.csv`) | **0.4014** | **0.41518** | **0.42880** |
+| h1 (previous final, `final_submission_h1_oc.csv`) | 0.4009 | 0.41508 | 0.42836 |
 
-h1 is a heuristic with no trained parameters. It has two parts:
+h1 (HabitSlot) is a heuristic with no trained parameters. It has two parts:
 
 - **Recency-weighted completion:** `p(u,s) = Σ pct · 0.5^(age / 4 weeks)` over the user's past airings of the show.
 - **Time-slot fit:** each window airing is matched against the user's (channel, hour-of-week) viewing profile.
 
-The score is `p · (slot + 1e-4)^0.5`. Candidates are the user's own shows that air in the window.
+The h1 score is `p · (slot + 1e-4)^0.5`. Candidates are the user's own shows that air in the window.
 Lists shorter than 5 are padded with popular shows.
+
+The final hybrid multiplies the h1 score by personalized PageRank: `h1 · (ppr + 1e-12)^0.05`.
+PPR runs on the user–show bipartite graph of watched history pairs, with edge weight `log1p(n_days)`,
+alpha 0.5 and restart at the user. The candidates and the padding are the same as in h1.
+w = 0.05 was chosen on val from {0, 0.05, 0.1, 0.2} (`results/tune_14.md`).
 
 A LightGBM ranker built on the same features (`11_gbm.py`) beats h1 locally (+0.024 D80) but not on Kaggle.
 See `results/local_vs_kaggle.md` for why.
@@ -57,10 +64,10 @@ The default path is set in `src/config.py`. Scripts only read the data and never
 ```
 midterm/
 ├── src/          config.py, join.py (log x grid join), evaluate.py (GT, MAP@5), mf_als.py, cbf.py
-├── scripts/      numbered pipeline steps 00 -> 11
+├── scripts/      numbered pipeline steps 00 -> 12
 ├── results/      summaries (.md) and metric tables (.csv) written by the scripts
 ├── submissions/  all generated submission files
-├── submission.csv  final file (copy of submissions/final_submission_h1_oc.csv)
+├── submission.csv  final file (copy of submissions/final_submission_h1ppr_oc.csv)
 └── cache/        intermediate parquet files (git-ignored)
 ```
 
@@ -84,6 +91,8 @@ GT-A/B/C are the "watched" ground-truth variants from stage 3. GT-D80 is defined
 | `09a_diagnostics.py` … `09i_tune.py` | diagnostics and tuning: decay, airing boost, PPR, time-slot boost | `results/diagnostics_9a.md`, `diagnostics_9b.md`, `tune_9d.md` … `tune_9i.md` |
 | `10_h1.py` | GT-D80 calibration (global / personal / v3 / v5) and h1 on val; `--submit` builds the h1 submission | `results/tune_10.md`, `local_vs_kaggle.md`, `all_methods.csv`; `submissions/final_submission_h1_oc.csv` |
 | `11_gbm.py` | LightGBM (lambdarank + binary, 3 seeds) on h1 features; 4-fold and temporal validation; submission | `results/tune_11.md`, `gbm_importance.md`, `local_vs_kaggle.md`, `all_methods.csv`; `submissions/final_submission_gbm_oc.csv` |
+| `12_handcheck_compare.py` | compares the manual Excel check (`results/hand_check_ap.xlsx`) with the pipeline code for one user | `results/handcheck_compare.md` |
+| `12_h1_ppr.py` | h1 + PPR score fusion: val D80 for w ∈ {0, 0.05, 0.1, 0.2}; `--submit` builds the final submission (w = 0.05) | `results/tune_14.md`; `submissions/final_submission_h1ppr_oc.csv` |
 
 ### `07_submit.py` parameters
 
@@ -104,8 +113,9 @@ Users with fewer than 5 shows or fewer than 2 days of history get the global top
 ```powershell
 python scripts/07_submit.py --out final_submission_v3.csv                         # v3
 python scripts/07_submit.py --delta 300 --ppr 0.25 --out final_submission_v5.csv  # v5
-python scripts/10_h1.py --submit final_submission_h1_oc.csv                       # h1 (final)
+python scripts/10_h1.py --submit final_submission_h1_oc.csv                       # h1 (previous final)
 python scripts/11_gbm.py                                                          # GBM -> final_submission_gbm_oc.csv
+python scripts/12_h1_ppr.py --submit                                              # h1 + PPR (final) -> final_submission_h1ppr_oc.csv
 ```
 
 Each `07_submit.py` run also rewrites `global.csv`, `personal.csv`, `mf_pop.csv` and `cbf_title.csv`.
@@ -128,8 +138,9 @@ md5 values are computed from the files in `submissions/`.
 | `final_submission_v5.csv` | `9a4332d5632ac5c9c192043d12421b33` | 0.39434 | 0.41300 |
 | `final_submission_h1.csv` | `f00257aba4611c24fbb5086e713f2692` | 0.41508 | 0.42836 |
 | `final_submission_gbm.csv` | `5c9bb3e246f783f25cdb1cc0d6dfd06b` | 0.41306 | 0.42168 |
-| **`final_submission_h1_oc.csv` (final)** | `ae2f86a9e8b0bf488fade34359eb0d51` | **0.41508** | **0.42836** |
+| `final_submission_h1_oc.csv` (previous final) | `ae2f86a9e8b0bf488fade34359eb0d51` | 0.41508 | 0.42836 |
 | `final_submission_gbm_oc.csv` | `f8f396efc2bf37c573b776ddf3b04aab` | 0.41349 | 0.42086 |
+| **`final_submission_h1ppr_oc.csv` (final)** | `5fb4916b06efe2900d7fd33d42e70e04` | **0.41518** | **0.42880** |
 
 Other files in `submissions/` that are not in the table:
 
@@ -151,6 +162,6 @@ It overstates the GBM gain. To evaluate a config:
 
 1. Build its rankings for the val snapshot: history before 2020-05-18, candidates airing in [2020-05-18, 2020-07-27).
 2. Score it with `build_gt_d80` and `E.ap_at_k` as in `scripts/10_h1.py`. The calibration block of `10_h1.py` is the template.
-3. Compare with the reference values in [`results/local_vs_kaggle.md`](results/local_vs_kaggle.md): global 0.273, personal 0.331, v3 0.350, v5 0.376, h1 0.401, GBM 0.425.
+3. Compare with the reference values in [`results/local_vs_kaggle.md`](results/local_vs_kaggle.md): global 0.273, personal 0.331, v3 0.350, v5 0.376, h1 0.401, h1 + PPR 0.4014, GBM 0.425.
 
 `results/all_methods.csv` has every method on GT-A/B/C and, in the `MAP5_D80` column, on D80.
