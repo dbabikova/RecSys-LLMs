@@ -2,7 +2,7 @@
 
 **Source:** FAR-Trans, University of Glasgow — [researchdata.gla.ac.uk/1658](https://researchdata.gla.ac.uk/1658/)
 **DOI:** 10.5525/gla.researchdata.1658 · **License:** CC BY 4.0
-**Paper:** Sanz-Cruzado, Droukas, McCreadie, "FAR-Trans: An Investment Dataset for Financial Asset Recommendation" (Fin-RecSys @ IJCAI 2024), [arXiv:2407.08692](https://arxiv.org/abs/2407.08692)
+**Paper:** J. Sanz-Cruzado, N. Droukas, and R. McCreadie, "FAR-Trans: An Investment Dataset for Financial Asset Recommendation," arXiv preprint arXiv:2407.08692, 2024.
 **Collection period:** 2018-01-02 … 2022-11-29/30 (per README: 2 Jan 2018 — 29 Nov 2022)
 **Encoding / format:** UTF-8; CSV with a single header row; fields containing commas are quoted with `"`.
 **Local archive:** `data/raw/FAR-Trans.zip` (9.8 MB) → extracted to `data/raw/FAR-Trans/` (git-ignored).
@@ -12,10 +12,10 @@
 | # | File | Rows (excl. header) | Time range (min → max) | Description |
 |---|------|--------------------:|------------------------|-------------|
 | 1 | `customer_information.csv` | 32 468 | `lastQuestionnaireDate` 2000-01-01* → 2022-11-23; `timestamp` 2000-01-01* → 2022-11-30 | Customer profile snapshots (a customer appears multiple times as info is updated) |
-| 2 | `asset_information.csv` | 836 | `timestamp` 2018-01-02 → 2022-10-31 | Asset metadata (an asset appears multiple times) |
+| 2 | `asset_information.csv` | 836 | `timestamp` 2018-01-01 → 2022-10-31 | Asset metadata (an asset appears multiple times) |
 | 3 | `markets.csv` | 38 | — (no timestamp) | Market / exchange reference data |
-| 4 | `close_prices.csv` | 703 303 | `timestamp` 2018-01-02 → 2022-11-29 | Daily close prices per asset |
-| 5 | `limit_prices.csv` | 807 | `minDate` 2018-01-02 → 2022-10-31; `maxDate` 2018-01-19 → 2022-11-29 | Per-asset price-series extremes + profitability |
+| 4 | `close_prices.csv` | 703 303 | `timestamp` 2018-01-01 → 2022-11-29 | Daily close prices per asset |
+| 5 | `limit_prices.csv` | 807 | `minDate` 2018-01-01 → 2022-10-31; `maxDate` 2018-01-19 → 2022-11-29 | Per-asset price-series extremes + profitability |
 | 6 | `transactions.csv` | 388 048 | `timestamp` 2018-01-02 → 2022-11-30 | Customer investment transactions (Buy / Sell) |
 | 7 | `questionnaires.csv` | 177 lines | — (plain text, not CSV) | MiFiD risk-questionnaire questions (answers not provided) |
 

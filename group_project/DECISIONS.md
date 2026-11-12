@@ -1,29 +1,32 @@
 # DECISIONS.md
 
 Session-by-session record of technical and process decisions for the group project.
-Mark team-joint decisions as **joint**; personal decisions as **<name>**.
+
+**Attribution rule:** `**Joint**` is used only for decisions actually taken at a
+team meeting (Joint ставится только для решений, реально принятых на встрече
+команды). All other decisions are marked `**individual (via OpenCode)**`.
 
 ## Session 1 — Define
 
 ### Data
 
-- **Joint** — Use **FAR-Trans** (Glasgow, `10.5525/gla.researchdata.1658`, CC BY 4.0) as the
+- **individual (via OpenCode)** — Use **FAR-Trans** (Glasgow, `10.5525/gla.researchdata.1658`, CC BY 4.0) as the
   shared data source, per the common project scope.
-- **Joint** — Download the raw archive into `data/raw/` and keep it **git-ignored**; never
+- **individual (via OpenCode)** — Download the raw archive into `data/raw/` and keep it **git-ignored**; never
   commit raw data.
-- **Joint** — `questionnaires.csv` is treated as a plain-text file (MiFiD questions), not CSV,
+- **individual (via OpenCode)** — `questionnaires.csv` is treated as a plain-text file (MiFiD questions), not CSV,
   matching the dataset README.
 
 ### Environment
 
-- **Joint** — Isolated `venv` inside `group_project/.venv` (Anaconda Python 3.13); do not
+- **individual (via OpenCode)** — Isolated `venv` inside `group_project/.venv` (Anaconda Python 3.13); do not
   install packages into the base environment.
-- **Joint** — `pyproject.toml` with `requires-python = ">=3.11"`; Windows paths via `pathlib`,
+- **individual (via OpenCode)** — `pyproject.toml` with `requires-python = ">=3.11"`; Windows paths via `pathlib`,
   README commands in PowerShell.
 
 ### Scope / protocol (pending)
 
-- **Joint** — Exact item scope, evaluated users, time cut and transaction-label rules are
+- **individual (via OpenCode)** — Exact item scope, evaluated users, time cut and transaction-label rules are
   **pending** (instructor, before Session 2). Nothing here fixes them; assumptions are marked
   as assumptions.
 

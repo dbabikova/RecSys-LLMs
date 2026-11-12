@@ -5,7 +5,9 @@ produce a **Top-10 ranked list of financial assets** scored by **nDCG@10** again
 the assets the user actually buys in the future evaluation window.
 
 Dataset: **FAR-Trans** (University of Glasgow) — <https://researchdata.gla.ac.uk/1658/>,
-DOI `10.5525/gla.researchdata.1658`, CC BY 4.0. Paper: [arXiv:2407.08692](https://arxiv.org/abs/2407.08692).
+DOI `10.5525/gla.researchdata.1658`, CC BY 4.0. Paper: J. Sanz-Cruzado, N. Droukas,
+and R. McCreadie, "FAR-Trans: An Investment Dataset for Financial Asset Recommendation,"
+arXiv preprint arXiv:2407.08692, 2024.
 
 ## Status (Session 1 — Define)
 
