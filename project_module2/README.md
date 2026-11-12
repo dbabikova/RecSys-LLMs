@@ -18,8 +18,8 @@
 
 | # | Этап | Результат | Раздел отчёта |
 |---|---|---|---|
-| 1 | Разбор задания, структура папки | этот README | — |
-| 2 | Изучение данных: схема, record-пример, таймстемпы, утечки, EDA | `reports/data_example.md`, `reports/eda.md` | §3 Method |
+| 1 ✅ | Разбор задания, структура папки | этот README | — |
+| 2 ✅ | Изучение данных: схема, record-пример, таймстемпы, утечки, EDA | `reports/schema.md`, `reports/data_example.md`, `reports/eda.md` | §3 Method |
 | 3 | Литература: 3–5 открытых статей, nearest prior work, gap | `reports/literature.md` | §2 Related Work |
 | 4 | Выбор трека (Encoder / Ranker / Hybrid) и одного RQ | `DECISIONS.md` | §1 Introduction |
 | 5 | Дизайн эксперимента: baseline, same-information control, ablation, nDCG@10 + runtime/cost, риски | `reports/study_plan.md` | §3–§4 |
@@ -33,6 +33,23 @@ project_module2/
   README.md        этот файл: план и контекст
   DECISIONS.md     журнал решений (кто предложил, почему)
   data/            сырые CSV FAR-Trans (не коммитятся)
-  scripts/         скрипты: схема, пример записи, EDA
-  reports/         сгенерированные артефакты для отчёта
+  scripts/
+    common.py              пути, загрузка, provisional split, as-of профиль
+    inspect_schema.py      -> reports/schema.md        (схема, ключи, целостность)
+    make_data_example.py   -> reports/data_example.md  (одна запись + аудит утечек)
+    eda.py                 -> reports/eda.md, figures/ (EDA + диагностика сплита)
+  reports/         сгенерированные артефакты (не редактируются руками)
 ```
+
+## Воспроизведение
+
+```
+pip install pandas matplotlib
+# распаковать FAR-Trans.zip так, чтобы CSV лежали в data/FAR-Trans/
+python scripts/inspect_schema.py
+python scripts/make_data_example.py
+python scripts/eda.py
+```
+
+Проверено на архиве FAR-Trans.zip с SHA-256
+`d0d6cfe027732bab45fdcf9af80eff4fefddc789aedae9bdce0d3d6cfd05cfb6`.
