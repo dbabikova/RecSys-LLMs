@@ -20,7 +20,7 @@
 |---|---|---|---|
 | 1 ✅ | Разбор задания, структура папки | этот README | — |
 | 2 ✅ | Изучение данных: схема, record-пример, таймстемпы, утечки, EDA | `reports/schema.md`, `reports/data_example.md`, `reports/eda.md` | §3 Method |
-| 3 | Литература: 3–5 открытых статей, nearest prior work, gap | `reports/literature.md` | §2 Related Work |
+| 3 ✅ | Литература: 3–5 открытых статей, nearest prior work, gap | `reports/literature.md` | §2 Related Work |
 | 4 | Выбор трека (Encoder / Ranker / Hybrid) и одного RQ | `DECISIONS.md` | §1 Introduction |
 | 5 | Дизайн эксперимента: baseline, same-information control, ablation, nDCG@10 + runtime/cost, риски | `reports/study_plan.md` | §3–§4 |
 | 6 | Командное обсуждение: варианты, согласие/расхождения, личный вклад | заметки | §5 Discussion |
