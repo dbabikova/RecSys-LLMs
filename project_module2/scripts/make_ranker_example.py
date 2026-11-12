@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from candidates import prepare  # noqa: E402
+from knn_setup import prepare  # noqa: E402
 from common import CUT, DATA, TEST_END, load, md_table, profile_asof, write  # noqa: E402
 
 K = 20
