@@ -1,142 +1,141 @@
-# Study plan — Ranker track (Session 1, planned, not run)
+# Study plan (Session 1, §3–§4 of the report) — Ranker track, **planned**
 
-Автор: Бабикова Д. (с Claude). Статус: **planned**. Запускались только классические генераторы, оценка
-потолка (`reports/candidates.md`) и пример данных; LLM не запускалась, чисел по LLM здесь нет.
-v2 (2026-11-13): главный контроль приведён к зафиксированному RQ — LambdaMART с той же информацией.
+Author: Бабикова Д. (drafted with Claude, 2026-11-13). Nothing below has been run except the data
+checks in `eda.md`, `candidate_recall.md`, `ranker_example.md`, `verify_example.md`. All numbers from
+those files are on a **provisional** split; the official item scope, cut, users and label rule are pending.
 
-## 1. Research question (зафиксирован)
+## RQ (fixed for Session 1)
 
-> We test whether **zero-shot listwise reranking by a frozen instruction-tuned LLM** of a fixed top-20
-> candidate list improves **nDCG@10** over **a LightGBM LambdaMART reranker that receives the same user
-> and asset information and the same candidates** for **the common FAR-Trans evaluation users**.
+> We test whether zero-shot LLM reranking of a fixed top-20 candidate list improves nDCG@10 over a
+> LightGBM LambdaMART reranker with the same information and the same candidates, for the common
+> FAR-Trans evaluation users.
 
-| Элемент | Содержание |
+## 1. Data and users
+
+| Item | Plan | Timestamp / leakage rule |
+|---|---|---|
+| Prediction time t | official cut (pending); provisional t = 2022-05-31 | — |
+| Labels | Buy in (t, t + 6 m]; label rule A (new pairs) vs B (all buys) **pending instructor** | label window only |
+| History | `transactions` rows < t: ISIN, type, date; reconstructed buys (transactionID < 0) kept as history, flagged | all < t |
+| Profile | `customer_information` latest snapshot ≤ t: customerType, riskLevel, investmentCapacity + predicted flag; questionnaire date only if ≤ t | snapshot ≤ t |
+| Assets | `asset_information`: name, category, sub-category, sector, industry, market (∅ kept as "unknown") | static |
+| Eligible universe | assets priced over the whole test window (FAR-Trans protocol) — **protocol filter, same for all methods, never a feature** | uses future prices |
+| Excluded | `limit_prices.profitability`, any price or transaction after t | future |
+| Users | common evaluation users (pending). Provisional: 1,132 (A) / 2,590 (B) | — |
+| Subgroups (pre-specified) | distinct assets before t: 1 / 2–4 / ≥ 5; riskLevel observed vs predicted | — |
+
+## 2. Methods
+
+**Candidate generator (fixed, shared by all arms):** ItemKNN (cosine on user × asset buy matrix before t),
+top-20, owned assets excluded under rule A. Provisional Recall@20 = 0.625, own-order nDCG@10 = 0.290 (A).
+LightGCN may replace ItemKNN in Session 2 if it gives higher Recall@20; the generator is then frozen for
+every arm.
+
+| Arm | Role | What changes |
+|---|---|---|
+| R0 Popularity | reference | — |
+| R1 ItemKNN order | reference (no reranking) | — |
+| **C LambdaMART** | **main control** (existing classical learned ranker) | learns order from features |
+| **L LLM reranker** | **intervention** | LLM orders the same 20 candidates from the same fields as text |
+
+**Same information.** C and L receive the same fields (history, as-of profile, asset metadata, ItemKNN
+score, popularity). C gets them as features: ItemKNN score/rank, 6-month popularity, share of the user's
+history in the candidate's category / sub-category / sector / industry / market, riskLevel × category,
+customerType, investmentCapacity, predicted flags, history length, and a character-n-gram similarity
+between candidate name and history names (so C also "sees" names). L gets the same fields serialised as
+text. The difference C vs L is therefore the method, not the information.
+
+**C training without leakage.** Training instances from earlier cuts t_k (bi-weekly, as in FAR-Trans) whose
+label window ends ≤ t (t_k + 6 m ≤ t); validation cut = t − 6 m. Same generator, same features.
+Objective lambdarank, early stopping on validation nDCG@10; 5 seeds.
+
+**L design (proposal, to confirm in Session 2).**
+- Model: open-weights instruction model, primary candidate **Qwen3-8B** (Hugging Face, revision hash
+  pinned and reported), run locally; no data leaves the machine. Fallback for budget: Qwen3-4B
+  (FLARKO found 1.7–4B competitive on FAR-Trans).
+- Zero-shot, frozen weights, temperature 0.
+- Scoring: LlamaRec-style verbalizer — candidates labelled A…T, score = next-token logit of each label,
+  one forward pass, no free-text generation → no hallucinated items, deterministic.
+- Prompt: role + date "as of t" + profile + history (most recent first, ≤ 20 items) + 20 candidates with
+  metadata + instruction "rank by likelihood the client buys next".
+- Position bias (Hou et al.): candidates shown in 3 fixed random permutations (seeds 0–2); final score =
+  mean label logit across permutations.
+
+## 3. Fair comparison checklist
+
+Same users · same t and label window · same eligible universe · same 20 candidates per user · same fields
+· same metric code · same hardware for runtime. Only the ordering method differs between C and L.
+Fixing the candidate set is used only to isolate reranking (allowed by the assignment).
+
+## 4. Measures
+
+| Measure | Definition |
 |---|---|
-| Intervention (R1) | LLM-порядок тех же 20 кандидатов |
-| **Control (C2, главный)** | LambdaMART на тех же кандидатах, признаки из тех же полей, что видит LLM |
-| Reference baselines | C0: исходный порядок EASE (тот же список); C1: Popularity, ItemKNN, EASE на полном universe |
-| Outcome | nDCG@10 (общий Top-10); вторично — время end-to-end и стоимость |
-| Population | общие оцениваемые пользователи (pending); provisional, вариант A: 1 132; подгруппы по истории ≤ 2 / 3–5 / > 5 активов |
-| Track / state | Ranker / planned; направление эффекта не фиксируем |
+| **nDCG@10 (primary)** | binary relevance, IDCG over min(|rel|, 10); mean over users; official unrounded value |
+| Uncertainty | paired per-user differences L − C, 95 % bootstrap CI over users (analysis only, not a benchmark rule); C: mean ± sd over 5 seeds; L: deterministic per permutation, spread over the 3 permutations reported |
+| Runtime | end-to-end recommendation-generation wall time per user, same machine; training time of C reported separately |
+| Cost | GPU-hours; prompt tokens per user |
+| Diagnostics | share of the 10 most popular assets in the Top-10 (popularity drift); nDCG by subgroup; Recall@20 ceiling |
 
-Зачем два контроля: R1 − C0 = «LLM + доп. информация» против порядка CF; R1 − C2 = **вклад метода при
-той же информации** (то, на что отвечает RQ). Если R1 > C0, но R1 ≈ C2, прирост даёт информация, а не LLM.
+nDCG@10 measures ranking accuracy against observed purchases; it is not a measure of investment quality,
+suitability or profit, and no such claim will be made. No LLM judge is used; ground truth is purchases only.
 
-## 2. Почему этот вопрос (данные и литература)
+## 5. Contribution check (ablations on L)
 
-- **Запас для реранкинга** (provisional, вариант A, `reports/candidates.md`): EASE-топ-20 Recall@20 = 0.643,
-  hit@20 = 73%; nDCG@10 исходного порядка 0.303, случайного 0.164, oracle 0.664.
-- **Генератор:** EASE (λ = 200) — лучший из Pop / ItemKNN / UserKNN / EASE в варианте A; LightGCN [1] — второй генератор в S2.
-  (Пример данных `ranker_example.md` построен на ItemKNN — иллюстрация формата, пересоберём на EASE.)
-- **Литература:** схема «фиксированный топ-K → LLM» — [3], [4]; в [3] LLM смещена к популярным и к позициям и
-  уступает обученным моделям на сильных кандидатах; в FAR-Trans популярность сильна, текст беден → исход не очевиден.
-- **Пробел к [2] (FLARKO):** неранжированный top-3, нет nDCG@10, runtime/cost и same-information контроля.
+| Ablation | Isolates |
+|---|---|
+| L-noname: names → ISIN, metadata kept | semantic / world knowledge about assets (also the contamination probe, §7) |
+| L-nohist: no purchase history | personalisation vs. the LLM's popularity prior |
+| L-noprof: no profile | contribution of risk / capacity |
+| L-knnorder: candidates in ItemKNN order, 1 pass | position bias and anchoring on the generator |
+| C-nonamesim: LambdaMART without the name-similarity feature | whether names help even a classical model |
 
-## 3. Данные и поля (всё с timestamp ≤ t)
+## 6. Budget (provisional sizes)
 
-| Поле | Статус | Время | LLM (R1) | LambdaMART (C2) |
-|---|---|---|---|---|
-| история покупок: ISIN, Buy, дата | observed (реконструкции помечены) | < t | список активов (≤ 20 последних) | счётчики совпадений категории/сектора/отрасли с историей, длина истории, давность |
-| asset: name | observed, **снимок** | `asset_information.timestamp` | текст в промпте | ID актива (категориальный) — текст не читает |
-| asset: category, subCategory, sector, industry | observed; пропуски 32–52% | снимок | текст | категориальные + флаги «пусто» |
-| EASE score / rank | derived из покупок < t | < t | только через порядок (C0) / не показываем в R1 (перемешано) | признак |
-| популярность кандидата (6 мес. до t) | derived | < t | не показываем | признак |
-| profile riskLevel / investmentCapacity / customerType | observed **или predicted** | as-of снимок ≤ t | опционально (абляция R7) | те же поля + флаг predicted |
-| close_prices ≤ t | observed | daily | опционально (тренд 3 мес.) | тот же тренд |
-| eligibility (цены на всё тест-окно) | derived, **будущее** | до 2022-11-29 | — правило протокола, не признак | — |
-| limit_prices.profitability | **leakage** | весь период | никогда | никогда |
-| покупки в тест-окне | labels | t … t+6 мес. | только оценка | только оценка |
+Prompt ≈ 0.8–1.2 k tokens. Main L run: 3 permutations × N users; each L ablation: 1–3 × N.
+For N = 2,590 (worst case, rule B): ≈ 7.8 k forward passes for L + ≈ 10 k for ablations ≈ 18 k passes
+≈ 20 M prompt tokens. One forward pass of an 8B model on a single modern GPU is well under a second
+(LlamaRec reports < 1 s for a 7B verbaliser ranker), i.e. a few GPU-hours in total; to be measured on the
+first 100 users in Session 2. LambdaMART: minutes on CPU.
 
-**Same-information:** обе системы получают одинаковые поля. Неустранимая асимметрия — LLM читает названия
-и может использовать знания о бумагах; её изолирует абляция R4 (без названий).
+## 7. Risks
 
-**Найденный риск утечки (подтверждён).** Метаданные — один снимок, а не история. Пример: «HELLENiQ ENERGY
-HOLDINGS S.A.» — новое имя Hellenic Petroleum с 2022-10-04 (после среза 2022-05-31). В S2: сверить имена
-кандидатов с переименованиями; для спорных — имя на дату среза или анонимизация.
+| Risk | Mitigation |
+|---|---|
+| **Contamination / hindsight:** the LLM was pretrained after 2022 and may know what happened to Greek assets in H2 2022 | L-noname ablation; report the model's knowledge cutoff; treat a gain that vanishes without names as possibly hindsight, not skill |
+| Dataset contamination (FAR-Trans public since 2024) | per-customer memorisation unlikely (pseudonymous IDs never in the prompt); stated as a threat |
+| Popularity bias of LLM rankers | popularity-share diagnostic; R0 as reference |
+| Low recall ceiling (Recall@20 ≈ 0.63) | report ceiling; reranker gains bounded by it |
+| Noisy metadata (59 / 285 stocks without sector; Greek-language fund names; sub-category conflicts) | keep ∅ explicit; no manual cleaning that only L benefits from |
+| Joint accounts (same transactionID on two customers) | counted per customer as in the data; noted as threat |
+| Profile timestamps not strictly point-in-time | as-of join; questionnaire date dropped if > t |
+| Privacy | data are pseudonymised (CC BY 4.0); customer IDs never sent to a model; local inference, no external API |
+| Ethics | ranking accuracy ≠ suitable advice; no claims on returns or user acceptance |
 
-## 4. Метод
+## 8. Interpretation of outcomes
 
-1. **Кандидаты:** EASE на покупках до t, топ-20 без уже купленных (вариант A; для B — с купленными).
-2. **R1 — LLM:** промпт `reports/prompt_example.md` (история + 20 кандидатов в **перемешанном** порядке, буквы
-   A–T, ответ — перестановка). ≈ 670 входных токенов в среднем.
-   **Модель (план):** Qwen3-8B (Hugging Face `Qwen/Qwen3-8B`, non-thinking mode, bf16 или 4-bit), через vLLM,
-   temperature = 0; ревизию весов фиксируем хэшем в S2. Qwen3 — та же семья, что в FLARKO [2] (сопоставимость).
-   Проверка масштаба: Qwen3-4B. Опционально — одна API-модель на подвыборке 200 пользователей.
-3. **Парсинг:** пропущенные / выдуманные буквы дописываются в порядке EASE; долю таких ответов логируем
-   (в [3] ≈ 3% ответов вне списка).
-4. **Bootstrapping:** 3 прохода с разными перестановками (seed 0–2), итог — средний ранг (Borda), как в [3].
-5. **C2 — LambdaMART:** LightGBM `lambdarank`, оптимизирует nDCG@10.
-   - Обучение на **более раннем срезе** t′ = 2021-11-30: признаки из данных < t′, метки = покупки в
-     (t′, t′+6 мес.] = до 2022-05-31 — окна с тестом не пересекаются.
-   - Гиперпараметры (≤ 20 конфигураций) — на валидационном срезе t″ = 2021-05-31.
-   - 5 seed'ов, отчёт: среднее ± std.
-6. **Честность настройки:** промпт R1 подбираем **на том же валидационном срезе t″**, не на тесте; тест (t) —
-   один прогон каждой финальной конфигурации.
+- **L > C:** an LLM adds ranking value beyond a classical learner with the same fields; check via
+  L-noname whether it is knowledge of assets or hindsight.
+- **L ≈ C:** with sparse histories and thin metadata the LLM brings no measurable gain — a useful negative
+  result for an advisor team weighing GPU cost against a CPU model.
+- **L < C:** zero-shot LLM ranking is harmed by popularity / position bias in this domain; motivates
+  fine-tuning (Session 4) rather than prompting.
 
-## 5. Сравнения и абляции
+## 9. Feasibility across sessions
 
-| Система | Отличие от R1 | Что изолирует |
-|---|---|---|
-| **C2: LambdaMART, те же признаки** (главный контроль) | классический обученный реранкер | **метод при той же информации** (ответ на RQ) |
-| C0: исходный порядок EASE | без реранкинга | эффект любого реранкинга |
-| C1: Popularity, ItemKNN, EASE на полном universe | без фиксированного списка | уровень бейзлайнов общего Top-10 |
-| R2: LLM, кандидаты в порядке EASE, без перемешивания | позиция | позиционный bias / «копирование» входного порядка |
-| R3: LLM, 1 проход вместо 3 | bootstrapping | стабильность и цена |
-| R4: LLM без названий (только категория, сектор, отрасль) | убраны названия | знания модели о бумагах и **контаминация** |
-| R5: LLM без истории пользователя | убрана персонализация | персонализация vs «что популярно вообще» |
-| R6 (опц.): fusion EASE-score + LLM-ранг | комбинация | дополняют ли сигналы друг друга |
-| R7 (опц.): LLM + профиль (риск, ёмкость); C2 + те же поля | добавлен профиль | вклад риск-профиля (поровну обеим системам) |
+| Session | Work |
+|---|---|
+| 2 | Freeze common protocol; ItemKNN (or LightGCN) generator; evaluation code; LambdaMART C; minimal L on 100 users (runtime, prompt checks) |
+| 3 | Full main comparison C vs L on all evaluation users; optional RAG variant (retrieve similar users' purchases into the prompt) only as an extension |
+| 4 | Optional LoRA fine-tuning of the ranker on earlier cuts (LlamaRec-style) as an improved L |
+| 5 | Ablations, subgroup and failure analysis, short-paper draft |
+| 6 | Final official run, reproducible package, presentation |
 
-Главная абляция для §3 отчёта: **R4 и R5 против R1**, при C2 как same-information контроле.
+Tools: Python, pandas, LightGBM, PyTorch + transformers (or vLLM), Git; GPU from Colab / Kaggle /
+university, to be confirmed. All results produced by committed scripts.
 
-## 6. Измерения
+## Open decisions
 
-- **Основная:** nDCG@10 (бинарная релевантность; вариант B — отдельной строкой).
-- **Диагностика:** Recall@10; nDCG@10 по подгруппам истории; средняя популярность выдачи (сдвиг к популярному);
-  доля ответов с ошибкой формата; Kendall τ между LLM-порядком и EASE.
-- **Время и стоимость:** end-to-end время генерации Top-10 на пользователя (кандидаты + реранкинг), GPU-модель,
-  батч; число токенов; GPU-часы или API-стоимость. Обучение C2 — отдельно (правило бенчмарка).
-- **Повторы и разброс:** R1 — 3 seed'а перестановок при temperature 0 (среднее ± std); C2 — 5 seed'ов;
-  парный bootstrap-интервал разницы R1 − C2 по пользователям (наш анализ, не правило оценивания курса).
-- **LLM-судья не используется:** ground truth — только реальные будущие покупки.
-
-## 7. Чтение результатов
-
-- **R1 > C2:** LLM даёт сигнал сверх той же информации. Проверить R4: если без названий прирост исчезает —
-  это знания о конкретных бумагах (возможна контаминация), а не рассуждение о вкусе клиента.
-- **R1 ≈ C2 (и обе > C0):** выигрыш даёт информация (категории, сектора), дешёвый LambdaMART достаточен — и
-  быстрее, что важно для тай-брейка бенчмарка.
-- **R1 < C2 или < C0:** LLM портит сильный CF-порядок, как в [3] на «трудных» кандидатах; смотреть сдвиг к
-  популярному и R2.
-- Любой исход отвечает на практический вопрос: стоит ли вызывать LLM ради ранжирования на этих данных.
-
-## 8. Риски
-
-- **Контаминация:** модель, обученная после 2022 г., может «знать», какие греческие бумаги росли во 2-м полугодии 2022.
-  Контроль: R4 и сравнение моделей с разной датой отсечения знаний.
-- **Утечка через метаданные:** названия по последнему снимку (§3); eligibility-фильтр использует будущие цены —
-  только правило протокола.
-- **Приватность:** в промпт не идут customerID, суммы, каналы; данные CC BY 4.0; локальная модель по умолчанию,
-  API — только с обезличенными промптами.
-- **Позиционный и popularity-bias** [3]: перемешивание, bootstrapping, метрика популярности, R2.
-- **Протокол pending:** вариант A/B, срез, список пользователей. Числа provisional; скрипты пересчитываются.
-- **nDCG@10 — не качество инвестиции:** прибыльность и пригодность для клиента не оцениваются.
-
-## 9. Выполнимость (по сессиям)
-
-| Сессия | Что делаем | Выход |
-|---|---|---|
-| S2 | общий протокол; C0/C1 + оценка; C2 (обучение на t′); R1 на подвыборке 200 пользователей; замер времени и токенов | рабочий бейзлайн + минимальный LLM-прогон |
-| S3 | R1, R2, R4, R5 на всех пользователях; первая таблица R1 vs C2 vs C0 | первый контролируемый эксперимент |
-| S4 (опц.) | LoRA-дообучение ранкера по схеме [4] на срезах до t | улучшенный метод |
-| S5 | R3, R6, R7, подгруппы, анализ ошибок, черновик статьи | финальные абляции |
-| S6 | воспроизводимые результаты, защита | — |
-
-**Бюджет:** ≈ 0.76 M входных токенов на проход по 1 132 пользователям; R1 с 3 bootstrap ≈ 2.3 M; R2–R5 ещё ≈ 3–7 M.
-Для 8B-модели на одной GPU (Kaggle / Colab) это часы; деньги — 0 при локальной модели. Точное время — в S2.
-
-## References
-
-Нумерация как в `reports/literature.md`: [1] FAR-Trans, [2] FLARKO, [3] Hou et al., [4] LlamaRec.
-EASE: H. Steck, "Embarrassingly shallow autoencoders for sparse data," in *Proc. WWW '19*, 2019 — открыть перед цитированием.
-LambdaMART: C. J. C. Burges, "From RankNet to LambdaRank to LambdaMART: An overview," Microsoft Research Tech. Rep. MSR-TR-2010-82, 2010 — открыть перед цитированием.
+1. Label rule A / B — instructor.
+2. Candidate generator ItemKNN vs LightGCN — Session 2, by Recall@20.
+3. LLM and its size — Session 2, by runtime on 100 users and available GPU.
