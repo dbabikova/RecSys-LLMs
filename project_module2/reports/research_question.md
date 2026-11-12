@@ -1,6 +1,6 @@
-# Research question (draft v1, Ranker track)
+# Research question (v1, Ranker track — fixed for Session 1)
 
-Status: **planned** (nothing run yet except data checks). Author: Бабикова Д. (draft with Claude).
+Status: **planned**, RQ fixed for Session 1 (2026-11-13). Author: Бабикова Д. (draft with Claude).
 Relevance labelling (repeat purchases relevant or not) is **open**: see the bottom of this file.
 
 ## Primary RQ
