@@ -21,8 +21,8 @@
 | 1 ✅ | Разбор задания, структура папки | этот README | — |
 | 2 ✅ | Изучение данных: схема, record-пример, таймстемпы, утечки, EDA | `reports/schema.md`, `reports/data_example.md`, `reports/eda.md` | §3 Method |
 | 3 ✅ | Литература: 3–5 открытых статей, nearest prior work, gap | `reports/literature.md` | §2 Related Work |
-| 4 | Выбор трека (Encoder / Ranker / Hybrid) и одного RQ | `DECISIONS.md` | §1 Introduction |
-| 5 | Дизайн эксперимента: baseline, same-information control, ablation, nDCG@10 + runtime/cost, риски | `reports/study_plan.md` | §3–§4 |
+| 4 ✅ | Выбор трека (Encoder / Ranker / Hybrid) и одного RQ | `DECISIONS.md` | §1 Introduction |
+| 5 ✅ | Дизайн эксперимента: baseline, same-information control, ablation, nDCG@10 + runtime/cost, риски | `reports/study_plan.md` | §3–§4 |
 | 6 | Командное обсуждение: варианты, согласие/расхождения, личный вклад | заметки | §5 Discussion |
 | 7 | Сборка PDF (≤5 стр. без ссылок) + AI-disclosure + экспорт сессии | `<имя>_session1_report.pdf`, `<имя>_session1_session.json` | §6 |
 
@@ -38,17 +38,21 @@ project_module2/
     inspect_schema.py      -> reports/schema.md        (схема, ключи, целостность)
     make_data_example.py   -> reports/data_example.md  (одна запись + аудит утечек)
     eda.py                 -> reports/eda.md, figures/ (EDA + диагностика сплита)
+    candidates.py          -> reports/candidates.md    (потолок ранкера: Pop/ItemKNN/UserKNN/EASE)
+    prompt_preview.py      -> reports/prompt_example.md (черновик промпта + оценка токенов)
   reports/         сгенерированные артефакты (не редактируются руками)
 ```
 
 ## Воспроизведение
 
 ```
-pip install pandas matplotlib
+pip install pandas matplotlib scipy
 # распаковать FAR-Trans.zip так, чтобы CSV лежали в data/FAR-Trans/
 python scripts/inspect_schema.py
 python scripts/make_data_example.py
 python scripts/eda.py
+python scripts/candidates.py
+python scripts/prompt_preview.py
 ```
 
 Проверено на архиве FAR-Trans.zip с SHA-256

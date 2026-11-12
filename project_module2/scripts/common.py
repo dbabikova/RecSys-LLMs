@@ -52,3 +52,37 @@ def write(name: str, script: str, text: str) -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     (REPORTS / name).write_text(HEADER.format(name=script) + text, encoding="utf-8")
     print("wrote", REPORTS / name)
+
+
+def ndcg_at(ranked, rel, k=10):
+    import numpy as np
+    gains = sum(1.0 / np.log2(i + 2) for i, it in enumerate(ranked[:k]) if it in rel)
+    idcg = sum(1.0 / np.log2(i + 2) for i in range(min(len(rel), k)))
+    return gains / idcg if idcg else 0.0
+
+
+def build_split(variant: str = "A"):
+    """Provisional split. Returns dict with train buys, universe, per-user train items and relevant sets.
+
+    variant A: relevant = test buys of assets NOT bought before the cut (FAR-Trans paper protocol)
+    variant B: relevant = all test buys
+    Users: >=1 buy before the cut and >=1 relevant asset. Universe: assets priced for the whole test window.
+    """
+    tr, cp = load("transactions"), load("close_prices")
+    buys = tr[tr.transactionType == "Buy"]
+    train_b = buys[buys.timestamp < CUT]
+    test_b = buys[(buys.transactionID > 0) & (buys.timestamp >= CUT) & (buys.timestamp <= TEST_END)]
+    priced = cp.groupby("ISIN").timestamp.agg(["min", "max"])
+    universe = sorted(priced[(priced["min"] <= CUT) & (priced["max"] >= TEST_END - pd.Timedelta(days=3))].index)
+    uset = set(universe)
+    tr_items = train_b.groupby("customerID").ISIN.agg(set)
+    te_items = test_b.groupby("customerID").ISIN.agg(set)
+    rel = {}
+    for u, s in te_items.items():
+        if u not in tr_items.index:
+            continue
+        r = (s - tr_items[u]) if variant == "A" else s
+        r &= uset
+        if r:
+            rel[u] = r
+    return {"train": train_b, "universe": universe, "tr_items": tr_items, "rel": rel, "variant": variant}
