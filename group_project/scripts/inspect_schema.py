@@ -37,12 +37,20 @@ CSV_FILES = [
     "transactions.csv",
 ]
 
-# columns whose value-count distribution is required
-DISTRIBUTIONS = {
-    "customer_information.csv": ["customerType", "riskLevel", "investmentCapacity"],
-    "asset_information.csv": ["assetCategory"],
-    "transactions.csv": ["transactionType", "channel"],
-}
+# string columns with at most this many distinct values get a full value list
+MAX_UNIQUE_FOR_ENUM = 30
+
+
+def enum_columns(df: pd.DataFrame) -> list[str]:
+    """String columns with <= MAX_UNIQUE_FOR_ENUM distinct values."""
+    cols: list[str] = []
+    for col in df.columns:
+        if (
+            pd.api.types.is_string_dtype(df[col].dtype)
+            and int(df[col].nunique(dropna=True)) <= MAX_UNIQUE_FOR_ENUM
+        ):
+            cols.append(col)
+    return cols
 
 UNIQUE_COUNTS = {
     "customer_information.csv": ["customerID"],
@@ -151,18 +159,21 @@ def main() -> int:
             out.append(f"| `{name}` | `{col}` | {int(df[col].nunique(dropna=True))} |")
     out.append("")
 
-    out.append("### Categorical distributions")
+    out.append("### Categorical value lists (string columns with ≤ 30 distinct values)")
     out.append("")
-    for name, cols in DISTRIBUTIONS.items():
+    out.append("Empty string (`(empty)`) means a missing value.")
+    out.append("")
+    for name in CSV_FILES:
         df = frames[name]
-        for col in cols:
+        for col in enum_columns(df):
             out.append(f"#### `{name}` → `{col}`")
             out.append("")
             out.append("| Value | Count |")
             out.append("|-------|------:|")
-            counts = df[col].value_counts(dropna=False).sort_index()
+            counts = df[col].value_counts(dropna=False).sort_values(ascending=False)
             for value, count in counts.items():
-                out.append(f"| `{value}` | {int(count)} |")
+                label = "(empty)" if value == "" else value
+                out.append(f"| `{label}` | {int(count)} |")
             out.append("")
 
     stats_path = REPORT_DIR / STATS_NAME

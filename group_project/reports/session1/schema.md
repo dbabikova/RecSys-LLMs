@@ -38,9 +38,9 @@
 | Column | Type | Meaning |
 |---|---|---|
 | `customerID` | str | Customer identifier (anonymised hash) |
-| `customerType` | str | `Mass`, `Premium`, `Professional`, `Legal entity`, `Inactive` |
-| `riskLevel` | str | `Conservative`, `Income`, `Balanced`, `Aggressive`, `Predicted_*` (algorithm-estimated), `Not_Available` |
-| `investmentCapacity` | str | `CAP_LT_30K`, `CAP_30K_80K`, `CAP_80K_300K`, `CAP_GT300K`, `Predicted_*`, `Not_Available` |
+| `customerType` | str | `Mass`, `Premium`, `Professional`, `Inactive`, `Legal Entity` |
+| `riskLevel` | str | `Conservative`, `Income`, `Balanced`, `Aggressive`, `Predicted_Conservative`, `Predicted_Income`, `Predicted_Balanced`, `Predicted_Aggressive` (algorithm-estimated), `Not_Available` |
+| `investmentCapacity` | str | `CAP_LT30K`, `CAP_30K_80K`, `CAP_80K_300K`, `CAP_GT300K`, `Predicted_CAP_LT30K`, `Predicted_CAP_30K_80K`, `Predicted_CAP_80K_300K`, `Predicted_CAP_GT300K` (algorithm-estimated), `Not_Available` |
 | `lastQuestionnaireDate` | str (date) | Date the risk questionnaire was last completed |
 | `timestamp` | str (date) | Timestamp of last update |
 
@@ -51,8 +51,8 @@
 | `ISIN` | str | International Securities Identification Number |
 | `assetName` | str | Full asset name |
 | `assetShortName` | str | Short asset name |
-| `assetCategory` | str | `Stock`, `Bond`, `MTF` (mutual fund) |
-| `assetSubCategory` | str | Sub-category (depends on `assetCategory`) |
+| `assetCategory` | str | `MTF` (mutual fund), `Stock`, `Bond` |
+| `assetSubCategory` | str | `Corporate`, `Bond`, `Equity`, `Other`, `Government`, `Large Cap`, `Money Market`, `Balanced`, `Structured`, `Bonds` (top-10; empty = missing) |
 | `marketID` | str | Market where the asset is traded |
 | `sector` | str | Economic sector (when available) |
 | `industry` | str | Industry (when available) |

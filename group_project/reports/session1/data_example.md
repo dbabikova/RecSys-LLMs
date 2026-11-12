@@ -9,8 +9,10 @@ transactions that have (a) a non-sentinel point-in-time customer snapshot
 **Anonymization:** `customerID` is masked to its first 6 characters + `…`;
 `transactionID` is kept; `ISIN` and asset names are public and kept as-is.
 
-**Prediction time** (for the leakage table): just before 2021-09-29, the date
-of the example transaction.
+**Prediction time** = a **provisional cut** (the official time cut is not yet
+fixed); it is **not** the date of this example transaction. A transaction dated
+before the cut is history (usable as input); a transaction dated on or after the
+cut is a target and must be excluded from model inputs.
 
 ## Records
 
@@ -42,17 +44,17 @@ window: 2018-01-02; split pending; provisional
 
 ### 1. Transaction
 
-| Field | Status | Timestamp source | Available at prediction time | Leakage risk |
-|-------|--------|------------------|------------------------------|--------------|
-| `customerID` | observed | `transactions.timestamp` (the transaction's own date) | Yes | None (identifies the user) |
-| `ISIN` | observed | `transactions.timestamp` (the transaction's own date) | Yes | None (identifies the asset) |
-| `transactionID` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `transactionType` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `timestamp` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `totalValue` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `units` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `channel` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
-| `marketID` | observed | `transactions.timestamp` (the transaction's own date) | No | Target leakage |
+| Field | Status | Timestamp | As history (date < cut) | As target (date >= cut) |
+|-------|--------|-----------|--------------------------|-------------------------|
+| `customerID` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `ISIN` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `transactionID` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `transactionType` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `timestamp` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `totalValue` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `units` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `channel` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
+| `marketID` | observed | `transactions.timestamp` (transaction date) | available | forbidden (model target — excluded from inputs) |
 
 ### 2. Point-in-time customer snapshot
 
@@ -91,6 +93,12 @@ window: 2018-01-02; split pending; provisional
 - `investmentCapacity` — `Predicted_*`: **7454** of 32468 (22.96%);
   `Not_Available`: **347** of 32468 (1.07%).
 - ISINs with **multiple versions** in `asset_information.csv`: **28**.
+- Snapshots where `lastQuestionnaireDate > timestamp` (both non-sentinel):
+  **12501** of 25193 comparable snapshots
+  (49.62%), affecting **12048** customers.
+  **Effective profile availability date = max(`timestamp`, `lastQuestionnaireDate`).**
+- Customers with **no snapshot** dated <= their first transaction:
+  **3504**.
 
 **Forbidden feature:** `limit_prices.profitability` is computed over the asset's
 whole price series (`minDate` → `maxDate`, with `maxDate` up to 2022-11) and must
