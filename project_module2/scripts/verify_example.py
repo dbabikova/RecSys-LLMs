@@ -1,0 +1,111 @@
+"""Independent re-check of reports/ranker_example.md -> reports/verify_example.md
+
+Deliberately does NOT import candidates.py / common.py: reads the raw CSVs and recomputes
+everything from scratch, so it checks the logic, not only reproducibility.
+Usage: python scripts/verify_example.py [path/to/FAR-Trans]   (default: data/FAR-Trans)
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "data" / "FAR-Trans"
+T, END = pd.Timestamp("2022-05-31"), pd.Timestamp("2022-11-30")
+TARGET, PREFIX = "GRF000045002", "012E6B40"
+
+# values claimed in reports/ranker_example.md
+CLAIM = {
+    "label row": "Buy, 2022-06-14, 49.865679, 2.655, Branch, AEDAK",
+    "history": [("2021-03-19", "GRC4261213D5"), ("2021-07-16", "GRC5091217D9")],
+    "profile": ("Premium", "Aggressive", "CAP_GT300K", "2022-02-16", "2021-03-19"),
+    "asset": ("MTF", "Money Market", "nan", "nan"),
+    "rank": 12,
+}
+
+
+def mask(s):
+    return s[:4] + "…****"
+
+
+def main():
+    tr = pd.read_csv(DATA / "transactions.csv", dtype={"customerID": str, "ISIN": str}, parse_dates=["timestamp"])
+    cu = pd.read_csv(DATA / "customer_information.csv", dtype={"customerID": str},
+                     parse_dates=["timestamp", "lastQuestionnaireDate"])
+    a = pd.read_csv(DATA / "asset_information.csv", dtype={"ISIN": str})
+    cp = pd.read_csv(DATA / "close_prices.csv", dtype={"ISIN": str}, parse_dates=["timestamp"])
+    res = []
+
+    # 1. label row
+    m = tr[(tr.ISIN == TARGET) & (tr.transactionType == "Buy") & (tr.timestamp == "2022-06-14")
+           & np.isclose(tr.totalValue, 49.865679)]
+    res.append(("rows matching the label values", "1 (+ joint-account duplicate)", f"{len(m)}: " +
+                ", ".join(mask(c) for c in m.customerID), len(m) >= 1))
+    res.append(("same transactionID on the matches", "yes", str(m.transactionID.nunique() == 1),
+                m.transactionID.nunique() == 1))
+    row = m[m.customerID.str.startswith(PREFIX)].iloc[0]
+    u = row.customerID
+    got = f"{row.transactionType}, {row.timestamp:%Y-%m-%d}, {row.totalValue}, {row.units}, {row.channel}, {row.marketID}"
+    res.append(("label row values", CLAIM["label row"], got, got == CLAIM["label row"]))
+
+    # 2. history before t
+    h = tr[(tr.customerID == u) & (tr.timestamp < T)].sort_values("timestamp")
+    hg = [(f"{x.timestamp:%Y-%m-%d}", x.ISIN) for x in h.itertuples()]
+    res.append(("history before t", str(CLAIM["history"]), str(hg), hg == CLAIM["history"]))
+    res.append(("history rows are real (transactionID > 0)", "True", str((h.transactionID > 0).all()),
+                bool((h.transactionID > 0).all())))
+
+    # 3. profile as of t
+    p = cu[(cu.customerID == u) & (cu.timestamp <= T)].sort_values("timestamp").iloc[-1]
+    pg = (p.customerType, p.riskLevel, p.investmentCapacity, f"{p.lastQuestionnaireDate:%Y-%m-%d}", f"{p.timestamp:%Y-%m-%d}")
+    res.append(("profile as of t", str(CLAIM["profile"]), str(pg), pg == CLAIM["profile"]))
+
+    # 4. asset metadata
+    ar = a[a.ISIN == TARGET].iloc[0]
+    ag = (ar.assetCategory, ar.assetSubCategory, str(ar.sector), str(ar.industry))
+    res.append(("target asset metadata", str(CLAIM["asset"]), str(ag), ag == CLAIM["asset"]))
+
+    # 5. ItemKNN rank, recomputed from scratch (no popularity tie-break)
+    b = tr[(tr.transactionType == "Buy") & (tr.timestamp < T)]
+    pr = cp.groupby("ISIN").timestamp.agg(["min", "max"])
+    uni = sorted(pr[(pr["min"] <= T) & (pr["max"] >= END - pd.Timedelta(days=3))].index)
+    M = (b[b.ISIN.isin(uni)].drop_duplicates(["customerID", "ISIN"]).assign(v=1)
+         .pivot_table(index="customerID", columns="ISIN", values="v", fill_value=0)
+         .reindex(columns=uni, fill_value=0))
+    co = M.T.values.astype(np.float64) @ M.values
+    n = np.sqrt(np.diag(co)) + 1e-9
+    sim = co / n[:, None] / n[None, :]
+    np.fill_diagonal(sim, 0)
+    own = set(b[b.customerID == u].ISIN)
+    score = sim[[uni.index(i) for i in own if i in uni]].sum(0)
+    rank = [uni[j] for j in np.argsort(-score, kind="stable") if uni[j] not in own]
+    r = rank.index(TARGET) + 1
+    res.append(("ItemKNN rank of target (independent)", str(CLAIM["rank"]), str(r), r == CLAIM["rank"]))
+    res.append(("target in top-20 / top-10", "yes / no", f"{r <= 20} / {r <= 10}", r <= 20 and r > 10))
+
+    # 6. leakage facts
+    res.append(("all history timestamps < t", "True", str((h.timestamp < T).all()), bool((h.timestamp < T).all())))
+    res.append(("profile snapshot ≤ t", "True", str(p.timestamp <= T), bool(p.timestamp <= T)))
+    res.append(("questionnaire date later than its snapshot", "True (data quirk)",
+                str(p.lastQuestionnaireDate > p.timestamp), bool(p.lastQuestionnaireDate > p.timestamp)))
+
+    df = pd.DataFrame(res, columns=["check", "claimed", "recomputed", "match"])
+    lines = ["<!-- auto-generated by scripts/verify_example.py; do not edit by hand -->\n",
+             "# Independent verification of the Ranker data example\n",
+             f"Recomputed from raw CSVs in `{DATA.name}/` without the project's helper modules. "
+             "Customer IDs masked.\n",
+             "| " + " | ".join(df.columns) + " |", "|---|---|---|---|"]
+    lines += ["| " + " | ".join(str(v).replace("|", "/") for v in row) + " |" for row in df.itertuples(index=False)]
+    lines.append(f"\n**{int(df.match.sum())} / {len(df)} checks match.** Top-20 recomputed: "
+                 + ", ".join(rank[:20]))
+    out = ROOT / "reports" / "verify_example.md"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\n".join(lines))
+    sys.exit(0 if df.match.all() else 1)
+
+
+if __name__ == "__main__":
+    main()
