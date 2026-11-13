@@ -1,0 +1,9 @@
+# Keep the directory marker, never raw data or archives.
+/data/*
+!/data/.gitkeep
+
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
