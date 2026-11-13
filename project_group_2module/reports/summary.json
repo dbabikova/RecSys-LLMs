@@ -1,0 +1,115 @@
+{
+  "archive_sha256": "d0d6cfe027732bab45fdcf9af80eff4fefddc789aedae9bdce0d3d6cfd05cfb6",
+  "environment": {
+    "python": "3.13.9",
+    "pandas": "2.3.3",
+    "numpy": "2.3.5",
+    "matplotlib": "3.10.6"
+  },
+  "transactions": 388048,
+  "customers": 29090,
+  "assets_metadata": 806,
+  "assets_prices": 807,
+  "assets_transacted": 320,
+  "buys": 228913,
+  "reconstructed_marker": 38019,
+  "repeat_all": {
+    "rows": 228913,
+    "pairs": 89884,
+    "beyond_first_row": 139029,
+    "strictly_later_day": 138539,
+    "extra_same_first_day": 490
+  },
+  "repeat_nonnegative": {
+    "rows": 190894,
+    "pairs": 59844,
+    "beyond_first_row": 131050,
+    "strictly_later_day": 130787,
+    "extra_same_first_day": 263
+  },
+  "top10_buy_share": 0.482270556936478,
+  "cut": "2022-05-29",
+  "end": "2022-11-29",
+  "eligible_assets": 511,
+  "split": [
+    {
+      "variant": "A",
+      "label_users_before_warm_filter": 1439,
+      "cold_users": 311,
+      "users": 1128,
+      "no_buy_history_any_asset": 309,
+      "no_transaction_history_any_asset": 309,
+      "relevant_pairs": 1879,
+      "relevant_mean": 1.6657801418439717,
+      "relevant_median": 1.0,
+      "relevant_p90": 3.0,
+      "relevant_max": 19,
+      "ndcg_popularity": 0.25175350324840323,
+      "ndcg_repeat_popularity": 0.25175350324840323
+    },
+    {
+      "variant": "B",
+      "label_users_before_warm_filter": 2911,
+      "cold_users": 311,
+      "users": 2600,
+      "no_buy_history_any_asset": 309,
+      "no_transaction_history_any_asset": 309,
+      "relevant_pairs": 7333,
+      "relevant_mean": 2.8203846153846155,
+      "relevant_median": 2.0,
+      "relevant_p90": 6.0,
+      "relevant_max": 58,
+      "ndcg_popularity": 0.3658881425913347,
+      "ndcg_repeat_popularity": 0.5886850534477018
+    }
+  ],
+  "sensitivity_no_negative_history": [
+    {
+      "variant": "A",
+      "label_users_before_warm_filter": 1522,
+      "cold_users": 396,
+      "users": 1126,
+      "no_buy_history_any_asset": 396,
+      "no_transaction_history_any_asset": 309,
+      "relevant_pairs": 1892,
+      "relevant_mean": 1.6802841918294849,
+      "relevant_median": 1.0,
+      "relevant_p90": 3.0,
+      "relevant_max": 19,
+      "ndcg_popularity": 0.2529207810156697,
+      "ndcg_repeat_popularity": 0.2529207810156697
+    },
+    {
+      "variant": "B",
+      "label_users_before_warm_filter": 2911,
+      "cold_users": 396,
+      "users": 2515,
+      "no_buy_history_any_asset": 396,
+      "no_transaction_history_any_asset": 309,
+      "relevant_pairs": 7215,
+      "relevant_mean": 2.868787276341948,
+      "relevant_median": 2.0,
+      "relevant_p90": 6.0,
+      "relevant_max": 58,
+      "ndcg_popularity": 0.3586997862217636,
+      "ndcg_repeat_popularity": 0.5912307214988878
+    }
+  ],
+  "paper_differences": [
+    {
+      "measure": "Транзакции",
+      "paper": 388049,
+      "archive": 388048
+    },
+    {
+      "measure": "Активы с транзакциями",
+      "paper": 321,
+      "archive": 320
+    },
+    {
+      "measure": "Продажи",
+      "paper": 159136,
+      "archive": 159135
+    }
+  ]
+}

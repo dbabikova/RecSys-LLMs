@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "d0d6cfe027732bab45fdcf9af80eff4fefddc789aedae9bdce0d3d6cfd05cfb6",
+  "dependencies": {
+    "python": "3.13.9",
+    "pandas": "2.3.3",
+    "numpy": "2.3.5",
+    "matplotlib": "3.10.6"
+  },
+  "source_code_sha256": {
+    "audit_core.py": "a9a15a1e0340ca8a63f6503f78358926415367144070073e0c704e12ac7146c9",
+    "build_reports.py": "2b3624448417b84c71cac924123651496d7527091b4873dc5ad85036c4e3d1b0",
+    "run_analysis.py": "1d84f92a407da83463de3ae32e5013f5f43aad23a0954b514d22a9c0391d6e7f",
+    "test_audit.py": "1a4d6d8b1646571438e9543b505e50f370214ebb8ce05908814a621177d107eb",
+    "verify_outputs.py": "de18bdad13f26b8bc3c9e4d4f8f49961f3e0e2b623ee7aed809a2bbffc4fefc3"
+  },
+  "generated_files_sha256": {
+    "data_example.md": "6268dd4ed91f44dfffd51fa00046d5afaef52ee4306eb91c09e7fd83ec6b94bd",
+    "eda.md": "1a8eed7b38e142e66aa2fe46d109139d1da7bbe14e5b9e964a91dfa580b79b7b",
+    "figures/assets_per_customer.png": "e452493dda95b956a7a01aad6a13b285ce739a756a23b79f3d2904544e692517",
+    "figures/buys_per_month.png": "c9061173ebfb2f25feadb2a8012efa2fc1313bb92ae3a7dea7d983ae3bd6ca22",
+    "figures/popularity_concentration.png": "13ffe0d994ff248e4bc775326eead8e26ab0af6951dfdff395f7d42f66ae58f1",
+    "leakage.md": "22b7defc6c654f86a4697106c3985aa6cfe177ca4f268cdf7a275f31f9d6bf85",
+    "schema.md": "5c9b76033667e946cc1a30e97473bc43392c21bfc295bbaf177f3054090d71ff",
+    "source.md": "45d32de67a86c6ea1f474c3fe0a75dc720994aeffa9fcb5300c6954d6fb9aa33",
+    "split.md": "9ddc33c93096aa315d7c4a43ae8efb578cdb00cdeb4acfb5f4dfc6c8a25260ff",
+    "summary.json": "13a1df64fbe860ad1b89da388304a81e5c14454d5dd74e88ca931e5e5f8e9b94"
+  }
+}
