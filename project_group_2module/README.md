@@ -15,7 +15,11 @@ README и статья-описание; выполнены аудит схем�
 ориентиров на предварительном сплите. Все измеренные числа генерируются скриптами.
 Выполнен расширенный литературный поиск по запросу автора: таблицы, статусы
 прочтения, риски и журнал запросов — в `reports/literature.md`.
-Выбор трека/RQ и запуск рекомендательной LLM ещё не выполнялись.
+Дарья зафиксировала **Ranker**, **planned** RQ о zero-shot LLM reranking fixed
+top-20 против same-information LightGBM LambdaMART: `reports/research_question.md`.
+Модели не запускались; generator/pool policy остаётся открытой.
+Source-linked пример и независимая/ручная проверка — `reports/ranker_example.md`
+и `reports/verify_example.md`; ручную проверку Дарья ещё не выполнила.
 Принято уточнение преподавателя о повторах и прочитан официальный starter:
 его внешняя неизменённая копия запускается нашим audit-скриптом; результаты
 и границы интерфейсов — в `reports/starter_baselines.md` и `reports/track_comparison.md`.
@@ -64,13 +68,14 @@ README, Markdown-черновик, коммит или ссылка на GitHub 
 | 1 — выполнен | Читаем все предоставленные требования, фиксируем ограничения и открытые параметры; создаём рабочую структуру | `README.md`, `DECISIONS.md`, `.gitignore`, папки | Основа §1, §3–§4 и §6 |
 | 2 — выполнен | По разрешению автора распаковываем архив, проверяем SHA-256, схему/ключи/связи, время доступности и синтетику; показываем реальную обезличенную запись; выполняем EDA и два варианта предварительных меток с простыми ориентирами | `scripts/run_analysis.py` и модули; `reports/source.md`, `schema.md`, `leakage.md`, `data_example.md`, `eda.md`, `split.md`, `figures/`, `summary.json`, `manifest.json` | §3 Method; в §4 только реально выполненные проверки и ориентиры; угрозы в §5 |
 | 3 — расширенный обзор выполнен | Проверены работы по Ranker, Encoder, Hybrid/alignment, финансам и повторам; отмечены full-text/abstract-only, ближайший доменный предшественник, условный gap, риски и журнал поиска. После выбора RQ нужно отобрать 3–5 источников в PDF | `reports/literature.md` с IEEE-ссылками | §2 Related Work; научная важность и бизнес-решение в §1 |
-| 4 — запланирован | Выбираем один трек Encoder / Ranker / Hybrid и ровно один основной RQ: intervention, outcome, comparator, population; фиксируем личную позицию и статус planned | `reports/research_question.md`, запись в `DECISIONS.md` | §1 Introduction; описание изменения в §3 |
+| 4 — решение Дарьи принято | Ranker, planned: zero-shot LLM reranking fixed top-20 vs same-information LightGBM LambdaMART на общих FAR-Trans users. Четыре baseline starter остаются; выбор generator/pool открыт. Подготовлен пример по HW2-протоколу и независимый verifier | `reports/research_question.md`, `ranker_example.md`, `verify_example.md`; `DECISIONS.md` | §1 Introduction; пример и control в §3; автоматические проверки в §4 |
 | 5 — запланирован | Проектируем сравнение: существующий классический baseline, non-LLM same-information control, абляция только LLM-компонента; фиксируем поля и их время, сплит, пользователей, universe, nDCG@10, runtime, cost, повторы/вариативность, модель и версию, бюджет, инструменты и риски | `reports/study_plan.md`, `reports/protocol_assumptions.md` | §3 Method; §4 Experiments явно как planned; угрозы в §5 |
 | 6 — запланирован | Реально обсуждаем варианты с Алиной и Ульяной; записываем рассмотренные и отброшенные идеи, согласие и нерешённые разногласия; отделяем личный вклад Дарьи от совместного и аргументируем личный выбор | `reports/team_discussion.md` как рабочие заметки, `DECISIONS.md` | §5 Discussion внутри PDF, не вместо него |
 | 7 — запланирован | Собираем индивидуальный текст, Title block и Abstract по исходному шаблону; раскрываем использование AI и личную проверку; проверяем ссылки, лимит страниц, получаем полный экспорт и отправляем оба файла | `reports/babikova_session1_report.md`, `reports/babikova_session1_report.pdf`, нативный экспорт сессии | §1–§6, Abstract и References |
 
 Этапы 2–5 могут потребовать уточнения RQ после проверки данных и литературы.
-Этапы изучения данных и расширенного обзора выполнены; выбор одного RQ ещё впереди.
+Этапы изучения данных и расширенного обзора выполнены; один RQ выбран Дарьей.
+Проектирование study plan и решение об окончательном generator/pool ещё впереди.
 Обсуждение команды может сопровождать эти
 этапы, но в отчёт попадают только действительно состоявшиеся обсуждения.
 
@@ -167,6 +172,10 @@ project_group_2module/
     requirements.txt
     starter_audit.py
     starter_reports.py
+    make_ranker_example.py
+    ranker_example_reports.py
+    verify_example.py
+    test_verify_example.py
   reports/
     source.md
     schema.md
@@ -180,6 +189,9 @@ project_group_2module/
     starter_baselines.md
     starter_summary.json
     track_comparison.md
+    research_question.md
+    ranker_example.md
+    verify_example.md
     figures/
 ```
 
@@ -238,7 +250,30 @@ python scripts/run_analysis.py
 ```
 
 В `track_comparison.md` сопоставлены stock interfaces и литература. Трек/RQ
-не выбран. Это baseline/diagnostic этап, а не выполненный LLM inference HW2.
+не выбирались **на этапе starter-аудита**; последующее решение Дарьи о Ranker
+зафиксировано в `research_question.md`. Это не выполненный LLM inference HW2.
+
+## Пример под выбранный Ranker RQ, без запуска моделей
+
+```powershell
+& "C:\Users\User\anaconda3\python.exe" -B scripts/make_ranker_example.py
+& "C:\Users\User\anaconda3\python.exe" -B scripts/verify_example.py
+```
+
+Генератор использует функции starter и сверяет demo с сохранённым CLI-запуском.
+Verifier не импортирует starter или наши модули: сам читает сырые CSV,
+пересчитывает cohort/selection, record, history, profile, metadata, CBF20,
+Latest buy и nDCG. При расхождении завершает работу с ошибкой; точный checklist
+и числа печатает в `reports/verify_example.md`. Тест `test_verify_example.py`
+проверяет отказ при намеренно испорченном expected metric с последующим
+восстановлением нашего приватного evidence.
+
+Приватные expected/input/result JSON — только в игнорируемом
+`data/ranker_example/`. Публичные отчёты маскируют все customerID.
+Показанный CBF20 — иллюстрация размера RQ, не выбор финального pool.
+Same-information input — черновой контракт: raw Buy dates показаны для аудита,
+но пока не добавлены в stock history context ни для одного метода.
+Ручная проверка в `verify_example.md` оставлена Дарье; её выполнение не заявляется.
 
 Проверенные первичные результаты — [reports/eda.md](reports/eda.md), схема —
 [reports/schema.md](reports/schema.md), утечки — [reports/leakage.md](reports/leakage.md),

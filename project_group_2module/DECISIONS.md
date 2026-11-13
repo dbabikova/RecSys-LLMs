@@ -30,6 +30,12 @@
 | 2026-11-13 | Выполнены demo и full warm CLI; метрики и candidate diagnostics проверяются импортом функций starter, не переписанными baseline | Бабикова Дарья — дизайн шага; AI-ассистент — код и проверки | Правила popularity, recency, zero-truth и eligibility отличаются от прежних локальных ориентиров |
 | 2026-11-13 | Рассчитан post-hoc oracle исходного CBF pool; future labels используются только для аудита, не для actual custom | AI-ассистент | Разделить ограничение retrieval и качество будущего LLM-ranker; не обещать недостижимый выигрыш |
 | 2026-11-13 | HW2 defaults известны как teaching protocol; open-weight model и runnable actual inference обязательны. Трек, RQ и модель пока не выбираются | Преподаватель — HW2; Дарья — явно оставила решение за собой | Экспорт prompts, identity plugin и oracle не являются реализацией LLM; benchmark diagnostics не подменяет выбор автора |
+| 2026-11-13 | **Личное решение: Track = Ranker; Status = planned.** We test whether zero-shot LLM reranking of a fixed top-20 candidate list improves nDCG@10 over a classical learned reranker (LightGBM LambdaMART) that sees the same user and asset information and the same candidates, for the common FAR-Trans evaluation users. | **Бабикова Дарья — дословное решение из чата** | Изолировать способ обработки одной и той же доступной информации на одном и том же списке кандидатов; это не решение AI-ассистента |
+| 2026-11-13 | Главный контроль — LightGBM LambdaMART с той же информацией; исходный порядок — reference. Все четыре provided baseline starter обязательны | Бабикова Дарья; пояснение AI-ассистентом | Иначе эффект дополнительных полей смешивается с вкладом метода; baseline-выдачи не ограничиваются задним числом reranking pool |
+| 2026-11-13 | Текущий диагностический generator — CBF starter; финальный generator/pool не выбран. Ceiling исходного CBF50 ниже Latest buy на full warm — риск и открытый вопрос, не автоматическая смена генератора | Бабикова Дарья | Не подменять авторское решение по RQ незаказанным выбором пула; величины генерируются в research_question.md из starter_summary.json |
+| 2026-11-13 | Под RQ подготовлен детерминированный record пример по demo starter; preferred rank 11–20 проверяется, при отсутствии применяется явно заданный fallback внутри top-20 | Запрос Дарьи; реализация AI-ассистентом | Не выдумывать пример retrieval gain и не добавлять будущую покупку в кандидаты |
+| 2026-11-13 | Приватное expected evidence хранится только в data/; независимый verify_example.py не импортирует starter или наши модули; ручная проверка ещё не выполнена | Бабикова Дарья — требования; AI-ассистент — код и автоматическая проверка | Разделить source-linked автоматическую проверку, личную проверку автора и ещё не выполненный model experiment |
+| 2026-11-13 | Для иллюстрации предложен черновой общий input contract: поля из stock context, raw metadata и past-only CBF scores/ranks доступны симметрично; raw Buy dates пока audit-only, late questionnaire блокирует risk/capacity обоим методам | AI-ассистент — черновик для study plan, не новое авторское решение о признаках/пуле | Не скрыть информационные различия и не назвать metadata_timestamp датой покупки; окончательное feature engineering ещё не реализовано |
 
 ## Открытые вопросы
 
@@ -39,6 +45,7 @@
 - Название команды, лидер и его Telegram ID, рабочее название проекта.
 - Статус регистрации в Projects и приглашения `dryjins`.
 - Дедлайн, исходные homework guidelines и полный шаблон Title block / Abstract.
-- Реальная командная дискуссия, личный выбор Дарьи и её проверка этого плана.
+- Реальная командная дискуссия, study plan, model revision и окончательный
+  generator/pool; личный RQ/трек Дарьи уже зафиксированы. Её ручная проверка ещё впереди.
 
 В этом журнале нет утверждения, что перечисленные открытые вопросы уже решены.
