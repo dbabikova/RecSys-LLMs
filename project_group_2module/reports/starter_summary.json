@@ -1,0 +1,641 @@
+{
+  "starter_repository": "https://github.com/dryjins/RecSys-LLMs",
+  "starter_commit": "51337032503c56e3a28ef646a24aa016782e1bd3",
+  "starter_source_sha256": {
+    "README.md": "04e8e530cae6561fd8b425e78ad999a8c0f391f47b5c1aebf36c1c388ee986ef",
+    "project/far-trans/starter.py": "c543ff1278cc232bdc815786f56086cb27d15a0b10c7a0335b011554c55eac2a",
+    "project/far-trans/README.md": "1068d2d49dc1ac7a3a97b598f2efb1180302abc91b1b41abdbc8f4315fdc741a",
+    "project/far-trans/ANNOUNCEMENT.md": "2e7a8dfe4d7de6b473eb7e2ef1a18a467a98e31427f9cd6a7eac522814046d47",
+    "project/far-trans/instructions/homework2.md": "e5c61ccd8262f08c021e06c935237e6fdf43cc1ebbcf1ccbba4ca8edcd1a6d64",
+    "project/far-trans/extensions.py": "11a0dcbded730c0b55c7f58f2347fdfe86447f3546879b0d92b0f18a71414ca6",
+    "project/far-trans/test_starter.py": "c810f51a26e544feab81b9ef2d70109a93aa645bb1bad7e7b1b5424452929e4f"
+  },
+  "starter_unchanged_verified": true,
+  "environment": {
+    "python": "3.13.9",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel"
+  },
+  "cutoff": "2021-06-01",
+  "end_exclusive": "2021-07-01",
+  "candidate_count": 50,
+  "eligible_asset_count": 767,
+  "repeat_allowed": true,
+  "source_sha256": {
+    "transactions.csv": "358871fa1311a802799df86e56c3d633513566965b01412d058e0f8fbe6cd54b",
+    "asset_information.csv": "33f9897b14087068fba53a0bc9e24a0031b096bd3ad3e977e534153f29b7a590",
+    "customer_information.csv": "c4ad52ebca90e32bf3df5eb64f362b7a3437b77d978b22627cc46927fe7064af",
+    "close_prices.csv": "6ba1fe8390b31dfb3ab4e3e824910f9e8da4684cb6074cdb82eb6422a323656d"
+  },
+  "readme_reference": {
+    "demo": {
+      "cbf": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.0201,
+        "ndcg_at_10_nonempty": 0.1827
+      },
+      "popularity": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.0286,
+        "ndcg_at_10_nonempty": 0.2599
+      },
+      "latest_buy": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.0277,
+        "ndcg_at_10_nonempty": 0.252
+      },
+      "latest_buy_or_sell": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.0271,
+        "ndcg_at_10_nonempty": 0.2464
+      }
+    },
+    "all": {
+      "cbf": {
+        "users": 23571,
+        "nonempty_truth_users": 1208,
+        "empty_truth_users": 22363,
+        "ndcg_at_10": 0.0128,
+        "ndcg_at_10_nonempty": 0.2502
+      },
+      "popularity": {
+        "users": 23571,
+        "nonempty_truth_users": 1208,
+        "empty_truth_users": 22363,
+        "ndcg_at_10": 0.0118,
+        "ndcg_at_10_nonempty": 0.2297
+      },
+      "latest_buy": {
+        "users": 23571,
+        "nonempty_truth_users": 1208,
+        "empty_truth_users": 22363,
+        "ndcg_at_10": 0.0235,
+        "ndcg_at_10_nonempty": 0.4576
+      },
+      "latest_buy_or_sell": {
+        "users": 23571,
+        "nonempty_truth_users": 1208,
+        "empty_truth_users": 22363,
+        "ndcg_at_10": 0.0227,
+        "ndcg_at_10_nonempty": 0.4421
+      }
+    },
+    "full_warm": {
+      "cbf": {
+        "users": 10404,
+        "nonempty_truth_users": 1178,
+        "empty_truth_users": 9226,
+        "ndcg_at_10": 0.0286,
+        "ndcg_at_10_nonempty": 0.2522
+      },
+      "popularity": {
+        "users": 10404,
+        "nonempty_truth_users": 1178,
+        "empty_truth_users": 9226,
+        "ndcg_at_10": 0.0262,
+        "ndcg_at_10_nonempty": 0.2312
+      },
+      "latest_buy": {
+        "users": 10404,
+        "nonempty_truth_users": 1178,
+        "empty_truth_users": 9226,
+        "ndcg_at_10": 0.0526,
+        "ndcg_at_10_nonempty": 0.4648
+      },
+      "latest_buy_or_sell": {
+        "users": 10404,
+        "nonempty_truth_users": 1178,
+        "empty_truth_users": 9226,
+        "ndcg_at_10": 0.0509,
+        "ndcg_at_10_nonempty": 0.4496
+      }
+    }
+  },
+  "runs": {
+    "demo": {
+      "label": "demo",
+      "flags_beyond_io": [],
+      "started_utc": "2026-11-13T13:04:35.340513+00:00",
+      "finished_utc": "2026-11-13T13:04:43.210225+00:00",
+      "whole_cli_wall_seconds": 7.716201300005196,
+      "protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+      "metrics": {
+        "cbf": {
+          "users": 100,
+          "nonempty_truth_users": 11,
+          "empty_truth_users": 89,
+          "ndcg_at_10": 0.020100011736078574,
+          "ndcg_at_10_nonempty": 0.18272737941889614
+        },
+        "latest_buy": {
+          "users": 100,
+          "nonempty_truth_users": 11,
+          "empty_truth_users": 89,
+          "ndcg_at_10": 0.027722649787649066,
+          "ndcg_at_10_nonempty": 0.2520240889786279
+        },
+        "latest_buy_or_sell": {
+          "users": 100,
+          "nonempty_truth_users": 11,
+          "empty_truth_users": 89,
+          "ndcg_at_10": 0.027107048693904026,
+          "ndcg_at_10_nonempty": 0.2464277153991275
+        },
+        "popularity": {
+          "users": 100,
+          "nonempty_truth_users": 11,
+          "empty_truth_users": 89,
+          "ndcg_at_10": 0.028590012799467643,
+          "ndcg_at_10_nonempty": 0.25990920726788763
+        }
+      },
+      "excluded_rows": {
+        "reconstructed_initial_position_rows": 38019
+      },
+      "custom_failures": 0,
+      "output_sha256": {
+        "protocol.json": "b3cc0f3ac43ddac889a7852e92246271768007b862669f7aef64c1892c6fb8fd",
+        "metrics.json": "76c49d4fe7d31d41ee0a2adc1d87e1d66e8df99eefa865720e9a8db4ae3b8b67",
+        "contexts.jsonl": "1bf7c712d7f12daeda4a0ad1aac1f20b5e0d266629bd53db512a8870c84f8e1b",
+        "predictions.csv": "e556792baafe109db154bd1e89cbc7ea7a9f113f24d4d0690584f77393bf4014",
+        "per_user.csv": "e7170d42843d3b35bc98284aad0f184f6d5e465e62b3484242f61fad147adee1"
+      },
+      "diagnostics": {
+        "nonempty_users": 11,
+        "candidate_recall": [
+          {
+            "target_group": "all",
+            "k": 10,
+            "users": 11,
+            "target_pairs": 18,
+            "covered_pairs": 5,
+            "macro_recall": 0.3333333333333333,
+            "micro_recall": 0.2777777777777778,
+            "users_any_hit": 5,
+            "any_hit_share": 0.45454545454545453
+          },
+          {
+            "target_group": "all",
+            "k": 20,
+            "users": 11,
+            "target_pairs": 18,
+            "covered_pairs": 5,
+            "macro_recall": 0.3333333333333333,
+            "micro_recall": 0.2777777777777778,
+            "users_any_hit": 5,
+            "any_hit_share": 0.45454545454545453
+          },
+          {
+            "target_group": "all",
+            "k": 50,
+            "users": 11,
+            "target_pairs": 18,
+            "covered_pairs": 6,
+            "macro_recall": 0.42424242424242425,
+            "micro_recall": 0.3333333333333333,
+            "users_any_hit": 6,
+            "any_hit_share": 0.5454545454545454
+          },
+          {
+            "target_group": "repeat",
+            "k": 10,
+            "users": 6,
+            "target_pairs": 12,
+            "covered_pairs": 5,
+            "macro_recall": 0.611111111111111,
+            "micro_recall": 0.4166666666666667,
+            "users_any_hit": 5,
+            "any_hit_share": 0.8333333333333334
+          },
+          {
+            "target_group": "repeat",
+            "k": 20,
+            "users": 6,
+            "target_pairs": 12,
+            "covered_pairs": 5,
+            "macro_recall": 0.611111111111111,
+            "micro_recall": 0.4166666666666667,
+            "users_any_hit": 5,
+            "any_hit_share": 0.8333333333333334
+          },
+          {
+            "target_group": "repeat",
+            "k": 50,
+            "users": 6,
+            "target_pairs": 12,
+            "covered_pairs": 5,
+            "macro_recall": 0.611111111111111,
+            "micro_recall": 0.4166666666666667,
+            "users_any_hit": 5,
+            "any_hit_share": 0.8333333333333334
+          },
+          {
+            "target_group": "new",
+            "k": 10,
+            "users": 6,
+            "target_pairs": 6,
+            "covered_pairs": 0,
+            "macro_recall": 0.0,
+            "micro_recall": 0.0,
+            "users_any_hit": 0,
+            "any_hit_share": 0.0
+          },
+          {
+            "target_group": "new",
+            "k": 20,
+            "users": 6,
+            "target_pairs": 6,
+            "covered_pairs": 0,
+            "macro_recall": 0.0,
+            "micro_recall": 0.0,
+            "users_any_hit": 0,
+            "any_hit_share": 0.0
+          },
+          {
+            "target_group": "new",
+            "k": 50,
+            "users": 6,
+            "target_pairs": 6,
+            "covered_pairs": 1,
+            "macro_recall": 0.16666666666666666,
+            "micro_recall": 0.16666666666666666,
+            "users_any_hit": 1,
+            "any_hit_share": 0.16666666666666666
+          }
+        ],
+        "future_target_pairs": 18,
+        "repeat_target_pairs": 12,
+        "new_target_pairs": 6,
+        "repeat_pair_share": 0.6666666666666666,
+        "macro_repeat_pair_share": 0.5,
+        "future_buy_rows": 21,
+        "future_repeat_buy_rows": 13,
+        "repeat_buy_row_share": 0.6190476190476191,
+        "latest_buy_overlap": [
+          {
+            "target_group": "all",
+            "latest_buy_hit_pairs": 9,
+            "also_in_cbf50": 5,
+            "missing_from_cbf50": 4,
+            "covered_share": 0.5555555555555556,
+            "users_with_missing_latest_hit": 3
+          },
+          {
+            "target_group": "repeat",
+            "latest_buy_hit_pairs": 8,
+            "also_in_cbf50": 5,
+            "missing_from_cbf50": 3,
+            "covered_share": 0.625,
+            "users_with_missing_latest_hit": 2
+          },
+          {
+            "target_group": "new",
+            "latest_buy_hit_pairs": 1,
+            "also_in_cbf50": 0,
+            "missing_from_cbf50": 1,
+            "covered_share": 0.0,
+            "users_with_missing_latest_hit": 1
+          }
+        ],
+        "cbf50_oracle": {
+          "users": 100,
+          "nonempty_truth_users": 11,
+          "empty_truth_users": 89,
+          "ndcg_at_10": 0.04915749606264272,
+          "ndcg_at_10_nonempty": 0.4468863278422065
+        },
+        "users_oracle_strictly_beats_latest_buy": 4,
+        "single_feature_vector_users": 41,
+        "single_feature_vector_nonempty_users": 0,
+        "single_distinct_history_asset_users": 40,
+        "profiles_questionnaire_at_or_after_cut": 13,
+        "verification_example": {
+          "user": "[MASKED]",
+          "method": "latest_buy",
+          "relevant_count": 2,
+          "rank_contributions": [
+            {
+              "rank": 1,
+              "relevant": true,
+              "dcg_contribution": 1.0
+            },
+            {
+              "rank": 2,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 3,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 4,
+              "relevant": true,
+              "dcg_contribution": 0.43067655807339306
+            },
+            {
+              "rank": 5,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 6,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 7,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 8,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 9,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 10,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            }
+          ],
+          "ndcg_hand_checked": 0.8772153153380493
+        }
+      }
+    },
+    "full_warm": {
+      "label": "full_warm",
+      "flags_beyond_io": [
+        "--max-users",
+        "0"
+      ],
+      "started_utc": "2026-11-13T13:04:43.235556+00:00",
+      "finished_utc": "2026-11-13T13:05:31.073889+00:00",
+      "whole_cli_wall_seconds": 47.669745099992724,
+      "protocol_hash": "8645343ad810615aed56c65afaff9bf7d0ab4638fbd8005b4d6738b27016ab80",
+      "metrics": {
+        "cbf": {
+          "users": 10404,
+          "nonempty_truth_users": 1178,
+          "empty_truth_users": 9226,
+          "ndcg_at_10": 0.02855316923423279,
+          "ndcg_at_10_nonempty": 0.25217926376312216
+        },
+        "latest_buy": {
+          "users": 10404,
+          "nonempty_truth_users": 1178,
+          "empty_truth_users": 9226,
+          "ndcg_at_10": 0.05263282198045577,
+          "ndcg_at_10_nonempty": 0.4648487944691526
+        },
+        "latest_buy_or_sell": {
+          "users": 10404,
+          "nonempty_truth_users": 1178,
+          "empty_truth_users": 9226,
+          "ndcg_at_10": 0.05091088560550385,
+          "ndcg_at_10_nonempty": 0.44964079273315966
+        },
+        "popularity": {
+          "users": 10404,
+          "nonempty_truth_users": 1178,
+          "empty_truth_users": 9226,
+          "ndcg_at_10": 0.026172888075933286,
+          "ndcg_at_10_nonempty": 0.2311568145517911
+        }
+      },
+      "excluded_rows": {
+        "reconstructed_initial_position_rows": 38019
+      },
+      "custom_failures": 0,
+      "output_sha256": {
+        "protocol.json": "d510e1d07d02cf4a6305f577daa846280fe45417baec547bbc25528ee5bfd99a",
+        "metrics.json": "f2283a31cafba84453b77898a4807996fddbe20ff42fc3b83f508ec83987a256",
+        "contexts.jsonl": "938c930ea09b715a69ee2d4b96ad92cd085ad97a47d144ad2dcff7807f039573",
+        "predictions.csv": "5479d3723c55a600a676d05a1b5c55380d1261418547c8550132a0a5648810c3",
+        "per_user.csv": "0627ebf0ae948a076e8ec0e8b768d5ddbdf382f4c54bfe43dbde45701b6a99ee"
+      },
+      "diagnostics": {
+        "nonempty_users": 1178,
+        "candidate_recall": [
+          {
+            "target_group": "all",
+            "k": 10,
+            "users": 1178,
+            "target_pairs": 2556,
+            "covered_pairs": 730,
+            "macro_recall": 0.3877978463717004,
+            "micro_recall": 0.2856025039123631,
+            "users_any_hit": 565,
+            "any_hit_share": 0.4796264855687606
+          },
+          {
+            "target_group": "all",
+            "k": 20,
+            "users": 1178,
+            "target_pairs": 2556,
+            "covered_pairs": 762,
+            "macro_recall": 0.40624012141414517,
+            "micro_recall": 0.2981220657276995,
+            "users_any_hit": 583,
+            "any_hit_share": 0.49490662139219016
+          },
+          {
+            "target_group": "all",
+            "k": 50,
+            "users": 1178,
+            "target_pairs": 2556,
+            "covered_pairs": 841,
+            "macro_recall": 0.42917762446848323,
+            "micro_recall": 0.3290297339593114,
+            "users_any_hit": 645,
+            "any_hit_share": 0.5475382003395586
+          },
+          {
+            "target_group": "repeat",
+            "k": 10,
+            "users": 834,
+            "target_pairs": 1548,
+            "covered_pairs": 648,
+            "macro_recall": 0.5391416736740477,
+            "micro_recall": 0.4186046511627907,
+            "users_any_hit": 510,
+            "any_hit_share": 0.6115107913669064
+          },
+          {
+            "target_group": "repeat",
+            "k": 20,
+            "users": 834,
+            "target_pairs": 1548,
+            "covered_pairs": 665,
+            "macro_recall": 0.5542410227662026,
+            "micro_recall": 0.42958656330749356,
+            "users_any_hit": 521,
+            "any_hit_share": 0.6247002398081535
+          },
+          {
+            "target_group": "repeat",
+            "k": 50,
+            "users": 834,
+            "target_pairs": 1548,
+            "covered_pairs": 714,
+            "macro_recall": 0.5757829284358061,
+            "micro_recall": 0.46124031007751937,
+            "users_any_hit": 561,
+            "any_hit_share": 0.6726618705035972
+          },
+          {
+            "target_group": "new",
+            "k": 10,
+            "users": 597,
+            "target_pairs": 1008,
+            "covered_pairs": 82,
+            "macro_recall": 0.11074818537130093,
+            "micro_recall": 0.08134920634920635,
+            "users_any_hit": 80,
+            "any_hit_share": 0.13400335008375208
+          },
+          {
+            "target_group": "new",
+            "k": 20,
+            "users": 597,
+            "target_pairs": 1008,
+            "covered_pairs": 97,
+            "macro_recall": 0.13350083752093803,
+            "micro_recall": 0.09623015873015874,
+            "users_any_hit": 93,
+            "any_hit_share": 0.15577889447236182
+          },
+          {
+            "target_group": "new",
+            "k": 50,
+            "users": 597,
+            "target_pairs": 1008,
+            "covered_pairs": 127,
+            "macro_recall": 0.1595232052518485,
+            "micro_recall": 0.1259920634920635,
+            "users_any_hit": 121,
+            "any_hit_share": 0.20268006700167504
+          }
+        ],
+        "future_target_pairs": 2556,
+        "repeat_target_pairs": 1548,
+        "new_target_pairs": 1008,
+        "repeat_pair_share": 0.6056338028169014,
+        "macro_repeat_pair_share": 0.6053993641362956,
+        "future_buy_rows": 3493,
+        "future_repeat_buy_rows": 2266,
+        "repeat_buy_row_share": 0.6487260234755224,
+        "latest_buy_overlap": [
+          {
+            "target_group": "all",
+            "latest_buy_hit_pairs": 1378,
+            "also_in_cbf50": 716,
+            "missing_from_cbf50": 662,
+            "covered_share": 0.5195936139332366,
+            "users_with_missing_latest_hit": 425
+          },
+          {
+            "target_group": "repeat",
+            "latest_buy_hit_pairs": 1298,
+            "also_in_cbf50": 676,
+            "missing_from_cbf50": 622,
+            "covered_share": 0.5208012326656395,
+            "users_with_missing_latest_hit": 387
+          },
+          {
+            "target_group": "new",
+            "latest_buy_hit_pairs": 80,
+            "also_in_cbf50": 40,
+            "missing_from_cbf50": 40,
+            "covered_share": 0.5,
+            "users_with_missing_latest_hit": 40
+          }
+        ],
+        "cbf50_oracle": {
+          "users": 10404,
+          "nonempty_truth_users": 1178,
+          "empty_truth_users": 9226,
+          "ndcg_at_10": 0.05144606454891232,
+          "ndcg_at_10_nonempty": 0.4543674495474395
+        },
+        "users_oracle_strictly_beats_latest_buy": 355,
+        "single_feature_vector_users": 4755,
+        "single_feature_vector_nonempty_users": 131,
+        "single_distinct_history_asset_users": 4491,
+        "profiles_questionnaire_at_or_after_cut": 1318,
+        "verification_example": {
+          "user": "[MASKED]",
+          "method": "latest_buy",
+          "relevant_count": 2,
+          "rank_contributions": [
+            {
+              "rank": 1,
+              "relevant": true,
+              "dcg_contribution": 1.0
+            },
+            {
+              "rank": 2,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 3,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 4,
+              "relevant": true,
+              "dcg_contribution": 0.43067655807339306
+            },
+            {
+              "rank": 5,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 6,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 7,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 8,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 9,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            },
+            {
+              "rank": 10,
+              "relevant": false,
+              "dcg_contribution": 0.0
+            }
+          ],
+          "ndcg_hand_checked": 0.8772153153380493
+        }
+      }
+    }
+  }
+}
