@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated check; Daria review pending",
+  "groups_raw_verified": 4000,
+  "positive_candidate_labels": 712,
+  "matrix_counts": {
+    "train": {
+      "groups": 3000,
+      "rows": 60000,
+      "positive_labels": 563
+    },
+    "validation": {
+      "groups": 1000,
+      "rows": 20000,
+      "positive_labels": 149
+    }
+  },
+  "checks": {
+    "nonoverlapping_train_validation_labels": true,
+    "all_labels_end_before_june": true,
+    "past_only_warm_cohorts": true,
+    "asof_eligible_universe_per_cut": true,
+    "independent_cbf20_and_binary_labels": true,
+    "history_recency_and_no_label_fields": true,
+    "train_only_fit_group_keys_and_text_corpus": true,
+    "independent_train_only_idf": true,
+    "saved_matrix_labels_group_order_and_finiteness": true,
+    "serialized_encoder_reproduces_fixed_groups": true,
+    "all_artifact_hashes": true
+  },
+  "ranker_trained": false,
+  "june_evaluation_inputs_used_for_fit": false
+}

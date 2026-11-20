@@ -8,6 +8,8 @@
 Модели не обучались, LLM inference не выполнялся.
 Этап 3 принят Дарьей: контракт common_input_v1 и автоматические проверки —
 STAGE3.md / INPUTS.json; самостоятельная ручная raw-сверка не заявляется.
+Этап 4 принят Дарьей: temporal train/validation и fitted преобразования — STAGE4.md.
+Реранкер ещё не обучен; самостоятельная ручная raw-сверка не заявляется.
 
 ## Вопрос и границы
 
@@ -122,7 +124,9 @@ VERIFICATION.json сохраняет исходный статус автома�
   результаты, границы автоматической проверки и инструкция — STAGE2.md.
 - Этап 3 принят: общий feature contract, availability/profile rules и
   unfitted feature records; text/categorical fit отложен до temporal training.
-- Этапы 4–5: временные train/validation windows, LambdaMART и его настройки.
+- Этап 4 принят: train cutoffs 2021-01-01 / 2021-03-01 / 2021-04-01,
+  validation cutoff 2021-05-01, 30-дневные labels и train-only encoders (STAGE4.md).
+- Этап 5: LambdaMART и его настройки; выбор по May validation, не June.
 - Этап 6: hardware, модель/revision, inference budget, prompt, decoding и parser.
 - Этапы 7–8: полный опыт, permutations/seeds, проверка и интерпретация.
 - Этап 9: индивидуальный PDF и session export, experiment commit и публикация.

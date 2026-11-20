@@ -1,0 +1,89 @@
+{
+  "config_sha256": "e06e272b2fba26c5c0cf1d7f6449fbefccf24c125c79b3af95f4fe5f60c9132d",
+  "source_csv_sha256": {
+    "transactions.csv": "358871fa1311a802799df86e56c3d633513566965b01412d058e0f8fbe6cd54b",
+    "asset_information.csv": "33f9897b14087068fba53a0bc9e24a0031b096bd3ad3e977e534153f29b7a590",
+    "customer_information.csv": "c4ad52ebca90e32bf3df5eb64f362b7a3437b77d978b22627cc46927fe7064af",
+    "close_prices.csv": "6ba1fe8390b31dfb3ab4e3e824910f9e8da4684cb6074cdb82eb6422a323656d"
+  },
+  "cuts": [
+    {
+      "role": "train",
+      "cutoff": "2021-01-01",
+      "end_exclusive": "2021-01-31",
+      "eligible_assets": 746,
+      "users": 1000,
+      "candidate_rows": 20000,
+      "nonempty_truth_users": 196,
+      "groups_with_positive_candidates": 132,
+      "groups_without_positive_candidates": 868,
+      "positive_candidate_labels": 205,
+      "ordered_users_hash": "ab463e7dfe2c0f6010cd78c7a4ea1d0bdb9171529e59c59aaec94827cacd47f3",
+      "files_sha256": {
+        "train_2021-01-01_payloads.jsonl.gz": "40a6ee92f85830b816554a3317c3e5ec4a4311b3ed83331ec81cc5a004f516e4",
+        "train_2021-01-01_labels.jsonl.gz": "3bab73f92b9dfa228c9aa0ffa44626a6b4834366cd10fcc3edadc620c67e3e2c",
+        "train_2021-01-01_mapping.jsonl.gz": "f27a513e1ee9234567ddc86341c4cb3f9d86b48dd0a6d403a9db9e683d045f8a"
+      }
+    },
+    {
+      "role": "train",
+      "cutoff": "2021-03-01",
+      "end_exclusive": "2021-03-31",
+      "eligible_assets": 757,
+      "users": 1000,
+      "candidate_rows": 20000,
+      "nonempty_truth_users": 224,
+      "groups_with_positive_candidates": 150,
+      "groups_without_positive_candidates": 850,
+      "positive_candidate_labels": 200,
+      "ordered_users_hash": "41ee3fc918f76cc8a50d1b7b09cfdbdde7c4e1558636084e3a05184401d1da5e",
+      "files_sha256": {
+        "train_2021-03-01_payloads.jsonl.gz": "b4e25c86449a8de6d57cf78d671185bf5b9ce38be0475c3a928e6ba3ff1cd0fb",
+        "train_2021-03-01_labels.jsonl.gz": "3f1beb7ce6c4aade36985a6622552f6445ad3b5f669b6798d33c4a05a19959f0",
+        "train_2021-03-01_mapping.jsonl.gz": "34cf9a91c0ae6bdace02b7338784f1230b57658e6ef65045795a47b24d3e78c5"
+      }
+    },
+    {
+      "role": "train",
+      "cutoff": "2021-04-01",
+      "end_exclusive": "2021-05-01",
+      "eligible_assets": 763,
+      "users": 1000,
+      "candidate_rows": 20000,
+      "nonempty_truth_users": 175,
+      "groups_with_positive_candidates": 114,
+      "groups_without_positive_candidates": 886,
+      "positive_candidate_labels": 158,
+      "ordered_users_hash": "f81649a41ffba01723c86557d29aaf20a6b8637a12337624ac3617fc07e31afa",
+      "files_sha256": {
+        "train_2021-04-01_payloads.jsonl.gz": "f6adaa5cb23608381e71be1beb47923558a946e88256a18ea039b8c98a25cd92",
+        "train_2021-04-01_labels.jsonl.gz": "b7bd58e25c552111602aa9f62a6606c4518ae3cc14d60ff512a23d227d6c19f6",
+        "train_2021-04-01_mapping.jsonl.gz": "ce28cdd80a258689b6003d8770cfc157fd9f6669d0272598b1238d094c2f369d"
+      }
+    },
+    {
+      "role": "validation",
+      "cutoff": "2021-05-01",
+      "end_exclusive": "2021-05-31",
+      "eligible_assets": 764,
+      "users": 1000,
+      "candidate_rows": 20000,
+      "nonempty_truth_users": 171,
+      "groups_with_positive_candidates": 107,
+      "groups_without_positive_candidates": 893,
+      "positive_candidate_labels": 149,
+      "ordered_users_hash": "ac4a74cf933d672d5bd08eb1d610486bd5960fe548f726db3f19138ed06f4050",
+      "files_sha256": {
+        "validation_2021-05-01_payloads.jsonl.gz": "62cd64bcd45de4f9e76f55c0391c84d4af4114cedb21bdbfa957ec445eeb426f",
+        "validation_2021-05-01_labels.jsonl.gz": "4b79e90b86996cac0862af87da223b81b983b4dcfac51cc4a36a9ec732f85009",
+        "validation_2021-05-01_mapping.jsonl.gz": "70bbb7d096dabd9a19bec9bb3e819c587886d83c81dce57aeddd09108ce0c7ef"
+      }
+    }
+  ],
+  "june_evaluation_loaded": false,
+  "ranker_trained": false,
+  "code_sha256": {
+    "build_temporal.py": "235732e738c92b909203fe72015d26d5b5b02c7c82c0a092b019df4a0df1aed6",
+    "input_contract.py": "4870cbc3b03fe75ab936e6d1b6107e187b0643a03ed8716284462646a933fd74"
+  }
+}

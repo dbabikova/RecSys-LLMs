@@ -1,0 +1,64 @@
+{
+  "fit_role": "train",
+  "fit_cutoffs": [
+    "2021-01-01",
+    "2021-03-01",
+    "2021-04-01"
+  ],
+  "fit_group_count": 3000,
+  "fit_names_count": 323,
+  "text_vocabulary_size": 1634,
+  "structured_feature_count": 1543,
+  "total_features": 6447,
+  "fit_state_hash": "c9045cc29dbbcfa5b9894fdf1170a80290a05e17d6604e097fbe08c248a4c757",
+  "june_evaluation_loaded": false,
+  "ranker_trained": false,
+  "environment": {
+    "python": "3.13.9",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "scikit_learn": "1.7.2",
+    "joblib": "1.5.2"
+  },
+  "splits": {
+    "train": {
+      "groups": 3000,
+      "rows": 60000,
+      "columns": 6447,
+      "nonzero_entries": 7759591,
+      "positive_labels": 563,
+      "zero_positive_groups": 2604,
+      "unknown_category_values": 0,
+      "total_category_values": 1725600,
+      "unknown_name_tokens": 0,
+      "total_name_tokens": 651142
+    },
+    "validation": {
+      "groups": 1000,
+      "rows": 20000,
+      "columns": 6447,
+      "nonzero_entries": 2588477,
+      "positive_labels": 149,
+      "zero_positive_groups": 893,
+      "unknown_category_values": 1240,
+      "total_category_values": 573400,
+      "unknown_name_tokens": 1,
+      "total_name_tokens": 211766
+    }
+  },
+  "fit_state_unchanged_after_validation": true,
+  "artifacts_sha256": {
+    "feature_names.json": "b47041d1ccdd4e74e85b3dfd6989b1cf588f36e11026581fb45558310a17ea87",
+    "train_encoder.joblib": "f517429491ef53fc8f4aee31942f54e0a996253539fa2ca5db6677edcbf32591",
+    "train_group_sizes.npy": "f0ec8274694c0ab6592ecb9f7bb45f5f81193231e543832b2444c28234efc3f5",
+    "train_X.npz": "97c273c749c359f90095431a79573781a2aa36d542d0010e1e1d509002039ba1",
+    "train_y.npy": "94600c2d6674a4664d4ced93aec98ba9f9b68e771054e342e63adda85d094ff0",
+    "validation_group_sizes.npy": "54101097f417d1b90c0112f1fa91715e984a8e0965b644aa4e803af52d891bbc",
+    "validation_X.npz": "6c2b7bb7d590ba01f3a99223a7a2b14b6a0779cb6678bdc15ddc8803e30ec350",
+    "validation_y.npy": "3896034a9e822207ec97757502033f7ea5d15b54f69a7a141305b9e2bc72ce90"
+  },
+  "code_sha256": {
+    "fit_temporal_features.py": "2d6a3451b22d639dd31be4566fd5219ffd6e11cc8fabe0a02fc0aae09680979f",
+    "ranker_features.py": "a083df155b82a9f1209ca421ab5e1eeb3d3e88dea1eac7aa8b57be01efae3fca"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "version": "temporal_training_v1",
+  "train_cutoffs": ["2021-01-01", "2021-03-01", "2021-04-01"],
+  "validation_cutoffs": ["2021-05-01"],
+  "label_horizon_days": 30,
+  "evaluation_cutoff": "2021-06-01",
+  "max_warm_users_per_cutoff": 1000,
+  "user_selection": "starter SHA256 seed-42 ordering of as-of-known warm users; first 1000, independent of future labels",
+  "candidate_count": 20,
+  "repeat_allowed": true,
+  "keep_zero_positive_groups": true,
+  "fit_transformers_on": "train only",
+  "text_settings": {"analyzer": "word", "ngram_range": [1, 2], "max_features": 4096, "lowercase": true, "smooth_idf": true},
+  "history_name_views": ["buy_count_weighted", "inverse_one_plus_last_buy_age_weighted"]
+}
