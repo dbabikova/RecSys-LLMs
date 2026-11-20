@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "users": 100,
+  "june_calls": 600,
+  "pilot_calls": 6,
+  "runtime": {
+    "torch": "2.14.1+cu130",
+    "transformers": "4.57.6",
+    "device": "Tesla T4",
+    "dtype": "float16",
+    "runtime_change": "CPU float32 -> CUDA float16; no quality-based tuning"
+  },
+  "pilot": {
+    "seconds": 22.82966281500012,
+    "calls": 6,
+    "invalid": 0,
+    "quality_metrics": false,
+    "estimated_600_calls_minutes": 37.89525610666677
+  },
+  "checks": {
+    "exact_input_bundle_hashes": true,
+    "all_600_frozen_prompts": true,
+    "strict_parser_and_fixed_fallback": true,
+    "independent_aggregation_original_isin_ties": true,
+    "all_top10_unique_and_in_pool": true,
+    "no_cache_or_interrupted_calls": true,
+    "full_truth_idcg_including_missing_assets": true,
+    "exact_100_users_and_order": true
+  },
+  "metrics": {
+    "original": {
+      "users": 100,
+      "nonempty_truth_users": 11,
+      "ndcg_at_10": 0.01844944417503187,
+      "ndcg_at_10_nonempty": 0.16772221977301702,
+      "calls": 300,
+      "invalid_calls": 18,
+      "users_with_fallback": 6,
+      "generation_seconds": 879.1581699449991,
+      "input_tokens": 525114,
+      "output_tokens": 19845
+    },
+    "permuted": {
+      "users": 100,
+      "nonempty_truth_users": 11,
+      "ndcg_at_10": 0.016986018498526247,
+      "ndcg_at_10_nonempty": 0.15441834998660223,
+      "calls": 300,
+      "invalid_calls": 18,
+      "users_with_fallback": 14,
+      "generation_seconds": 922.8452055519999,
+      "input_tokens": 525114,
+      "output_tokens": 20966
+    }
+  },
+  "primary_delta_ndcg_at_10": -0.0014634256765056245,
+  "paired_users_improved": 2,
+  "paired_users_worsened": 3,
+  "paired_users_unchanged": 95,
+  "users_with_changed_aggregate": 100,
+  "users_with_identical_original_raw_responses": 100,
+  "archive_sha256": "2de6665467541d1e46eac651e65f1438ad412e572ab63aac144606cf394531b1",
+  "executed_notebook_sha256": "7cea1c5f299324637710ce7166121d9e40fff6b55976b5ebc6b3706fa4f57071",
+  "quality_tuning_after_june": false,
+  "personal_raw_verification_by_daria": "pending"
+}

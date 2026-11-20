@@ -1,0 +1,20 @@
+{
+  "june_truth_included": false,
+  "raw_user_ids_included": false,
+  "users": 100,
+  "files_sha256": {
+    "input_contract.py": "4870cbc3b03fe75ab936e6d1b6107e187b0643a03ed8716284462646a933fd74",
+    "llm_ranker.py": "d03a78fe050c6e006f6042b5cb2bbd60d3a69315b6a8d93ef731a413b61e0f18",
+    "gpu_llm.py": "4f3aa90578b741f6e37de144670dcd6eec3787bf6673c26c890c9cad701887a1",
+    "run_gpu_ranker.py": "5e012f58bfdd1083bc1af3e5f5300795201726e510e4b5caa1e40c98513ed854",
+    "config.json": "669d59e9f165b6504c5d4cba23682916ea6bbd69a68079f1e577986ca241af62",
+    "model_manifest.json": "7230c5ec7cf6d059bfdc84ebe743d4a42feacf5ada91a5779197c0a0e3e783c3",
+    "payloads.jsonl": "ce6463f9193998c582ed49d8078ee8fa6f69d13f81976fe631845ee91eda4b7f",
+    "mappings.jsonl": "b6faa712b50fa0c9f7a0626076c01d2ebc1db67e7c8cd9f8f8f15baafaf213c2",
+    "pilot_payload.json": "a000f3c959a28fffd5bffb59e84b5342ed437dc010d6d71d8dfd7275567a0406",
+    "pilot_mapping.json": "70cc22a0b785e41665dff8a4ff202e8104c0b8cfe0137e1235db3be11fe5b908"
+  },
+  "runtime_variant": "CUDA float16; frozen model, prompts, candidates and 600 calls",
+  "notebook_sha256": "f236b3e23cb6ccfb413993b8d601fd685ec98e5ad5c0aa6453adacb724d73cae",
+  "bundle_zip_bytes": 70971
+}
