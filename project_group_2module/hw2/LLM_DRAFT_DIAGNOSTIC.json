@@ -1,0 +1,11 @@
+{
+  "status": "stopped_incomplete_technical_draft",
+  "completed_calls": 2,
+  "invalid_completed_calls": 2,
+  "reason": "Long hash aliases miscopied; preserve evidence; shorten lossless wire IDs before full pilot; no quality labels used",
+  "next_call_may_have_been_in_flight": true,
+  "completed_generation_seconds": 203.3024688999867,
+  "config_sha256": "ecdcbcd5240e2a8c9b13818a877205011190e435e36dff5c52baa0008be98d8b",
+  "quality_metrics_computed": false,
+  "june_evaluation_run": false
+}

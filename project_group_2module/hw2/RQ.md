@@ -84,5 +84,7 @@ prompt. Одинаковый fallback исключает подмену эффе
 Users, cutoff, catalog, CBF20 и candidate hash остаются неизменными. Stage 2
 diagnostics ограничивают вывод: всего 11 nonempty users, у 6 нет цели в pool.
 Уточнение RQ не является разрешением подбирать другой pool по июньской truth.
-Модель, prompt и feature contract ещё не выбраны; они фиксируются на следующих
-согласованных этапах. Изменение документов не закрывает личную проверку этапа 2.
+Feature contract зафиксирован на этапе 3; модель Qwen3-1.7B, prompt/parser и CPU
+runtime проверены в early pilot этапа 6 (STAGE6.md / LLM_METHOD_FREEZE.json).
+Это не выполненный июньский experiment. Принятие этапов не выдаётся за личную
+raw-верификацию Дарьи.

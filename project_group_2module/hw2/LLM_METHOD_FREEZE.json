@@ -1,0 +1,28 @@
+{
+  "status": "technical_method_frozen_and_accepted_by_Daria",
+  "config_sha256": "669d59e9f165b6504c5d4cba23682916ea6bbd69a68079f1e577986ca241af62",
+  "model_repository": "Qwen/Qwen3-1.7B",
+  "model_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "model_manifest_canonical_sha256": "c9219748f431cb69f2e1d1171d43901e7a9be2c3cd906f9c2b1dec3d1d945539",
+  "common_input_manifest_hash": "9b0931c4d910b4f493d20cc13e3ecac3aeb4d5a4764a0aab6d8a85fc4a7ee8c1",
+  "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "prompt_instruction_sha256": "460259fafcef20994b737790f11d5ff02853480c3998b7dbffb5c1d9713174c6",
+  "pilot_selected_payload_hash": "518486148588e3518cd4604d646770c01d4742bc6d7f530a8db07d82c699052d",
+  "runtime": {
+    "device": "cpu",
+    "dtype": "float32",
+    "torch_threads": 4,
+    "max_new_tokens": 256,
+    "thinking": false,
+    "response_cache": false
+  },
+  "wire_ids": "A01..A40 assigned by sorted canonical aliases present in history or candidates; same mapping across all calls for a user; decode exactly before evaluation",
+  "comparison_lambdamart_model_sha256": "38f8fb26381f2b582611e923a9af9ecafb19616835856c6df8203de946617919",
+  "code_sha256": {
+    "llm_ranker.py": "d03a78fe050c6e006f6042b5cb2bbd60d3a69315b6a8d93ef731a413b61e0f18",
+    "local_llm.py": "2c9a54c243781beb3d6785a269d4221a7a52329955ce26ea8f916cac5ef502f9",
+    "run_llm_pilot.py": "330f306ab6f87bc67578c1b8681fbcc1e9ff9e11c94d46d2a0984ac4357cf357"
+  },
+  "june_evaluation_run": false,
+  "daria_acceptance": "accepted in chat after automated pilot verification; no personal raw verification claimed"
+}

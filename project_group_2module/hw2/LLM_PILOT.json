@@ -1,0 +1,56 @@
+{
+  "status": "completed_technical_pilot",
+  "config_sha256": "669d59e9f165b6504c5d4cba23682916ea6bbd69a68079f1e577986ca241af62",
+  "source_payloads_sha256": "f6adaa5cb23608381e71be1beb47923558a946e88256a18ea039b8c98a25cd92",
+  "selection_rule": "one group at median original-order prompt token length; ties by user_alias; no labels loaded",
+  "selected_payload_hash": "518486148588e3518cd4604d646770c01d4742bc6d7f530a8db07d82c699052d",
+  "token_lengths": {
+    "early_groups_tokenized": 1000,
+    "min_input_tokens": 1265,
+    "median_input_tokens": 1768,
+    "max_input_tokens": 2620,
+    "groups_exceeding_context": 0,
+    "pilot_input_tokens_by_presentation": [
+      1768,
+      1768,
+      1768,
+      1768
+    ]
+  },
+  "calls": 6,
+  "valid_outputs": 6,
+  "invalid_outputs": 0,
+  "fallback_calls": 0,
+  "backend": {
+    "torch": "2.11.0+cpu",
+    "transformers": "4.57.6",
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "parameters": 1720574976,
+    "model_load_seconds": 3.57018359999347,
+    "rss_after_load_bytes": 8496615424,
+    "cuda_available": false,
+    "thinking": false,
+    "do_sample": false,
+    "generated_response_cache": false,
+    "torch_seed": 0
+  },
+  "generation_seconds_total": 366.85981520000496,
+  "generation_seconds_mean": 61.14330253333416,
+  "input_tokens_total": 10608,
+  "output_tokens_total": 378,
+  "peak_working_set_bytes": 10693025792,
+  "original_three_responses_identical": true,
+  "aggregate_order_equal_across_branches": false,
+  "full_600_call_linear_generation_hours": 10.19055042222236,
+  "runtime_estimate_limit": "One median-length early group only, no promise for full cohort; excludes downloads, setup and model loading",
+  "whole_pilot_seconds": 390.4583663999947,
+  "quality_metrics_computed": false,
+  "june_evaluation_run": false,
+  "fresh_calls_without_response_cache": true,
+  "code_sha256": {
+    "llm_ranker.py": "d03a78fe050c6e006f6042b5cb2bbd60d3a69315b6a8d93ef731a413b61e0f18",
+    "local_llm.py": "2c9a54c243781beb3d6785a269d4221a7a52329955ce26ea8f916cac5ef502f9",
+    "run_llm_pilot.py": "330f306ab6f87bc67578c1b8681fbcc1e9ff9e11c94d46d2a0984ac4357cf357"
+  }
+}

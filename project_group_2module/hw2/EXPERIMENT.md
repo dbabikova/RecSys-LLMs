@@ -5,13 +5,16 @@
 Этап 1 принят Дарьей («ок» в чате), commit 0dc0f9266646ec58fc8caf0082d1f3fbcc34c679
 отправлен в main личного репозитория. Этап 2 принят Дарьей («ок» после запуска
 скриптов Codex в PowerShell); самостоятельная ручная проверка Дарьей не заявляется.
-LLM inference не выполнялся. LambdaMART обучен на этапе 5 (статус ниже).
+LambdaMART обучен на этапе 5. LLM inference выполнен только в early technical
+pilot этапа 6; полный июньский experiment пока не запускался.
 Этап 3 принят Дарьей: контракт common_input_v1 и автоматические проверки —
 STAGE3.md / INPUTS.json; самостоятельная ручная raw-сверка не заявляется.
 Этап 4 принят Дарьей: temporal train/validation и fitted преобразования — STAGE4.md.
 Этап 5 принят Дарьей: LambdaMART обучен, выбран по May validation и зафиксирован
 в MODEL_FREEZE.json. Июньская оценка не запускалась.
 Самостоятельная ручная raw-сверка не заявляется.
+Этап 6 принят Дарьей: Qwen3-1.7B CPU float32, short wire IDs, шесть real pilot calls;
+результаты и автоматические проверки — STAGE6.md.
 
 ## Вопрос и границы
 
@@ -130,7 +133,8 @@ VERIFICATION.json сохраняет исходный статус автома�
   validation cutoff 2021-05-01, 30-дневные labels и train-only encoders (STAGE4.md).
 - Этап 5 принят: LambdaMART leaves15_trees100, primary seed 0;
   May validation и model freeze — STAGE5.md / MODEL_FREEZE.json.
-- Этап 6: hardware, модель/revision, inference budget, prompt, decoding и parser.
+- Этап 6 принят: Qwen3-1.7B pinned revision, CPU float32, prompt/parser,
+  call budget и early technical pilot — STAGE6.md / LLM_METHOD_FREEZE.json.
 - Этапы 7–8: полный опыт, permutations/seeds, проверка и интерпретация.
 - Этап 9: индивидуальный PDF и session export, experiment commit и публикация.
 

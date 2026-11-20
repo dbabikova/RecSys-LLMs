@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated check; Daria review pending",
+  "real_calls_audited": 6,
+  "valid_outputs": 6,
+  "fallback_calls": 0,
+  "checks": {
+    "pinned_model_file_hashes": true,
+    "early_source_payload_membership": true,
+    "median_length_selection_without_labels": true,
+    "six_real_calls_no_response_cache": true,
+    "lossless_payload_serialization": true,
+    "only_candidate_order_changes": true,
+    "token_budget_no_truncation": true,
+    "strict_parser_and_original_fallback": true,
+    "independent_rank_point_aggregation": true
+  },
+  "quality_metrics_computed": false,
+  "june_evaluation_run": false
+}
