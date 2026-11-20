@@ -1,0 +1,23 @@
+{
+  "status": "frozen_before_june_evaluation",
+  "primary_configuration": "leaves15_trees100",
+  "primary_seed": 0,
+  "primary_model_private_path": "data/hw2/lambdamart/leaves15_trees100_seed0/model.txt",
+  "primary_model_sha256": "38f8fb26381f2b582611e923a9af9ecafb19616835856c6df8203de946617919",
+  "lightgbm_version": "4.7.0",
+  "encoder_private_path": "data/hw2/temporal/features/train_encoder.joblib",
+  "encoder_sha256": "f517429491ef53fc8f4aee31942f54e0a996253539fa2ca5db6677edcbf32591",
+  "feature_manifest_sha256": "ad827480f9617382dc474c6450756a65e0a0b0d17637dc006c800fbb4e265f51",
+  "config_sha256": "d2d1666996a208139ef31eed2fcaa89dcfed0da91fe35b154d111de21b366c51",
+  "common_input_manifest_hash": "9b0931c4d910b4f493d20cc13e3ecac3aeb4d5a4764a0aab6d8a85fc4a7ee8c1",
+  "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "fit_state_hash": "c9045cc29dbbcfa5b9894fdf1170a80290a05e17d6604e097fbe08c248a4c757",
+  "selection_window": "May 2021 validation, 1000 users",
+  "june_evaluation_run": false,
+  "retrain_on_validation": false,
+  "daria_acceptance": "accepted in chat after automated verification; no personal raw verification claimed",
+  "training_code_sha256": {
+    "train_lambdamart.py": "5690d76396ea7ffd2cd79595ae1a140355f54008b1fa13d7df9cfe4b09575003",
+    "ranker_metrics.py": "82b81d738474efb1c37b25d60edbe7c051641fb6e5f51181462cab2137c178ef"
+  }
+}

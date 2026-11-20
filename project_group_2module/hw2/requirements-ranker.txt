@@ -1,0 +1,6 @@
+# Python 3.13.9 used for this Windows CPU run.
+lightgbm==4.7.0
+numpy==2.3.5
+scipy==1.16.3
+scikit-learn==1.7.2
+joblib==1.5.2

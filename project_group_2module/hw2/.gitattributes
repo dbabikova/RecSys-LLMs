@@ -1,3 +1,5 @@
 # Keep reproducible script/file hashes stable across Windows and Unix clones.
 *.py text eol=lf
 *.json text eol=lf
+# This measured manifest is pinned by its exact byte hash in MODEL_FREEZE.json.
+TEMPORAL_FEATURES.json -text

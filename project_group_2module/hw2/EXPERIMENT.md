@@ -5,11 +5,13 @@
 Этап 1 принят Дарьей («ок» в чате), commit 0dc0f9266646ec58fc8caf0082d1f3fbcc34c679
 отправлен в main личного репозитория. Этап 2 принят Дарьей («ок» после запуска
 скриптов Codex в PowerShell); самостоятельная ручная проверка Дарьей не заявляется.
-Модели не обучались, LLM inference не выполнялся.
+LLM inference не выполнялся. LambdaMART обучен на этапе 5 (статус ниже).
 Этап 3 принят Дарьей: контракт common_input_v1 и автоматические проверки —
 STAGE3.md / INPUTS.json; самостоятельная ручная raw-сверка не заявляется.
 Этап 4 принят Дарьей: temporal train/validation и fitted преобразования — STAGE4.md.
-Реранкер ещё не обучен; самостоятельная ручная raw-сверка не заявляется.
+Этап 5 принят Дарьей: LambdaMART обучен, выбран по May validation и зафиксирован
+в MODEL_FREEZE.json. Июньская оценка не запускалась.
+Самостоятельная ручная raw-сверка не заявляется.
 
 ## Вопрос и границы
 
@@ -126,7 +128,8 @@ VERIFICATION.json сохраняет исходный статус автома�
   unfitted feature records; text/categorical fit отложен до temporal training.
 - Этап 4 принят: train cutoffs 2021-01-01 / 2021-03-01 / 2021-04-01,
   validation cutoff 2021-05-01, 30-дневные labels и train-only encoders (STAGE4.md).
-- Этап 5: LambdaMART и его настройки; выбор по May validation, не June.
+- Этап 5 принят: LambdaMART leaves15_trees100, primary seed 0;
+  May validation и model freeze — STAGE5.md / MODEL_FREEZE.json.
 - Этап 6: hardware, модель/revision, inference budget, prompt, decoding и parser.
 - Этапы 7–8: полный опыт, permutations/seeds, проверка и интерпретация.
 - Этап 9: индивидуальный PDF и session export, experiment commit и публикация.

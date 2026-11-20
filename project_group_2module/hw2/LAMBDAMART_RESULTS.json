@@ -1,0 +1,413 @@
+{
+  "status": "complete",
+  "config_sha256": "d2d1666996a208139ef31eed2fcaa89dcfed0da91fe35b154d111de21b366c51",
+  "source_feature_manifest_sha256": "ad827480f9617382dc474c6450756a65e0a0b0d17637dc006c800fbb4e265f51",
+  "primary_configuration": "leaves15_trees100",
+  "primary_seed": 0,
+  "primary_model_sha256": "38f8fb26381f2b582611e923a9af9ecafb19616835856c6df8203de946617919",
+  "primary_validation_metrics": {
+    "users": 1000,
+    "nonempty_truth_users": 171,
+    "empty_truth_users": 829,
+    "ndcg_at_10": 0.07774846260582849,
+    "ndcg_at_10_nonempty": 0.45466937196390933,
+    "failed_cases": 0
+  },
+  "validation_cbf20_reference": {
+    "users": 1000,
+    "nonempty_truth_users": 171,
+    "empty_truth_users": 829,
+    "ndcg_at_10": 0.06019272911552239,
+    "ndcg_at_10_nonempty": 0.3520042638334643,
+    "failed_cases": 0
+  },
+  "selection_rule": "highest unrounded May nDCG@10 over all 1000 users; ties prefer fewer trees, fewer leaves, then configuration id",
+  "seed_selection": "fixed seed 0; other seeds diagnostic only",
+  "seed_summary": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "all_user_mean": 0.07653449307215242,
+    "all_user_sd_ddof1": 0.0009684019267001188,
+    "all_user_min": 0.0751176489960556,
+    "all_user_max": 0.07774846260582849
+  },
+  "runs": [
+    {
+      "configuration": "leaves7_trees100",
+      "seed": 0,
+      "phase": "configuration_selection",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 7,
+        "seed": 0,
+        "feature_fraction_seed": 0,
+        "bagging_seed": 0
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07592636638425622,
+        "ndcg_at_10_nonempty": 0.4440138385044223,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.1040279000008013,
+      "validation_predict_seconds": 0.02197869999508839,
+      "save_seconds": 0.04839490000449587,
+      "model_sha256": "64f09d5d9e1764ce6d93078626e12d3c81cdb13fc9dd4ea1b3e8559a74fbe2f5",
+      "validation_scores_sha256": "acdfe214d0a37abc094523164f260dfa7a7982aa5086fc56b8642732ca94c776"
+    },
+    {
+      "configuration": "leaves7_trees200",
+      "seed": 0,
+      "phase": "configuration_selection",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 7,
+        "seed": 0,
+        "feature_fraction_seed": 0,
+        "bagging_seed": 0
+      },
+      "requested_trees": 200,
+      "actual_trees": 200,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07557952197465852,
+        "ndcg_at_10_nonempty": 0.44198550862373404,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.588049099998898,
+      "validation_predict_seconds": 0.05439710000064224,
+      "save_seconds": 0.03268150000076275,
+      "model_sha256": "7d1860c5941d69321884e4fa8d6e7931003cd9dcf797659f2ddb2744d9e37f65",
+      "validation_scores_sha256": "1148933114a7e542369b031a16e7f116d750db38d6b5d67761e7d934e5b99f42"
+    },
+    {
+      "configuration": "leaves15_trees100",
+      "seed": 0,
+      "phase": "configuration_selection",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 0,
+        "feature_fraction_seed": 0,
+        "bagging_seed": 0
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07774846260582849,
+        "ndcg_at_10_nonempty": 0.45466937196390933,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.1712727999984054,
+      "validation_predict_seconds": 0.033755399999790825,
+      "save_seconds": 0.045852000010199845,
+      "model_sha256": "38f8fb26381f2b582611e923a9af9ecafb19616835856c6df8203de946617919",
+      "validation_scores_sha256": "4e8ac20f5990dcd63f0765e617ee73d59461d87c614ccb7e6be2b23e16e9abca"
+    },
+    {
+      "configuration": "leaves15_trees200",
+      "seed": 0,
+      "phase": "configuration_selection",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 0,
+        "feature_fraction_seed": 0,
+        "bagging_seed": 0
+      },
+      "requested_trees": 200,
+      "actual_trees": 200,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07663041347652093,
+        "ndcg_at_10_nonempty": 0.4481310729621107,
+        "failed_cases": 0
+      },
+      "fit_seconds": 3.9464526000083424,
+      "validation_predict_seconds": 0.08634760000859387,
+      "save_seconds": 0.057939500009524636,
+      "model_sha256": "eeb6b8755779a2f630bdfd9ccdc22fa6753d0283b28a137d6c2f9588a305fa10",
+      "validation_scores_sha256": "86c57336da49a9a287d568eadc628e15242f5f9a852d0e24a0379904f9bf7187"
+    },
+    {
+      "configuration": "leaves15_trees100",
+      "seed": 1,
+      "phase": "seed_diagnostic",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 1,
+        "feature_fraction_seed": 1,
+        "bagging_seed": 1
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07665191998659555,
+        "ndcg_at_10_nonempty": 0.4482568420268746,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.2595491999963997,
+      "validation_predict_seconds": 0.04012940000393428,
+      "save_seconds": 0.04751239999313839,
+      "model_sha256": "2f3a1c894886ba027d664afb53ab1fbc91c718977fd70de3e23f3b8c51fda632",
+      "validation_scores_sha256": "0881250f170c0739e4eeb3f234f9860abedcf6b658449c4039fc233a724329e1"
+    },
+    {
+      "configuration": "leaves15_trees100",
+      "seed": 2,
+      "phase": "seed_diagnostic",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 2,
+        "feature_fraction_seed": 2,
+        "bagging_seed": 2
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07693260419112166,
+        "ndcg_at_10_nonempty": 0.44989827012351846,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.2791004000027897,
+      "validation_predict_seconds": 0.046326800002134405,
+      "save_seconds": 0.03976359999796841,
+      "model_sha256": "8c2faf18e4d9aa49fe757524d4a153ca9834dea919f6cdc7fdb1e109270abb10",
+      "validation_scores_sha256": "f0a83e611527cfd06aa6dea48696a86a105f424f322774ee0e98583620f43a36"
+    },
+    {
+      "configuration": "leaves15_trees100",
+      "seed": 3,
+      "phase": "seed_diagnostic",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 3,
+        "feature_fraction_seed": 3,
+        "bagging_seed": 3
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.0751176489960556,
+        "ndcg_at_10_nonempty": 0.4392844970529567,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.286593000011635,
+      "validation_predict_seconds": 0.04048400001192931,
+      "save_seconds": 0.0348315999872284,
+      "model_sha256": "f28f99def2cc9ba000d805f407fea8824462dbad88430cdc2ea66f8a9846af63",
+      "validation_scores_sha256": "258a1b1277da7ae7e13e14785a8368ec3ce2c8159f65db13592d576169f7fa26"
+    },
+    {
+      "configuration": "leaves15_trees100",
+      "seed": 4,
+      "phase": "seed_diagnostic",
+      "parameters": {
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 20,
+        "lambda_l2": 1.0,
+        "feature_fraction": 0.9,
+        "bagging_fraction": 0.9,
+        "bagging_freq": 1,
+        "lambdarank_truncation_level": 10,
+        "label_gain": [
+          0,
+          1
+        ],
+        "metric": "None",
+        "num_threads": 4,
+        "deterministic": true,
+        "force_col_wise": true,
+        "verbosity": -1,
+        "data_random_seed": 0,
+        "objective": "lambdarank",
+        "num_leaves": 15,
+        "seed": 4,
+        "feature_fraction_seed": 4,
+        "bagging_seed": 4
+      },
+      "requested_trees": 100,
+      "actual_trees": 100,
+      "metrics": {
+        "users": 1000,
+        "nonempty_truth_users": 171,
+        "empty_truth_users": 829,
+        "ndcg_at_10": 0.07622182958116079,
+        "ndcg_at_10_nonempty": 0.44574169345708065,
+        "failed_cases": 0
+      },
+      "fit_seconds": 2.33687959999952,
+      "validation_predict_seconds": 0.0448103000089759,
+      "save_seconds": 0.04325020000396762,
+      "model_sha256": "467fdc06aa5eba4acbb4433a0214f6582dd7d3a6ed674a40b7f4c3867a18256f",
+      "validation_scores_sha256": "3d5b304acf33e5f920d8095eab915f7ace0de948de5d932410bd3e0a6808ed06"
+    }
+  ],
+  "runtime": {
+    "load_and_setup_seconds": 0.19086839999363292,
+    "whole_run_seconds": 21.272971400001552,
+    "scope": "CPU training grid + seed runs, May inference, scoring and writes; no June or LLM inference"
+  },
+  "environment": {
+    "python": "3.13.9",
+    "lightgbm": "4.7.0",
+    "platform": "Windows 10",
+    "machine": "AMD64",
+    "logical_cpu_count": 8,
+    "training_threads": 4,
+    "venv": "project-local, system-site-packages inherited; LightGBM installed only here"
+  },
+  "june_evaluation_run": false,
+  "retrained_on_validation": false,
+  "code_sha256": {
+    "train_lambdamart.py": "5690d76396ea7ffd2cd79595ae1a140355f54008b1fa13d7df9cfe4b09575003",
+    "ranker_metrics.py": "82b81d738474efb1c37b25d60edbe7c051641fb6e5f51181462cab2137c178ef"
+  }
+}

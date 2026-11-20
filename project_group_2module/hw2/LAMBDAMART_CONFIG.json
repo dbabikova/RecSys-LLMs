@@ -1,0 +1,22 @@
+{
+  "version": "lambdamart_v1",
+  "lightgbm_version": "4.7.0",
+  "objective": "lambdarank",
+  "base_parameters": {"learning_rate": 0.05, "min_data_in_leaf": 20, "lambda_l2": 1.0, "feature_fraction": 0.9, "bagging_fraction": 0.9, "bagging_freq": 1, "lambdarank_truncation_level": 10, "label_gain": [0, 1], "metric": "None", "num_threads": 4, "deterministic": true, "force_col_wise": true, "verbosity": -1, "data_random_seed": 0},
+  "grid": [
+    {"id": "leaves7_trees100", "num_leaves": 7, "num_boost_round": 100},
+    {"id": "leaves7_trees200", "num_leaves": 7, "num_boost_round": 200},
+    {"id": "leaves15_trees100", "num_leaves": 15, "num_boost_round": 100},
+    {"id": "leaves15_trees200", "num_leaves": 15, "num_boost_round": 200}
+  ],
+  "selection_seed": 0,
+  "diagnostic_seeds": [0, 1, 2, 3, 4],
+  "selection_rule": "highest unrounded May nDCG@10 over all 1000 users; ties prefer fewer trees, fewer leaves, then configuration id",
+  "primary_model": "selected configuration, seed 0; do not select the best seed or ensemble after validation",
+  "early_stopping": false,
+  "prediction_tie_break": "ascending original ISIN, independent of presentation order",
+  "empty_truth_ndcg": 0,
+  "idcg_denominator": "full_truth_count including purchases outside CBF20",
+  "retrain_on_validation": false,
+  "june_evaluation": "not run in stage 5"
+}

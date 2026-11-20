@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated verification; Daria review pending",
+  "models_replayed": 8,
+  "per_user_ndcg_checked": 8000,
+  "top10_rows_checked": 80000,
+  "validation_users": 1000,
+  "nonempty_truth_users": 171,
+  "primary_model_sha256": "38f8fb26381f2b582611e923a9af9ecafb19616835856c6df8203de946617919",
+  "paired_primary_vs_reference": {
+    "improved": 70,
+    "declined": 10,
+    "unchanged": 920,
+    "delta_all": 0.017555733490306098
+  },
+  "checks": {
+    "raw_may_truth_and_full_idcg": true,
+    "all_users_and_zero_truth_retained": true,
+    "valid_top10_and_isin_tie_break": true,
+    "all_per_user_and_aggregate_metrics": true,
+    "saved_model_predictions_bitwise_reproduced": true,
+    "configuration_selection_rule": true,
+    "fixed_primary_seed_and_five_seed_coverage": true,
+    "source_model_and_score_hashes": true
+  },
+  "june_evaluation_run": false
+}
