@@ -1,0 +1,96 @@
+{
+  "prepared_date": "2026-11-20",
+  "personal_repository": "https://github.com/dbabikova/RecSys-LLMs",
+  "project_directory": "project_group_2module",
+  "base_commit": "409b52616f04184dc61b479a208182df59855f1c",
+  "team_repository": "https://github.com/alinadmitrakova10/far-trans-llm4rec",
+  "alina_experiment_commit": "aa32f8d34310da25306acb4e16a508a3b6cd9e89",
+  "alina_commit_remote_availability": "not verified",
+  "teacher_starter_url": "https://github.com/dryjins/RecSys-LLMs/blob/08d4e734/project/far-trans/starter.py",
+  "protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "source_csv_sha256": {
+    "transactions.csv": "358871fa1311a802799df86e56c3d633513566965b01412d058e0f8fbe6cd54b",
+    "asset_information.csv": "33f9897b14087068fba53a0bc9e24a0031b096bd3ad3e977e534153f29b7a590",
+    "customer_information.csv": "c4ad52ebca90e32bf3df5eb64f362b7a3437b77d978b22627cc46927fe7064af",
+    "close_prices.csv": "6ba1fe8390b31dfb3ab4e3e824910f9e8da4684cb6074cdb82eb6422a323656d"
+  },
+  "local_input_sha256": {
+    "FAR-Trans.zip": "d0d6cfe027732bab45fdcf9af80eff4fefddc789aedae9bdce0d3d6cfd05cfb6",
+    "starter_used_in_colab.py": "bf6b7c0b0b271e057e82547eff23738e65bc9cdbb626703d13d1801ff99aab80",
+    "teacher_08d4e734.py": "bf6b7c0b0b271e057e82547eff23738e65bc9cdbb626703d13d1801ff99aab80",
+    "team5_alina_t4_protocol_check.zip": "1d5053fec5ec0003d0d605f8c3937b628a7a538af7eee659caf97b0b3d6f4e95"
+  },
+  "baseline_package_members_sha256": {
+    "commit.txt": "39140f76d63de37e29c0b09aed641f545d452ae56ffe2850a678e92b21562595",
+    "contexts.jsonl": "a505745968316fb96f03a453726878d84501965a12482e81b54b8bf468a1093e",
+    "HANDOFF.md": "714e12abd49f1b10f6d8a6707879f00e6315fd40e6b75f912be9ec62e64acc37",
+    "metrics.json": "00b3e21d12bb3c99c3baffdaa2a252c94695d837aaa3b51dc34e86f50911213f",
+    "per_user.csv": "e7170d42843d3b35bc98284aad0f184f6d5e465e62b3484242f61fad147adee1",
+    "predictions.csv": "e556792baafe109db154bd1e89cbc7ea7a9f113f24d4d0690584f77393bf4014",
+    "protocol.json": "df787347c013740822aeaa2ea17688e975fe46f608f14aea53235ac76fe58f99",
+    "runtime.json": "7dc7e7f73d53fc02ca9539bed92590dc0b4b22a726c4dbe1be6d2b9d765c2a2a",
+    "SHA256.json": "8bc130a8f8ccdc8dd90d7b86823c2105f9894b72ab0a854afa3a824fcd65be3b",
+    "verification.json": "a551679b135fdc58ab0e3c065bd1b1574ab9677c9f97421c13ec36ff551bccad"
+  },
+  "baseline_metrics": {
+    "protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+    "methods": {
+      "cbf": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.020100011736078574,
+        "ndcg_at_10_nonempty": 0.18272737941889614
+      },
+      "latest_buy": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.027722649787649066,
+        "ndcg_at_10_nonempty": 0.2520240889786279
+      },
+      "latest_buy_or_sell": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.027107048693904026,
+        "ndcg_at_10_nonempty": 0.2464277153991275
+      },
+      "popularity": {
+        "users": 100,
+        "nonempty_truth_users": 11,
+        "empty_truth_users": 89,
+        "ndcg_at_10": 0.028590012799467643,
+        "ndcg_at_10_nonempty": 0.25990920726788763
+      }
+    },
+    "custom_failures": [],
+    "excluded_rows": {
+      "reconstructed_initial_position_rows": 38019
+    },
+    "note": "Offline purchase relevance, not profitability or asset suitability."
+  },
+  "alina_runtime": {
+    "seconds": 9.041475740000124,
+    "scope": "entire starter subprocess: loading, all FOUR methods, evaluation and output I/O; NOT per-method",
+    "command": [
+      "/usr/bin/python3",
+      "/content/far_trans_hw8/hw8/reference/starter/starter.py",
+      "run",
+      "--data-dir",
+      "/content/far_trans_hw8/data/raw/upload",
+      "--output-dir",
+      "/content/far_trans_hw8/hw8/outputs/colab/baseline"
+    ],
+    "python": "3.12.13 (main, Mar  4 2026, 09:23:07) [GCC 11.4.0]",
+    "platform": "Linux-6.6.159+-x86_64-with-glibc2.35",
+    "processor": "x86_64",
+    "starter_sha256": "bf6b7c0b0b271e057e82547eff23738e65bc9cdbb626703d13d1801ff99aab80"
+  },
+  "baseline_attribution": "Alina original run; Codex reproduced and independently audited for Daria; Daria review pending; team adoption not inferred",
+  "derived_experiment": {
+    "candidate_policy": "first 20 of saved CBF50 in source order",
+    "candidate_hash": null,
+    "status": "design fixed; candidate materialization is stage 2"
+  }
+}

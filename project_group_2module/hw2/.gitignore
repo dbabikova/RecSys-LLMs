@@ -1,0 +1,7 @@
+# Private experiment artifacts belong in ../data/hw2/ (project data directory).
+# Guard against accidentally placing them alongside the public documentation.
+/inputs/
+/outputs/
+/models/
+/exports/
+/logs/

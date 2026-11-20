@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated check; not Daria personal verification",
+  "protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "checks": {
+    "local_input_hashes": true,
+    "package_member_hashes": true,
+    "protocol_hash": true,
+    "teaching_settings": true,
+    "source_commit_and_runtime_attribution": true,
+    "teacher_code_equal_ignoring_trailing_whitespace": true,
+    "source_csv_hashes": true,
+    "rerun_protocol_and_metrics": true,
+    "rerun_contexts_and_cbf50": true,
+    "rerun_predictions_and_per_user": true,
+    "independent_truth_top10_and_ndcg_400_rows": true,
+    "independent_aggregate_means": true
+  },
+  "users": 100,
+  "nonempty_truth_users": 11,
+  "eligible_assets": 767,
+  "source_candidate_count": 50,
+  "baseline_rows_checked": 400,
+  "model_training_or_inference_performed": false,
+  "daria_review": "pending",
+  "team_adoption": "not established by this audit",
+  "environment": {
+    "python": "3.13.9",
+    "platform": "win32"
+  },
+  "verifier_sha256": "b7cafc6c9bb4a71ba596b6efe69b79b3a7ec6886dba89e0c09482a691505dae2"
+}
