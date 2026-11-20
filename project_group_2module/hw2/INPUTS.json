@@ -1,0 +1,40 @@
+{
+  "version": "common_input_v1",
+  "cutoff": "2021-06-01",
+  "users": 100,
+  "candidate_count": 20,
+  "history_limit_distinct_assets": 20,
+  "history_selection": "last Buy descending, buy_count descending, ISIN ascending",
+  "profile_rule": "risk/capacity withheld if questionnaire or profile date missing/sentinel/not strictly before cut",
+  "alias_rule": "asset A + first 12 hex SHA256(ISIN); user U + cohort position",
+  "source_candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "source_protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "source_csv_sha256": {
+    "transactions.csv": "358871fa1311a802799df86e56c3d633513566965b01412d058e0f8fbe6cd54b",
+    "asset_information.csv": "33f9897b14087068fba53a0bc9e24a0031b096bd3ad3e977e534153f29b7a590",
+    "customer_information.csv": "c4ad52ebca90e32bf3df5eb64f362b7a3437b77d978b22627cc46927fe7064af",
+    "close_prices.csv": "6ba1fe8390b31dfb3ab4e3e824910f9e8da4684cb6074cdb82eb6422a323656d"
+  },
+  "files_sha256": {
+    "payloads.jsonl": "ce6463f9193998c582ed49d8078ee8fa6f69d13f81976fe631845ee91eda4b7f",
+    "feature_records.jsonl": "5da94e083d28a83b7b449a10a3edab5cb0581b06431c940110eecd60dda60624",
+    "private_mapping.jsonl": "78d75425dadd86882fefd648a5827532b8bcdded17f2cf22911d6ddd95eaca83",
+    "presentation_orders.jsonl": "e86f04eec034a4b689192d835f9b0975739f2d3ddbabb52c07ffccf46efa20a1"
+  },
+  "feature_records": 2000,
+  "fitted_text_or_categorical_encoder": false,
+  "history_truncated_users": 1,
+  "risk_status_counts": {
+    "observed": 80,
+    "withheld_unverified": 20
+  },
+  "capacity_status_counts": {
+    "observed": 80,
+    "withheld_unverified": 20
+  },
+  "code_sha256": {
+    "build_inputs.py": "8cffe9306e4686d6f3994dda8eed2d68903fa42b7a676c9637953538839463fd",
+    "input_contract.py": "4870cbc3b03fe75ab936e6d1b6107e187b0643a03ed8716284462646a933fd74"
+  },
+  "input_manifest_hash": "9b0931c4d910b4f493d20cc13e3ecac3aeb4d5a4764a0aab6d8a85fc4a7ee8c1"
+}

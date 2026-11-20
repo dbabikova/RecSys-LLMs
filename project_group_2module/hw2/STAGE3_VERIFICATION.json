@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated verification; Daria review pending",
+  "users": 100,
+  "feature_records_checked": 2000,
+  "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "input_manifest_hash": "9b0931c4d910b4f493d20cc13e3ecac3aeb4d5a4764a0aab6d8a85fc4a7ee8c1",
+  "history_truncated_users": 1,
+  "withheld_risk_capacity_users": 20,
+  "checks": {
+    "exact_source_cohort_and_cbf20": true,
+    "raw_metadata_and_buy_counts": true,
+    "raw_recency_and_truncation": true,
+    "questionnaire_masking": true,
+    "full_history_cbf_scores": true,
+    "llm_and_unfitted_feature_information": true,
+    "permutation_ids_and_order": true,
+    "no_customer_ids_or_label_fields": true,
+    "file_and_manifest_hashes": true
+  },
+  "model_training_or_inference_performed": false,
+  "text_transform_fitted": false
+}

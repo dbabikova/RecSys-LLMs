@@ -6,6 +6,8 @@
 отправлен в main личного репозитория. Этап 2 принят Дарьей («ок» после запуска
 скриптов Codex в PowerShell); самостоятельная ручная проверка Дарьей не заявляется.
 Модели не обучались, LLM inference не выполнялся.
+Этап 3 принят Дарьей: контракт common_input_v1 и автоматические проверки —
+STAGE3.md / INPUTS.json; самостоятельная ручная raw-сверка не заявляется.
 
 ## Вопрос и границы
 
@@ -118,7 +120,8 @@ VERIFICATION.json сохраняет исходный статус автома�
 
 - Этап 2 принят: CBF20, reference и хеши — CANDIDATES.json;
   результаты, границы автоматической проверки и инструкция — STAGE2.md.
-- Этап 3: общий feature contract, availability/profile rules и text features.
+- Этап 3 принят: общий feature contract, availability/profile rules и
+  unfitted feature records; text/categorical fit отложен до temporal training.
 - Этапы 4–5: временные train/validation windows, LambdaMART и его настройки.
 - Этап 6: hardware, модель/revision, inference budget, prompt, decoding и parser.
 - Этапы 7–8: полный опыт, permutations/seeds, проверка и интерпретация.
