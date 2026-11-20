@@ -90,7 +90,8 @@
   "baseline_attribution": "Alina original run; Codex reproduced and independently audited for Daria; Daria review pending; team adoption not inferred",
   "derived_experiment": {
     "candidate_policy": "first 20 of saved CBF50 in source order",
-    "candidate_hash": null,
-    "status": "design fixed; candidate materialization is stage 2"
+    "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+    "status": "stage 2 accepted by Daria after Codex PowerShell checks; no personal manual verification claimed",
+    "candidate_manifest_hash": "7c711a0fc5ddd1b65fc17fc054f09958847867b5ed02191b1fef3aff2d0e2df8"
   }
 }

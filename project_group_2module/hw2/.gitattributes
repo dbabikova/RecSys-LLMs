@@ -1,0 +1,3 @@
+# Keep reproducible script/file hashes stable across Windows and Unix clones.
+*.py text eol=lf
+*.json text eol=lf

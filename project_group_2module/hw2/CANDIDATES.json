@@ -1,0 +1,26 @@
+{
+  "source_protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "policy": {
+    "name": "saved_cbf50_first20_v1",
+    "source_count": 50,
+    "take": 20,
+    "preserve_user_order": true,
+    "preserve_candidate_order": true,
+    "reference_k": 10,
+    "uses_future_labels": false
+  },
+  "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "cohort_hash": "0b2d6c76c83999183c7aa4129800c26f50953424be2865cabb5bbe5a64ca0d40",
+  "eligible_catalog_hash": "cb9257402d520f0922363263d3ec2b428b61f9e2065d1352017815b6f3b17263",
+  "source_contexts_sha256": "a505745968316fb96f03a453726878d84501965a12482e81b54b8bf468a1093e",
+  "candidate_manifest_hash": "7c711a0fc5ddd1b65fc17fc054f09958847867b5ed02191b1fef3aff2d0e2df8",
+  "hash_encoding": "SHA-256 of UTF-8 JSON: sort_keys=True, ensure_ascii=False, separators=(comma, colon); ordered lists unchanged",
+  "builder_sha256": "01fb4562909d9c0bc177ed5237da61d648279359ff956e7ae9d896b38cccec9f",
+  "users": 100,
+  "candidate_count": 20,
+  "files_sha256": {
+    "candidates.jsonl": "7b43d94281793be7e624a81fb49eef323585ddda1bf039c7b6e861e0f0132556",
+    "reference_predictions.csv": "9d7cef7bd503b4f51abb1b7ae77e8a9cf0270a1c22541de992c5fb2097d1f88a"
+  },
+  "scope": "Candidate selection only; feature contract and model settings pending stage 3+"
+}

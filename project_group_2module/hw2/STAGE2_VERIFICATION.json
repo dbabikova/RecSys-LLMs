@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated check; Daria review pending",
+  "source_protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "candidate_hash": "71ecae258a305f9a1f5534263e72343f75d0f3513bbfd1e3fdc69959e14b98e7",
+  "candidate_manifest_hash": "7c711a0fc5ddd1b65fc17fc054f09958847867b5ed02191b1fef3aff2d0e2df8",
+  "checks": {
+    "exact_same_100_user_ids_and_order": true,
+    "uliana_manifest_same_protocol_bytes_and_source_zip": true,
+    "exact_cbf50_first20_ids_and_metadata": true,
+    "unique_eligible_candidates": true,
+    "manifest_and_file_hashes": true,
+    "reference_1000_rows": true,
+    "reference_equals_source_cbf": true,
+    "independent_truth_and_ndcg_100_users": true,
+    "aggregate_means_and_oracle_bounds": true
+  },
+  "users": 100,
+  "nonempty_truth_users": 11,
+  "eligible_assets": 767,
+  "candidate_count": 20,
+  "diagnostics": {
+    "reference_ndcg10_all": 0.020100011736078574,
+    "reference_ndcg10_nonempty": 0.18272737941889614,
+    "oracle_ndcg10_all": 0.03915749606264272,
+    "oracle_ndcg10_nonempty": 0.3559772369331156,
+    "candidate_recall20_macro_nonempty": 0.3333333333333333,
+    "candidate_recall20_micro": 0.2777777777777778,
+    "future_distinct_user_asset_pairs": 18,
+    "future_pairs_in_pool": 5,
+    "nonempty_users_with_any_pool_hit": 5,
+    "nonempty_users_without_pool_hits": 6,
+    "nonempty_users_with_all_truth_in_pool": 3,
+    "repeat_pairs": 12,
+    "repeat_pairs_in_pool": 5,
+    "repeat_recall_micro": 0.4166666666666667,
+    "new_pairs": 6,
+    "new_pairs_in_pool": 0,
+    "new_recall_micro": 0.0
+  },
+  "diagnostic_policy": "Post-hoc labels used for audit only. No tuning, selection, or model inputs.",
+  "recall_denominators": {
+    "macro": "11 nonempty users; empty-truth recall undefined and excluded",
+    "micro": "all distinct eligible future user-asset pairs"
+  },
+  "oracle_denominator": "full truth IDCG@10, including relevant assets missing from pool",
+  "verifier_sha256": "2be6787cc5cfdf38b96296400476f4ea18406d88995e4d6e51878a8b3e7dd83d",
+  "model_training_or_inference_performed": false
+}

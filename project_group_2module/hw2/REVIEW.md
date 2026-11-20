@@ -2,7 +2,9 @@
 
 ## Что проверить лично
 
-1. В EXPERIMENT.md сверить RQ: LLM vs LambdaMART, один CBF20 и одинаковые поля.
+1. Исторический RQ этапа 1: LLM vs LambdaMART, один CBF20 и одинаковые поля.
+   После принятия этапа 1 Дарья согласовала уточнение RQ про permutation aggregation;
+   актуальная формулировка и роли контролей — RQ.md и EXPERIMENT.md.
 2. Проверить cohort=100, cutoff=2021-06-01, end exclusive=2021-07-01,
    empty truth=0, repeat allowed и четыре обязательных baseline.
 3. Подтвердить, что первые 20 из CBF50 — основной pool этого опыта;

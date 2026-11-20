@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "performed_by": "Codex automated negative checks",
+  "scope": "Mutated private copies only; original frozen files unchanged",
+  "checks": {
+    "swap_candidates": {
+      "rejected": true,
+      "reason": "Pool is not the exact CBF50 prefix"
+    },
+    "drop_user": {
+      "rejected": true,
+      "reason": "Different user IDs/order"
+    },
+    "alter_reference": {
+      "rejected": true,
+      "reason": "Frozen file hash failed: reference_predictions.csv"
+    }
+  }
+}

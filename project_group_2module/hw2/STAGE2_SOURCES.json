@@ -1,0 +1,10 @@
+{
+  "uliana_session_sha256": "dd78e7ab0eab6e2c0a7cff387afc5befdcd3130e74765f29f85efbaba5d642b1",
+  "uliana_export_format": "Documented derivative of a native Codex Desktop JSONL session",
+  "uliana_experiment_commit": "c7d5a00c1f033e2017100cccdcc7dee5d38e1e7d",
+  "uliana_source_protocol_file_sha256": "df787347c013740822aeaa2ea17688e975fe46f608f14aea53235ac76fe58f99",
+  "uliana_source_protocol_hash": "50efd4aeb415ba6f0c66dd0793a7c2033cdc32a42b86b58eebbca3e81eaf3417",
+  "uliana_source_alina_zip_sha256": "1d5053fec5ec0003d0d605f8c3937b628a7a538af7eee659caf97b0b3d6f4e95",
+  "cohort_evidence_scope": "Preserved run manifest binds exact source protocol bytes; protocol.py constructs evaluation in protocol[users] order. Not a fresh rerun of Uliana inference or direct comparison to her absent per-user files.",
+  "protocol_loader_evaluation_order_line": "for uid in protocol[\"users\"]]"
+}
